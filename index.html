@@ -4,43 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- ЗАЩИТА ОТ КЭШИРОВАНИЯ -->
+    <!-- ЗАЩИТА ОТ КЭШИРОВАНИЯ (чтобы изменения сразу отображались) -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 
     <title>Управление инцидентами ИБ - Сибур</title>
+
+    <!-- ПОДКЛЮЧЕНИЕ ШРИФТОВ И ИКОНОК -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Библиотеки: Экспорт в Excel и Графики -->
+
+    <!-- БИБЛИОТЕКИ: Экспорт в Excel и Графики -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        /* =========================================
+           1. ПЕРЕМЕННЫЕ ЦВЕТОВ (СВЕТЛАЯ ТЕМА)
+           Меняются здесь — обновляется весь сайт
+           ========================================= */
         :root {
-            --bg-body: #f4f7f9;
-            --bg-sidebar: #ffffff;
-            --bg-card: #ffffff;
-            --text-main: #1a1f36;
-            --text-muted: #8e9aaf;
-            --primary: #1e3a8a;
-            --primary-hover: #152c6b;
+            --bg-body: #f4f7f9;      /* Фон страницы */
+            --bg-sidebar: #ffffff;   /* Фон левого меню */
+            --bg-card: #ffffff;      /* Фон карточек */
+            --text-main: #1a1f36;    /* Основной текст */
+            --text-muted: #8e9aaf;   /* Второстепенный текст */
+            --primary: #1e3a8a;      /* Основной синий цвет */
+            --primary-hover: #152c6b;/* Синий при наведении */
             
-            --critical: #ef4444;
+            --critical: #ef4444;     /* Красный (критический) */
             --critical-bg: #fee2e2;
-            --high: #f97316;
+            --high: #f97316;         /* Оранжевый (высокий) */
             --high-bg: #ffedd5;
-            --medium: #eab308;
+            --medium: #eab308;       /* Желтый (средний) */
             --medium-bg: #fef9c3;
-            --low: #22c55e;
+            --low: #22c55e;          /* Зеленый (низкий) */
             --low-bg: #dcfce7;
             --blue-badge: #3b82f6;
             --blue-bg: #eff6ff;
-            --border: #e2e8f0;
+            --border: #e2e8f0;       /* Цвет границ */
         }
 
-        /* ТЕМНАЯ ТЕМА */
+        /* =========================================
+           2. ТЕМНАЯ ТЕМА
+           Активируется классом .dark-mode на <body>
+           ========================================= */
         body.dark-mode {
             --bg-body: #0f172a;
             --bg-sidebar: #1e293b;
@@ -50,7 +59,6 @@
             --primary: #3b82f6;
             --primary-hover: #2563eb;
             --border: #334155;
-            
             --critical-bg: #7f1d1d;
             --high-bg: #7c2d12;
             --medium-bg: #713f12;
@@ -58,10 +66,16 @@
             --blue-bg: #1e3a8a;
         }
 
+        /* =========================================
+           3. БАЗОВЫЕ СТИЛИ
+           ========================================= */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-body); height: 100vh; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
+        body { background-color: var(--bg-body); height: 100vh; overflow: hidden; transition: 0.3s; }
 
-        /* ТОСТ-УВЕДОМЛЕНИЯ */
+        /* =========================================
+           4. ВСПЛЫВАЮЩИЕ УВЕДОМЛЕНИЯ (ТОСТЫ)
+           Появляются в правом нижнем углу
+           ========================================= */
         #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
         .toast { background: var(--bg-card); color: var(--text-main); padding: 14px 20px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 14px; border: 1px solid var(--border); animation: slideInRight 0.3s forwards; }
         .toast.success { border-left: 4px solid var(--low); }
@@ -70,7 +84,9 @@
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
 
-        /* ЭКРАН АВТОРИЗАЦИИ */
+        /* =========================================
+           5. ЭКРАН ВХОДА (ЛОГИН)
+           ========================================= */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .login-box { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); margin: 20px; }
         .login-logo { background: var(--primary); color: white; width: 60px; height: 60px; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 28px; margin: 0 auto 20px auto; }
@@ -81,51 +97,68 @@
         .input-group input { width: 100%; padding: 14px 16px 14px 44px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; }
         .login-btn { width: 100%; padding: 14px; background: #1e3a8a; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
 
-        /* ОСНОВНОЙ САЙТ */
+        /* =========================================
+           6. ОСНОВНОЙ КАРКАС (контейнер приложения)
+           ========================================= */
         #app-container { display: none; height: 100vh; }
         #app-container.active { display: flex; }
 
-        /* БОКОВАЯ ПАНЕЛЬ */
+        /* =========================================
+           7. ЛЕВОЕ БОКОВОЕ МЕНЮ (Sidebar)
+           ========================================= */
         .sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 16px; transition: 0.3s ease; z-index: 1000; }
+        
+        /* Логотип в меню */
         .logo-container { display: flex; align-items: center; gap: 12px; padding: 0 12px 32px 12px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
         .logo-icon { background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; }
         .logo-text-wrapper { display: flex; flex-direction: column; }
         .logo-subtitle { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
         .logo-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
         
+        /* Пункты навигации */
         .nav-menu { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: var(--text-muted); font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; position: relative; transition: 0.2s; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: var(--text-muted); font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; transition: 0.2s; }
         .nav-item:hover { background: var(--bg-body); color: var(--text-main); }
         .nav-item.active { background: var(--blue-bg); color: var(--primary); font-weight: 600; }
         .nav-item i { font-size: 18px; width: 24px; text-align: center; }
         
+        /* Счетчики (бейджи) на пунктах меню */
         .nav-badge { background: var(--primary); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: auto; }
         .nav-badge.green { background: var(--low); }
 
+        /* Статус интеграций внизу меню */
         .integrations-status { padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px; }
         .int-item { display: flex; justify-content: space-between; align-items: center; }
         .dot-green { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; box-shadow: 0 0 4px #22c55e; }
 
-        /* ОСНОВНАЯ ЧАСТЬ */
+        /* =========================================
+           8. ОСНОВНАЯ ОБЛАСТЬ (справа от меню)
+           ========================================= */
         .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; }
-        
-        /* ВЕРХНЯЯ ПАНЕЛЬ */
+
+        /* ВЕРХНЯЯ ПАНЕЛЬ (Шапка) */
         .topbar { height: 72px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: relative; z-index: 100; }
-        
         .menu-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; padding: 8px; margin-right: 12px; }
+        
+        /* Строка поиска */
         .search-container { position: relative; width: 400px; }
         .search-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
         .search-container input { width: 100%; padding: 10px 16px 10px 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); font-size: 14px; outline: none; color: var(--text-main); }
-        
+
+        /* Правая часть шапки (кнопки) */
         .topbar-right { display: flex; align-items: center; gap: 16px; }
         .theme-toggle { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 8px; }
-        .role-switcher { background: var(--bg-body); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; display: none; }
         
-        /* Уведомления */
+        /* Переключатель ролей (показывается только у руководителя) */
+        .role-switcher { background: var(--bg-body); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; display: none; }
+
+        /* КОЛОКОЛЬЧИК УВЕДОМЛЕНИЙ */
         .bell-container { position: relative; }
         .bell-btn { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; position: relative; padding: 8px; border-radius: 8px; }
+        /* Красная точка непрочитанного */
         .bell-btn.has-unread::after { content: ''; position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--critical); border-radius: 50%; border: 2px solid var(--bg-card); }
-        
+
+        /* Выпадающее меню уведомлений */
         .notif-dropdown { display: none; position: absolute; top: 50px; right: 0; width: 320px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; }
         .notif-dropdown.active { display: block; }
         .notif-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; color: var(--text-main); }
@@ -133,15 +166,21 @@
         .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-main); }
         .notif-item span { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
+        /* Мини-профиль в правом верхнем углу */
         .user-profile-top { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 4px; border-radius: 20px; }
         .user-avatar-sm { width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 600; font-size: 13px; }
 
+        /* =========================================
+           9. РАБОЧАЯ ОБЛАСТЬ (где контент)
+           ========================================= */
         .content-area { flex: 1; overflow-y: auto; padding: 32px; -webkit-overflow-scrolling: touch; }
         .page-view { display: none; }
         .page-view.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* СТАТИСТИКА */
+        /* =========================================
+           10. СТРАНИЦА "ОБЗОР" (главная)
+           ========================================= */
         .overview-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start; }
         .stats-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px; }
         .stat-card { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); display: flex; align-items: center; gap: 20px; }
@@ -152,6 +191,7 @@
         .stat-value { font-size: 24px; font-weight: 700; color: var(--text-main); }
         .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
 
+        /* Лента событий справа на главной */
         .event-feed { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); height: 100%; }
         .event-feed h3 { font-size: 16px; margin-bottom: 16px; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
         .event-list { display: flex; flex-direction: column; gap: 16px; }
@@ -163,26 +203,39 @@
         .event-text p { color: var(--text-main); margin-bottom: 2px; line-height: 1.4; }
         .event-text span { font-size: 11px; color: var(--text-muted); }
 
-        /* ФИЛЬТРЫ ИНЦИДЕНТОВ */
+        /* =========================================
+           11. СТРАНИЦА "ИНЦИДЕНТЫ"
+           ========================================= */
+        /* Кнопки фильтров над списком */
         .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
         .filter-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.2s; }
         .filter-btn:hover { background: var(--bg-body); color: var(--text-main); }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* ИНЦИДЕНТЫ */
+        /* Заголовок и кнопки (Создать/Экспорт) */
         .incident-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
         .btn-create { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: none; align-items: center; gap: 8px; }
         .btn-export { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        
+
+        /* Сетка карточек инцидентов */
         .incident-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .incident-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
         .incident-card:hover { box-shadow: 0 8px 16px rgba(0,0,0,0.05); transform: translateY(-2px); border-color: var(--primary); }
+        
+        /* Цветные полоски слева от карточек (по уровню опасности) */
         .incident-card.critical-border { border-left: 4px solid var(--critical); }
         .incident-card.high-border { border-left: 4px solid var(--high); }
         .incident-card.medium-border { border-left: 4px solid var(--medium); }
         .incident-card.low-border { border-left: 4px solid var(--low); }
+
+        /* Содержимое карточки инцидента */
         .inc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .inc-id { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+        .inc-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; line-height: 1.4; }
+        .inc-bottom { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 16px; }
+        .status-new { color: var(--blue-badge); font-weight: 600; }
+
+        /* Бейджи (плашки с уровнем критичности) */
         .badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px; }
         .badge.critical { background: var(--critical-bg); color: var(--critical); }
         .badge.high { background: var(--high-bg); color: var(--high); }
@@ -190,34 +243,43 @@
         .badge.low { background: var(--low-bg); color: var(--low); }
         .badge.progress { background: var(--blue-bg); color: var(--blue-badge); }
         .badge.resolved { background: var(--low-bg); color: var(--low); }
-        .inc-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; line-height: 1.4; }
-        .inc-bottom { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 16px; }
-        .status-new { color: var(--blue-badge); font-weight: 600; }
 
-        /* АНАЛИТИКА */
+        /* =========================================
+           12. СТРАНИЦА "АНАЛИТИКА"
+           ========================================= */
         .analytics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-        .chart-card { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
-        .chart-card h3 { font-size: 16px; margin-bottom: 20px; color: var(--text-main); }
-        .chart-container { position: relative; height: 200px; width: 100%; display: flex; justify-content: center; }
         
+        /* Верхние KPI-карточки */
         .kpi-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
         .kpi-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); text-align: center; }
         .kpi-value { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
         .kpi-label { font-size: 13px; color: var(--text-muted); }
 
-        /* КОМАНДА */
+        /* Графики */
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .chart-card { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
+        .chart-card h3 { font-size: 16px; margin-bottom: 20px; color: var(--text-main); }
+        .chart-container { position: relative; height: 200px; width: 100%; display: flex; justify-content: center; }
+
+        /* =========================================
+           13. СТРАНИЦА "КОМАНДА"
+           ========================================= */
         .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .team-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); display: flex; align-items: flex-start; gap: 16px; cursor: pointer; transition: 0.2s; }
         .team-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .team-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--blue-bg); color: var(--primary); display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 18px; position: relative; flex-shrink: 0; }
+        
+        /* Точка статуса (онлайн/офлайн) на аватарке */
         .status-dot { position: absolute; bottom: 0; right: 0; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg-card); }
         .status-online { background: var(--low); }
         .status-offline { background: var(--text-muted); }
+        
         .team-info h4 { font-size: 15px; color: var(--text-main); margin-bottom: 4px; }
         .team-info p { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
 
-        /* ПРОФИЛЬ */
+        /* =========================================
+           14. СТРАНИЦА "МОЙ ПРОФИЛЬ"
+           ========================================= */
         .profile-container { max-width: 900px; margin: 0 auto; background: var(--bg-card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
         .profile-cover { height: 150px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
         .profile-header-info { padding: 0 40px 30px 40px; display: flex; align-items: flex-end; gap: 24px; border-bottom: 1px solid var(--border); position: relative; flex-wrap: wrap; }
@@ -225,26 +287,34 @@
         .profile-names h2 { font-size: 24px; color: var(--text-main); margin-bottom: 4px; }
         .profile-names p { font-size: 14px; color: var(--text-muted); }
         .profile-actions { margin-left: auto; padding-bottom: 10px; }
-        .btn-edit-profile { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-edit-profile:hover { background: var(--border); }
+        .btn-edit-profile { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        
+        /* Основная часть профиля (2 колонки) */
         .profile-body { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; padding: 30px 40px; }
         .info-item { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-size: 14px; margin-bottom: 16px; }
         .info-item i { color: var(--text-muted); font-size: 18px; width: 24px; }
         .info-item span { color: var(--text-muted); }
         .btn-logout { width: 100%; background: var(--critical-bg); color: var(--critical); border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 20px; }
-        
+
+        /* Вкладки профиля (Активность / В работе) */
         .profile-tabs { display: flex; gap: 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-        .profile-tab { padding: 10px 0; font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
+        .profile-tab { padding: 10px 0; font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; }
         .profile-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.2s ease; }
 
-        /* МОДАЛЬНЫЕ ОКНА */
+        /* =========================================
+           15. МОДАЛЬНЫЕ ОКНА (всплывающие)
+           ========================================= */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(4px); }
         .incident-modal { background: var(--bg-card); width: 480px; max-width: 95%; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        
+        /* Шапка модалки (с крестиком) */
         .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
         .modal-subtitle { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; }
         .modal-actions button { background: var(--bg-body); border: none; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; color: var(--text-muted); margin-left: 8px; }
+        
+        /* Содержимое модалки (текст) */
         .modal-id { font-size: 22px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; }
         .modal-badges { display: flex; gap: 8px; margin-bottom: 16px; }
         .modal-badges .badge-blue { background: var(--blue-bg); color: var(--blue-badge); font-size: 12px; padding: 4px 12px; border-radius: 12px; font-weight: 600; }
@@ -252,22 +322,30 @@
         .modal-desc { background: var(--bg-body); border-radius: 12px; padding: 16px; margin-bottom: 20px; border: 1px solid var(--border); }
         .modal-desc-title { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
         .modal-desc p { font-size: 14px; color: var(--text-main); line-height: 1.5; }
+        
+        /* Сетка характеристик инцидента */
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
         .modal-grid-item { border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; background: var(--bg-card); }
         .modal-grid-item span { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
         .modal-grid-item strong { font-size: 14px; color: var(--text-main); font-weight: 600; }
+
+        /* Блок назначения исполнителя (только для руководителя) */
         .assign-block { margin-bottom: 20px; display: none; }
         .assign-block select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); }
-        
-        /* AI-АССИСТЕНТ */
+
+        /* =========================================
+           16. БЛОК "ИИ-АССИСТЕНТ"
+           ========================================= */
         .ai-section { margin-bottom: 20px; }
-        .btn-ai { width: 100%; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-ai:hover { opacity: 0.9; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4); }
-        .btn-ai:disabled { background: var(--border); cursor: not-allowed; color: var(--text-muted); box-shadow: none; }
-        .ai-result { background: var(--blue-bg); border: 1px solid var(--blue-badge); border-radius: 12px; padding: 16px; display: none; animation: fadeIn 0.5s ease; }
+        .btn-ai { width: 100%; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-ai:disabled { background: var(--border); cursor: not-allowed; color: var(--text-muted); }
+        .ai-result { background: var(--blue-bg); border: 1px solid var(--blue-badge); border-radius: 12px; padding: 16px; display: none; }
         .ai-header { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--blue-badge); margin-bottom: 8px; font-size: 13px; text-transform: uppercase; }
         .ai-text { font-size: 14px; color: var(--text-main); line-height: 1.5; }
 
+        /* =========================================
+           17. ХРОНОЛОГИЯ (Лента комментариев)
+           ========================================= */
         .modal-timeline { margin-bottom: 20px; }
         .timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .timeline-header h3 { font-size: 15px; font-weight: 700; color: var(--text-main); }
@@ -280,26 +358,32 @@
         .timeline-text p { font-size: 14px; font-weight: 500; color: var(--text-main); }
         .timeline-text span { font-size: 12px; color: var(--text-muted); }
         .timeline-time { font-size: 12px; color: var(--text-muted); }
+
+        /* Поле ввода комментария */
         .comment-box { display: flex; gap: 8px; margin-top: 16px; }
         .comment-box input { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); }
         .comment-box button { background: var(--primary); color: white; border: none; padding: 0 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+        /* Нижняя часть модалки (кнопки) */
         .modal-footer { display: flex; gap: 12px; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
-        .btn-primary-large { flex: 1; height: 48px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-primary-large { flex: 1; height: 48px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-primary-large.done { background: var(--low); }
-        
-        .btn-danger { background: var(--critical-bg); color: var(--critical); border: 1px solid var(--critical); height: 48px; padding: 0 20px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-danger:hover { background: var(--critical); color: white; }
-        
+        .btn-danger { background: var(--critical-bg); color: var(--critical); border: 1px solid var(--critical); height: 48px; padding: 0 20px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+
+        /* =========================================
+           18. ФОРМЫ (инпуты, селекты)
+           ========================================= */
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); }
         
+        /* Группа для пароля (инпут + кнопка "Сгенерировать") */
         .password-group { display: flex; gap: 8px; }
         .password-group input { flex: 1; }
         .btn-gen-pass { background: var(--blue-bg); color: var(--blue-badge); border: 1px solid var(--blue-badge); padding: 0 12px; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 
         /* =========================================
-           АДАПТИВНОСТЬ
+           19. АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ
            ========================================= */
         @media (max-width: 900px) {
             .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
@@ -319,15 +403,25 @@
 </head>
 <body>
 
+    <!-- ============================================================
+         HTML РАЗМЕТКА НАЧИНАЕТСЯ ЗДЕСЬ
+         ============================================================ -->
+
+    <!-- Контейнер для всплывающих уведомлений (наполняется из JS) -->
     <div id="toast-container"></div>
+    
+    <!-- Затемнение фона при открытом меню на телефоне -->
     <div class="mobile-overlay" id="mobile-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- ЭКРАН АВТОРИЗАЦИИ -->
+    <!-- ============================================================
+         1. ЭКРАН ВХОДА (открывается первым)
+         ============================================================ -->
     <div id="login-screen">
         <div class="login-box">
             <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
             <h2>Вход в систему</h2>
             <p>Введите корпоративные данные</p>
+            <!-- Форма входа вызывает функцию login() из JS -->
             <form onsubmit="login(event)">
                 <div class="input-group">
                     <i class="fa-regular fa-envelope"></i>
@@ -342,14 +436,24 @@
         </div>
     </div>
 
-    <!-- ОСНОВНОЙ САЙТ -->
+    <!-- ============================================================
+         2. ОСНОВНОЕ ПРИЛОЖЕНИЕ (появляется после входа)
+         ============================================================ -->
     <div id="app-container">
+        
+        <!-- ==========================================
+             2.1 ЛЕВОЕ БОКОВОЕ МЕНЮ
+             ========================================== -->
         <aside class="sidebar" id="sidebar">
             <div class="logo-container">
                 <div class="logo-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                <div class="logo-text-wrapper"><span class="logo-subtitle">Security</span><span class="logo-title">Центр реагирования</span></div>
+                <div class="logo-text-wrapper">
+                    <span class="logo-subtitle">Security</span>
+                    <span class="logo-title">Центр реагирования</span>
+                </div>
             </div>
             
+            <!-- Кнопки навигации (переключают страницы) -->
             <nav class="nav-menu">
                 <button class="nav-item active" data-target="view-overview" onclick="switchPage('view-overview', this)"><i class="fa-solid fa-house"></i> <span>Обзор</span></button>
                 <button class="nav-item" data-target="view-incidents" onclick="switchPage('view-incidents', this)"><i class="fa-solid fa-triangle-exclamation"></i> <span>Инциденты</span></button>
@@ -357,34 +461,50 @@
                 <button class="nav-item" data-target="view-resolved" onclick="switchPage('view-resolved', this)"><i class="fa-solid fa-check-double"></i> <span>Решенные</span><span class="nav-badge green" id="sidebar-resolved-count">0</span></button>
                 <button class="nav-item" data-target="view-analytics" onclick="switchPage('view-analytics', this)"><i class="fa-solid fa-chart-pie"></i> <span>Аналитика</span></button>
                 
+                <!-- Вкладка "Команда" (изначально скрыта, видна только Руководителю) -->
                 <button class="nav-item" id="nav-team" data-target="view-team" onclick="switchPage('view-team', this)" style="display: none;"><i class="fa-solid fa-users"></i> <span>Команда</span></button>
                 
                 <button class="nav-item" data-target="view-profile" onclick="switchPage('view-profile', this)"><i class="fa-regular fa-user"></i> <span>Мой профиль</span></button>
             </nav>
 
+            <!-- Статус интеграций (внизу) -->
             <div class="integrations-status">
                 <div class="int-item"><span><i class="fa-solid fa-server"></i> SIEM</span> <span>Онлайн <span class="dot-green"></span></span></div>
                 <div class="int-item"><span><i class="fa-brands fa-jira"></i> Jira</span> <span>Подключена <span class="dot-green"></span></span></div>
             </div>
         </aside>
 
+        <!-- ==========================================
+             2.2 ОСНОВНАЯ ЧАСТЬ (справа)
+             ========================================== -->
         <div class="main-wrapper">
+            
+            <!-- ВЕРХНЯЯ ШАПКА -->
             <header class="topbar">
+                <!-- Кнопка гамбургер (на телефоне) -->
                 <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                
+                <!-- Поле поиска -->
                 <div class="search-container">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" id="global-search" placeholder="Поиск по ID или названию...">
                 </div>
+                
+                <!-- Правые кнопки шапки -->
                 <div class="topbar-right">
+                    <!-- Кнопка переключения темы -->
                     <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
                     
+                    <!-- Переключатель ролей (скрыт у аналитика) -->
                     <select class="role-switcher" id="role-switcher" onchange="changeRole()">
                         <option value="analyst">Аналитик</option>
                         <option value="manager">Руководитель</option>
                     </select>
                     
+                    <!-- Колокольчик уведомлений -->
                     <div class="bell-container">
                         <button class="bell-btn has-unread" id="bell-btn" onclick="toggleNotifications(event)"><i class="fa-regular fa-bell"></i></button>
+                        <!-- Выпадающий список уведомлений -->
                         <div class="notif-dropdown" id="notif-dropdown">
                             <div class="notif-header">Уведомления <span onclick="clearNotifications()">Прочитать все</span></div>
                             <div class="notif-list" id="notif-list">
@@ -392,6 +512,8 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Мини-профиль (открывает профиль по клику) -->
                     <div class="user-profile-top" onclick="switchPage('view-profile', document.querySelectorAll('.nav-item')[6])">
                         <div class="user-avatar-sm" id="top-avatar">ХЛ</div>
                         <div id="top-name">Хасаншина Л.</div>
@@ -399,28 +521,36 @@
                 </div>
             </header>
 
+            <!-- ==========================================
+                 КОНТЕНТ (здесь страницы)
+                 ========================================== -->
             <main class="content-area" id="main-content">
-                <!-- ОБЗОР -->
+                
+                <!-- ------------------------------------------
+                     СТРАНИЦА 1: ОБЗОР
+                     ------------------------------------------ -->
                 <div id="view-overview" class="page-view active">
-                    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 4px; color: var(--text-main);" id="greeting-text">Доброе утро, Лейсан</h1>
+                    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 4px; color: var(--text-main);" id="greeting-text">Доброе утро</h1>
                     <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">Четверг, 14 ноября. Вот сводка.</p>
                     
                     <div class="overview-layout">
+                        <!-- Статистика слева -->
                         <div class="stats-grid">
                             <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div><div><span class="stat-value">15</span><br><span class="stat-label">Открыто</span></div></div>
                             <div class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-wave-square"></i></div><div><span class="stat-value" id="stat-in-progress">0</span><br><span class="stat-label">В работе</span></div></div>
                             <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-check-double"></i></div><div><span class="stat-value" id="stat-resolved">0</span><br><span class="stat-label">Решено</span></div></div>
                         </div>
+                        <!-- Лента событий справа -->
                         <div class="event-feed">
                             <h3><i class="fa-solid fa-bolt" style="color: var(--high);"></i> Лента событий</h3>
-                            <div class="event-list" id="event-list">
-                                <div class="event-item"><div class="event-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="event-text"><p>Система создала INC-2841</p><span>Только что</span></div></div>
-                            </div>
+                            <div class="event-list" id="event-list"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ИНЦИДЕНТЫ -->
+                <!-- ------------------------------------------
+                     СТРАНИЦА 2: ВСЕ ИНЦИДЕНТЫ
+                     ------------------------------------------ -->
                 <div id="view-incidents" class="page-view">
                     <div class="incident-header-actions">
                         <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Все инциденты</h1>
@@ -430,6 +560,7 @@
                         </div>
                     </div>
 
+                    <!-- Фильтры -->
                     <div class="filter-row">
                         <button class="filter-btn active" onclick="filterIncidents('all', this)">Все</button>
                         <button class="filter-btn" onclick="filterIncidents('critical', this)">Критические</button>
@@ -437,8 +568,8 @@
                         <button class="filter-btn" onclick="filterIncidents('DLP', this)">DLP</button>
                     </div>
 
+                    <!-- Сетка карточек (15 инцидентов) -->
                     <div class="incident-grid" id="incidents-grid">
-                        <!-- 15 инцидентов -->
                         <div class="incident-card critical-border" data-severity="critical" data-source="SIEM" onclick="openIncidentModal('INC-2841', 'Подозрительная активность', 'Критический', 'SIEM')">
                             <div class="inc-top"><div class="inc-id">INC-2841</div><div class="badge critical">Критический</div></div>
                             <div class="inc-title">Подозрительная активность привилегированной учётной записи</div>
@@ -517,31 +648,39 @@
                     </div>
                 </div>
 
-                <!-- В РАБОТЕ -->
+                <!-- ------------------------------------------
+                     СТРАНИЦА 3: ЗАДАЧИ В РАБОТЕ
+                     ------------------------------------------ -->
                 <div id="view-in-progress" class="page-view">
                     <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-main);">Задачи в работе</h1>
                     <div class="incident-grid" id="in-progress-grid"><p style="color: var(--text-muted); font-size: 14px;" id="empty-in-progress">Нет задач.</p></div>
                 </div>
 
-                <!-- РЕШЕННЫЕ -->
+                <!-- ------------------------------------------
+                     СТРАНИЦА 4: РЕШЕННЫЕ ЗАДАЧИ
+                     ------------------------------------------ -->
                 <div id="view-resolved" class="page-view">
                     <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-main);">Решенные задачи</h1>
                     <div class="incident-grid" id="resolved-grid"><p style="color: var(--text-muted); font-size: 14px;" id="empty-resolved">Список пуст.</p></div>
                 </div>
 
-                <!-- АНАЛИТИКА -->
+                <!-- ------------------------------------------
+                     СТРАНИЦА 5: АНАЛИТИКА (графики)
+                     ------------------------------------------ -->
                 <div id="view-analytics" class="page-view">
                     <div class="analytics-header">
                         <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Аналитика</h1>
                         <button class="btn-export" onclick="exportAnalyticsToExcel()"><i class="fa-solid fa-file-excel"></i> Скачать</button>
                     </div>
                     
+                    <!-- Верхние KPI-карточки -->
                     <div class="kpi-grid">
                         <div class="kpi-card"><div class="kpi-value" id="kpi-mttr">14 мин</div><div class="kpi-label">Среднее время реакции</div></div>
                         <div class="kpi-card"><div class="kpi-value" id="kpi-resolved" style="color: var(--low);">42</div><div class="kpi-label">Решено за неделю</div></div>
                         <div class="kpi-card"><div class="kpi-value" id="kpi-asset" style="color: var(--critical);">srv-fin-db-02</div><div class="kpi-label">Уязвимый актив</div></div>
                     </div>
 
+                    <!-- Блок с графиками (Chart.js рисует их внутри canvas) -->
                     <div class="charts-grid">
                         <div class="chart-card">
                             <h3>Распределение по критичности</h3>
@@ -554,19 +693,21 @@
                     </div>
                 </div>
 
-                <!-- КОМАНДА -->
+                <!-- ------------------------------------------
+                     СТРАНИЦА 6: КОМАНДА (только для руководителя)
+                     ------------------------------------------ -->
                 <div id="view-team" class="page-view">
                     <div class="incident-header-actions">
                         <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Команда SOC</h1>
                         <button class="btn-create" onclick="openAddUserModal()"><i class="fa-solid fa-user-plus"></i> Добавить</button>
                     </div>
-                    
-                    <div class="team-grid" id="team-grid">
-                        <!-- Сюда рендерятся карточки сотрудников -->
-                    </div>
+                    <!-- Сюда JS рендерит карточки сотрудников -->
+                    <div class="team-grid" id="team-grid"></div>
                 </div>
 
-                <!-- ПРОФИЛЬ -->
+                <!-- ------------------------------------------
+                     СТРАНИЦА 7: МОЙ ПРОФИЛЬ
+                     ------------------------------------------ -->
                 <div id="view-profile" class="page-view">
                     <div class="profile-container">
                         <div class="profile-cover"></div>
@@ -581,31 +722,28 @@
                             </div>
                         </div>
                         <div class="profile-body">
+                            <!-- Левая колонка: контакты -->
                             <div>
                                 <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-main);">Контакты</h3>
                                 <div class="info-item"><i class="fa-regular fa-envelope"></i> <div><span>Email:</span> <b id="profile-email">khasanshina447@gmail.com</b></div></div>
                                 <div class="info-item"><i class="fa-solid fa-phone"></i> <div><span>Тел:</span> <b id="profile-phone">+7 (999) 123-45-67</b></div></div>
                                 <button class="btn-logout" onclick="logout()">Выйти</button>
                             </div>
+                            <!-- Правая колонка: вкладки -->
                             <div>
-                                <!-- ИСПРАВЛЕНЫ ВКЛАДКИ -->
                                 <div class="profile-tabs">
-                                    <div class="profile-tab active" onclick="switchProfileTab('tab-activity', this)">Активность</div>
+                                    <div class="profile-tab active" onclick="switchProfileTab('tab-activity', this)" id="tab-activity-title">Активность</div>
                                     <div class="profile-tab" onclick="switchProfileTab('tab-assigned', this)">В работе (<span id="assigned-count">0</span>)</div>
                                 </div>
                                 
-                                <!-- Контент вкладки "Активность" (динамический лог) -->
+                                <!-- Вкладка "Активность" -->
                                 <div id="tab-activity" class="tab-content active">
-                                    <div id="activity-log-list">
-                                        <p style="font-size: 14px; color: var(--text-muted);">Здесь будут отображаться последние действия.</p>
-                                    </div>
+                                    <div id="activity-log-list"></div>
                                 </div>
 
-                                <!-- Контент вкладки "В работе" -->
+                                <!-- Вкладка "В работе" -->
                                 <div id="tab-assigned" class="tab-content">
-                                    <div id="profile-task-list">
-                                        <p style="font-size: 14px; color: var(--text-muted);">У вас пока нет активных задач.</p>
-                                    </div>
+                                    <div id="profile-task-list"></div>
                                 </div>
                             </div>
                         </div>
@@ -615,8 +753,11 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНЫЕ ОКНА -->
-    <!-- 1. Инцидент -->
+    <!-- ============================================================
+         3. МОДАЛЬНЫЕ ОКНА
+         ============================================================ -->
+    
+    <!-- 3.1 Карточка инцидента -->
     <div class="modal-overlay" id="incidentModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Инцидент</div><div class="modal-actions"><button onclick="closeModal('incidentModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -634,6 +775,7 @@
                 <div class="modal-grid-item"><span>Актив</span><strong>srv-db-01</strong></div>
             </div>
 
+            <!-- Блок AI -->
             <div class="ai-section" id="ai-section">
                 <button class="btn-ai" id="btn-ai" onclick="runAIAnalysis()">
                     <i class="fa-solid fa-robot"></i> Запустить AI-анализ
@@ -644,8 +786,10 @@
                 </div>
             </div>
 
+            <!-- Блок назначения (для руководителя) -->
             <div class="assign-block" id="assign-block"><select><option>Хасаншина Лейсан</option><option>Сафин Ильдар</option></select></div>
             
+            <!-- Хронология -->
             <div class="modal-timeline">
                 <div class="timeline-header"><h3>Хронология</h3></div>
                 <div class="timeline-list" id="modal-timeline-list">
@@ -658,7 +802,7 @@
         </div>
     </div>
 
-    <!-- 2. Создание инцидента -->
+    <!-- 3.2 Создание инцидента -->
     <div class="modal-overlay" id="createModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Новый</div><div class="modal-actions"><button onclick="closeModal('createModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -672,7 +816,7 @@
         </div>
     </div>
 
-    <!-- 3. Задача -->
+    <!-- 3.3 Карточка задачи -->
     <div class="modal-overlay" id="taskModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Задача</div><div class="modal-actions"><button onclick="closeModal('taskModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -682,7 +826,7 @@
         </div>
     </div>
 
-    <!-- 4. Добавление сотрудника -->
+    <!-- 3.4 Добавление сотрудника -->
     <div class="modal-overlay" id="addUserModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Новый сотрудник</div><div class="modal-actions"><button onclick="closeModal('addUserModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -699,7 +843,6 @@
                         <option value="manager">Руководитель (полные права)</option>
                     </select>
                 </div>
-                
                 <div class="form-group">
                     <label>Пароль</label>
                     <div class="password-group">
@@ -707,13 +850,12 @@
                         <button type="button" class="btn-gen-pass" onclick="generatePassword()"><i class="fa-solid fa-key"></i> Сгенерировать</button>
                     </div>
                 </div>
-                
                 <button type="submit" class="btn-primary-large"><i class="fa-solid fa-user-plus"></i> Сохранить</button>
             </form>
         </div>
     </div>
 
-    <!-- 5. Детали сотрудника (С кнопками Редактировать и Удалить) -->
+    <!-- 3.5 Детали сотрудника (для просмотра/удаления/редактирования) -->
     <div class="modal-overlay" id="employeeDetailsModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Сотрудник</div><div class="modal-actions"><button onclick="closeModal('employeeDetailsModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -736,7 +878,7 @@
         </div>
     </div>
 
-    <!-- 6. Редактирование профиля (Свой) -->
+    <!-- 3.6 Редактирование СВОЕГО профиля -->
     <div class="modal-overlay" id="editProfileModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Профиль</div><div class="modal-actions"><button onclick="closeModal('editProfileModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -749,7 +891,7 @@
         </div>
     </div>
 
-    <!-- 7. Редактирование сотрудника (Чужой) -->
+    <!-- 3.7 Редактирование ЧУЖОГО профиля (сотрудника) -->
     <div class="modal-overlay" id="editEmployeeModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Редактирование</div><div class="modal-actions"><button onclick="closeModal('editEmployeeModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -775,39 +917,62 @@
         </div>
     </div>
 
+    <!-- ============================================================
+         JAVASCRIPT НАЧИНАЕТСЯ ЗДЕСЬ
+         ============================================================ -->
     <script>
-        // Начальный пользователь (Админ)
+        // ====================================================
+        // 1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (состояние приложения)
+        // ====================================================
+        
+        // Текущий авторизованный пользователь
         let currentUser = { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', phone: '+7 (999) 123-45-67', role: 'manager' };
-        let myTasks = []; 
-        let resolvedTasks = []; 
-        let teamMembers = []; 
-        let currentIncident = null; 
-        let currentTaskId = null; 
-        let currentEmployeeEmail = null; // Для хранения почты выбранного сотрудника
+        
+        // Массивы задач
+        let myTasks = [];              // Задачи текущего пользователя в работе
+        let resolvedTasks = [];        // Решенные задачи текущего пользователя
+        let teamMembers = [];          // Все сотрудники (база данных)
+        
+        // Переменные для работы с модалками
+        let currentIncident = null;    // Открытый инцидент
+        let currentTaskId = null;      // ID открытой задачи
+        let currentEmployeeEmail = null; // Email выбранного сотрудника
+        
+        // Переменные для графиков Chart.js
         let chartCriticalityInstance = null;
         let chartActivityInstance = null;
-        let activityLog = []; 
+        
+        // ХРАНЕНИЕ АКТИВНОСТИ (отдельно для каждого email)
+        // Формат: { "email@example.com": [{ text, type, timestamp }, ...] }
+        let userActivity = {};
 
+        // ====================================================
+        // 2. СОХРАНЕНИЕ И ЗАГРУЗКА ИЗ LOCALSTORAGE
+        // ====================================================
+        
+        // Сохраняет все данные в браузер
         function saveState() {
             localStorage.setItem('sibur_myTasks', JSON.stringify(myTasks));
             localStorage.setItem('sibur_resolvedTasks', JSON.stringify(resolvedTasks));
             localStorage.setItem('sibur_team', JSON.stringify(teamMembers));
             localStorage.setItem('sibur_currentUser', JSON.stringify(currentUser));
-            localStorage.setItem('sibur_activity', JSON.stringify(activityLog));
+            localStorage.setItem('sibur_userActivity', JSON.stringify(userActivity));
         }
 
+        // Загружает данные при открытии страницы
         function loadState() {
             const savedTasks = localStorage.getItem('sibur_myTasks');
             const savedResolved = localStorage.getItem('sibur_resolvedTasks');
             const savedTeam = localStorage.getItem('sibur_team');
             const savedUser = localStorage.getItem('sibur_currentUser');
-            const savedActivity = localStorage.getItem('sibur_activity');
+            const savedActivity = localStorage.getItem('sibur_userActivity');
             
             if (savedTasks) myTasks = JSON.parse(savedTasks);
             if (savedResolved) resolvedTasks = JSON.parse(savedResolved);
             if (savedUser) currentUser = JSON.parse(savedUser);
-            if (savedActivity) activityLog = JSON.parse(savedActivity);
+            if (savedActivity) userActivity = JSON.parse(savedActivity);
             
+            // Если команды еще нет — создаем базовых сотрудников
             if (savedTeam) {
                 teamMembers = JSON.parse(savedTeam);
             } else {
@@ -819,22 +984,42 @@
             }
         }
 
+        // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             loadState();
             updateAllCounters(); 
             renderTasks();
             renderTeam(); 
-            renderActivityLog(); 
             
+            // Подставляем телефон в профиль
             document.getElementById('profile-phone').innerText = currentUser.phone || '+7 (999) 123-45-67';
 
+            // Восстанавливаем тему
             if (localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark-mode');
                 document.querySelector('#theme-toggle i').className = 'fa-solid fa-sun';
             }
         });
 
-        // === ПРОВЕРКА ПРАВ ДОСТУПА ===
+        // ====================================================
+        // 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // ====================================================
+        
+        // Форматирует время (Только что, 5 мин назад, 2 ч назад)
+        function formatTime(ts) {
+            const now = Date.now();
+            const diff = Math.floor((now - ts) / 60000);
+            if (diff < 1) return 'Только что';
+            if (diff < 60) return `${diff} мин назад`;
+            if (diff < 1440) return `${Math.floor(diff/60)} ч назад`;
+            return new Date(ts).toLocaleDateString('ru-RU');
+        }
+
+        // ====================================================
+        // 4. УПРАВЛЕНИЕ ДОСТУПОМ (по ролям)
+        // ====================================================
+        
+        // Показывает/скрывает кнопки в зависимости от роли
         function updateUIBasedOnRole() {
             const roleSwitcher = document.querySelector('.role-switcher');
             const navTeam = document.getElementById('nav-team');
@@ -846,15 +1031,20 @@
                 navTeam.style.display = 'flex';
                 btnCreate.style.display = 'flex';
                 profileRole.innerText = 'Руководитель отдела ИБ';
+                document.getElementById('tab-activity-title').innerText = 'Активность команды';
             } else {
                 roleSwitcher.style.display = 'none';
                 navTeam.style.display = 'none';
                 btnCreate.style.display = 'none';
                 profileRole.innerText = 'Аналитик SOC';
+                document.getElementById('tab-activity-title').innerText = 'Моя активность';
             }
         }
 
-        // === УВЕДОМЛЕНИЯ ===
+        // ====================================================
+        // 5. УВЕДОМЛЕНИЯ (КОЛОКОЛЬЧИК)
+        // ====================================================
+        
         function toggleNotifications(event) {
             if(event) event.stopPropagation();
             const dropdown = document.getElementById('notif-dropdown');
@@ -867,7 +1057,8 @@
         function clearNotifications() {
             document.getElementById('notif-list').innerHTML = '<div class="notif-item" style="text-align:center; color: var(--text-muted);">Нет новых уведомлений</div>';
         }
-
+        
+        // Закрываем меню уведомлений при клике вне его
         document.addEventListener('click', function(e) {
             const dropdown = document.getElementById('notif-dropdown');
             const bell = document.getElementById('bell-btn');
@@ -876,7 +1067,10 @@
             }
         });
 
-        // === ВКЛАДКИ В ПРОФИЛЕ ===
+        // ====================================================
+        // 6. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ПРОФИЛЯ
+        // ====================================================
+        
         function switchProfileTab(tabId, element) {
             document.querySelectorAll('.profile-tab').forEach(tab => tab.classList.remove('active'));
             element.classList.add('active');
@@ -884,34 +1078,116 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        // === ГЕНЕРАЦИЯ ПАРОЛЯ ===
+        // ====================================================
+        // 7. ГЕНЕРАЦИЯ ПАРОЛЯ
+        // ====================================================
+        
         function generatePassword() {
             const pwd = Math.random().toString(36).slice(-8);
             document.getElementById('new-user-password').value = pwd;
         }
 
-        // === ЛЕНТА АКТИВНОСТИ ===
+        // ====================================================
+        // 8. АКТИВНОСТЬ ПОЛЬЗОВАТЕЛЕЙ
+        // ====================================================
+        
+        // Отрисовывает лог активности в профиле
+        // - Аналитик видит только свою
+        // - Руководитель видит всех с именами
         function renderActivityLog() {
             const list = document.getElementById('activity-log-list');
             if (!list) return;
             
-            if (activityLog.length === 0) {
+            let logs = [];
+            
+            if (currentUser.role === 'manager') {
+                // Собираем активности ВСЕХ пользователей
+                Object.keys(userActivity).forEach(email => {
+                    const user = teamMembers.find(u => u.email === email);
+                    const userName = user ? user.name.split(' ')[0] : email;
+                    (userActivity[email] || []).forEach(log => {
+                        logs.push({ ...log, userName, ownerEmail: email });
+                    });
+                });
+                logs.sort((a, b) => b.timestamp - a.timestamp);
+            } else {
+                // Только собственная активность
+                logs = userActivity[currentUser.email] || [];
+            }
+            
+            if (logs.length === 0) {
                 list.innerHTML = '<p style="font-size: 14px; color: var(--text-muted);">Нет недавних действий.</p>';
                 return;
             }
-
-            list.innerHTML = activityLog.map(log => `
-                <div style="font-size: 14px; margin-bottom: 12px; display: flex; gap: 8px; align-items: flex-start; color: var(--text-main);">
-                    <i class="fa-solid ${log.type === 'red' ? 'fa-triangle-exclamation' : log.type === 'green' ? 'fa-check-circle' : 'fa-bolt'}" style="color: var(--${log.type === 'red' ? 'critical' : log.type === 'green' ? 'low' : 'blue-badge'}); margin-top: 2px;"></i>
-                    <div>
-                        ${log.text}
-                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${log.time}</div>
+            
+            list.innerHTML = logs.slice(0, 30).map(log => {
+                const iconColor = log.type === 'red' ? 'var(--critical)' : log.type === 'green' ? 'var(--low)' : 'var(--blue-badge)';
+                const iconClass = log.type === 'red' ? 'fa-triangle-exclamation' : log.type === 'green' ? 'fa-check-circle' : 'fa-bolt';
+                const namePrefix = currentUser.role === 'manager' ? `<b>${log.userName}:</b> ` : '';
+                const isMine = log.ownerEmail === currentUser.email;
+                const bgStyle = currentUser.role === 'manager' && isMine ? 'background: rgba(59, 130, 246, 0.05); padding: 8px; border-radius: 6px;' : '';
+                return `
+                    <div style="font-size: 14px; margin-bottom: 12px; display: flex; gap: 8px; align-items: flex-start; color: var(--text-main); ${bgStyle}">
+                        <i class="fa-solid ${iconClass}" style="color: ${iconColor}; margin-top: 2px;"></i>
+                        <div>
+                            ${namePrefix}${log.text}
+                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${formatTime(log.timestamp)}</div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        // === РЕНДЕР КОМАНДЫ ===
+        // Системная лента на главной — показывает действия всех
+        function renderSystemFeed() {
+            const list = document.getElementById('event-list');
+            if (!list) return;
+            
+            let allLogs = [];
+            Object.keys(userActivity).forEach(email => {
+                const user = teamMembers.find(u => u.email === email);
+                const userName = user ? user.name.split(' ')[0] : email;
+                (userActivity[email] || []).forEach(log => {
+                    allLogs.push({ ...log, userName });
+                });
+            });
+            allLogs.sort((a, b) => b.timestamp - a.timestamp);
+            
+            list.innerHTML = '';
+            
+            if (allLogs.length === 0) {
+                list.innerHTML = '<div class="event-item"><div class="event-text"><p style="color: var(--text-muted);">Нет событий</p></div></div>';
+                return;
+            }
+            
+            allLogs.slice(0, 6).forEach(log => {
+                const iconClass = log.type === 'red' ? 'fa-triangle-exclamation' : log.type === 'green' ? 'fa-check' : 'fa-bolt';
+                const item = document.createElement('div');
+                item.className = 'event-item';
+                item.innerHTML = `<div class="event-icon ${log.type}"><i class="fa-solid ${iconClass}"></i></div><div class="event-text"><p><b>${log.userName}:</b> ${log.text}</p><span>${formatTime(log.timestamp)}</span></div>`;
+                list.appendChild(item);
+            });
+        }
+
+        // Записывает действие в активность ТЕКУЩЕГО пользователя
+        function addLogEvent(text, type = 'blue') {
+            if (!userActivity[currentUser.email]) userActivity[currentUser.email] = [];
+            userActivity[currentUser.email].unshift({
+                text: text,
+                type: type,
+                timestamp: Date.now()
+            });
+            if (userActivity[currentUser.email].length > 30) userActivity[currentUser.email].pop();
+            
+            saveState();
+            renderActivityLog();
+            renderSystemFeed();
+        }
+
+        // ====================================================
+        // 9. РЕНДЕР КОМАНДЫ (список сотрудников)
+        // ====================================================
+        
         function renderTeam() {
             const grid = document.getElementById('team-grid');
             if(!grid) return;
@@ -937,12 +1213,15 @@
             });
         }
 
-        // === ДЕТАЛИ СОТРУДНИКА ===
+        // ====================================================
+        // 10. РАБОТА С СОТРУДНИКАМИ (открытие, редактирование, удаление)
+        // ====================================================
+        
         function openEmployeeDetails(email) {
             const user = teamMembers.find(u => u.email === email);
             if (!user) return;
             
-            currentEmployeeEmail = email; // Запоминаем, кого выбрали
+            currentEmployeeEmail = email;
 
             document.getElementById('emp-detail-name').innerText = user.name;
             document.getElementById('emp-detail-email').innerText = user.email;
@@ -953,7 +1232,6 @@
             document.getElementById('employeeDetailsModal').style.display = 'flex';
         }
 
-        // === РЕДАКТИРОВАНИЕ СОТРУДНИКА ===
         function openEditEmployeeModal() {
             const user = teamMembers.find(u => u.email === currentEmployeeEmail);
             if (!user) return;
@@ -981,7 +1259,8 @@
 
             const userIndex = teamMembers.findIndex(u => u.email === currentEmployeeEmail);
             if (userIndex !== -1) {
-                // Обновляем данные
+                const oldEmail = teamMembers[userIndex].email;
+                
                 teamMembers[userIndex].name = newName;
                 teamMembers[userIndex].email = newEmail;
                 teamMembers[userIndex].position = newPosition;
@@ -989,7 +1268,13 @@
                 teamMembers[userIndex].role = newRole;
                 teamMembers[userIndex].password = newPassword;
 
-                // Если редактируем самого себя - обновляем текущего пользователя
+                // Если меняем email — переносим активность
+                if (oldEmail !== newEmail && userActivity[oldEmail]) {
+                    userActivity[newEmail] = userActivity[oldEmail];
+                    delete userActivity[oldEmail];
+                }
+
+                // Если редактируем себя
                 if (currentEmployeeEmail === currentUser.email) {
                     currentUser.name = newName;
                     currentUser.email = newEmail;
@@ -1008,11 +1293,10 @@
                 renderTeam();
                 closeModal('editEmployeeModal');
                 showToast('Данные сотрудника обновлены', 'success');
-                addLogEvent(`Обновлены данные: ${newName}`, 'blue');
+                addLogEvent(`Обновлены данные сотрудника`, 'blue');
             }
         }
 
-        // === УДАЛЕНИЕ СОТРУДНИКА ===
         function deleteEmployee() {
             if (currentEmployeeEmail === currentUser.email) {
                 showToast('Вы не можете удалить свой собственный аккаунт!', 'error');
@@ -1023,6 +1307,7 @@
                 const userName = teamMembers.find(u => u.email === currentEmployeeEmail).name;
                 
                 teamMembers = teamMembers.filter(u => u.email !== currentEmployeeEmail);
+                delete userActivity[currentEmployeeEmail];
                 
                 saveState();
                 renderTeam();
@@ -1032,7 +1317,10 @@
             }
         }
 
-        // === ДОБАВЛЕНИЕ СОТРУДНИКА ===
+        // ====================================================
+        // 11. ДОБАВЛЕНИЕ НОВОГО СОТРУДНИКА
+        // ====================================================
+        
         function submitNewUser(event) {
             event.preventDefault();
             const name = document.getElementById('new-user-name').value;
@@ -1067,13 +1355,16 @@
             document.getElementById('new-user-password').value = '';
         }
 
-        // === АВТОРИЗАЦИЯ ===
+        // ====================================================
+        // 12. АВТОРИЗАЦИЯ (ВХОД)
+        // ====================================================
+        
         function login(event) {
             event.preventDefault();
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value.trim();
             
-            // Железный вход для админа
+            // ЖЕЛЕЗНЫЙ ВХОД ДЛЯ АДМИНА (игнорирует ошибки localStorage)
             if (email === 'khasanshina447@gmail.com' && password === '11111') {
                 let admin = teamMembers.find(u => u.email === email);
                 if (!admin) {
@@ -1091,6 +1382,7 @@
                 return;
             }
             
+            // СТАНДАРТНЫЙ ВХОД
             const user = teamMembers.find(u => u.email === email);
             
             if (user && user.password === password) {
@@ -1107,6 +1399,7 @@
             }
         }
 
+        // Применяет данные пользователя к интерфейсу и пускает в систему
         function authorizeUser() {
             let shortName = currentUser.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             
@@ -1114,6 +1407,7 @@
             document.getElementById('top-avatar').innerText = shortName;
             document.getElementById('profile-name').innerText = currentUser.name;
             document.getElementById('profile-email').innerText = currentUser.email;
+            document.getElementById('profile-phone').innerText = currentUser.phone || '+7 (999) 123-45-67';
             document.getElementById('profile-avatar').innerText = shortName;
             document.getElementById('greeting-text').innerText = `Доброе утро, ${currentUser.name.split(' ')[0]}`;
             
@@ -1124,9 +1418,12 @@
             document.getElementById('login-password').value = ''; 
             showToast('Успешный вход в систему', 'success');
             
-            addLogEvent(`Вы вошли в систему`, 'blue');
+            addLogEvent(`Вход в систему`, 'blue');
+            renderActivityLog();
+            renderSystemFeed();
         }
 
+        // Уведомление о попытке взлома
         function addSecurityNotification(attemptedEmail) {
             const list = document.getElementById('notif-list');
             const item = document.createElement('div');
@@ -1137,7 +1434,10 @@
             addLogEvent(`Попытка несанкционированного входа: ${attemptedEmail}`, 'red');
         }
 
-        // === РЕДАКТИРОВАНИЕ СВОЕГО ПРОФИЛЯ ===
+        // ====================================================
+        // 13. РЕДАКТИРОВАНИЕ СВОЕГО ПРОФИЛЯ
+        // ====================================================
+        
         function openEditProfileModal() {
             document.getElementById('edit-profile-name').value = currentUser.name;
             document.getElementById('edit-profile-phone').value = currentUser.phone;
@@ -1171,7 +1471,10 @@
             addLogEvent(`Профиль обновлен`, 'blue');
         }
 
-        // === СМЕНА РОЛИ ===
+        // ====================================================
+        // 14. СМЕНА РОЛИ (в шапке)
+        // ====================================================
+        
         function changeRole() {
             if (currentUser.role !== 'manager') return; 
 
@@ -1192,7 +1495,10 @@
             }
         }
 
-        // === ОСТАЛЬНЫЕ ФУНКЦИИ ===
+        // ====================================================
+        // 15. ГРАФИКИ (Chart.js)
+        // ====================================================
+        
         function renderCharts() {
             const isDark = document.body.classList.contains('dark-mode');
             const textColor = isDark ? '#f1f5f9' : '#1a1f36';
@@ -1200,6 +1506,7 @@
             if (chartCriticalityInstance) chartCriticalityInstance.destroy();
             if (chartActivityInstance) chartActivityInstance.destroy();
 
+            // Пончик
             const ctx1 = document.getElementById('chartCriticality').getContext('2d');
             chartCriticalityInstance = new Chart(ctx1, {
                 type: 'doughnut',
@@ -1207,6 +1514,7 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Inter' } } } } }
             });
 
+            // Столбцы
             const ctx2 = document.getElementById('chartActivity').getContext('2d');
             chartActivityInstance = new Chart(ctx2, {
                 type: 'bar',
@@ -1215,6 +1523,10 @@
             });
         }
 
+        // ====================================================
+        // 16. ФИЛЬТРЫ ИНЦИДЕНТОВ
+        // ====================================================
+        
         function filterIncidents(filterType, btnElement) {
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
@@ -1231,6 +1543,10 @@
             });
         }
 
+        // ====================================================
+        // 17. ПЕРЕКЛЮЧЕНИЕ ТЕМЫ
+        // ====================================================
+        
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
             const icon = document.querySelector('#theme-toggle i');
@@ -1244,25 +1560,34 @@
             if (document.getElementById('view-analytics').classList.contains('active')) renderCharts();
         }
 
+        // ====================================================
+        // 18. НАВИГАЦИЯ ПО СТРАНИЦАМ
+        // ====================================================
+        
         function switchPage(targetId, navElement) {
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             if(navElement) navElement.classList.add('active');
             document.querySelectorAll('.page-view').forEach(page => page.classList.remove('active'));
             document.getElementById(targetId).classList.add('active');
             if (targetId === 'view-analytics') renderCharts();
+            if (targetId === 'view-profile') renderActivityLog();
             if (window.innerWidth <= 900) {
                 document.getElementById('sidebar').classList.remove('open');
                 document.getElementById('mobile-overlay').classList.remove('active');
             }
         }
 
+        // ====================================================
+        // 19. РАБОТА С ЗАДАЧАМИ (взять в работу / завершить)
+        // ====================================================
+        
         function takeToWork() {
             if (!currentIncident) return;
             if (!myTasks.some(t => t.id === currentIncident.id)) {
                 myTasks.push({ id: currentIncident.id, title: currentIncident.title });
                 saveState(); updateAllCounters(); renderTasks();
                 showToast(`Взято в работу`, 'success');
-                addLogEvent(`${currentUser.name.split(' ')[0]} взял ${currentIncident.id}`, 'blue');
+                addLogEvent(`Взял(а) в работу ${currentIncident.id}`, 'blue');
             }
             const btn = document.getElementById('btn-take-work');
             btn.innerHTML = 'В работе'; btn.className = 'btn-primary-large done'; btn.disabled = true;
@@ -1274,11 +1599,12 @@
             if (taskIndex !== -1) {
                 const completedTask = myTasks.splice(taskIndex, 1)[0];
                 resolvedTasks.push(completedTask);
-                saveState(); showToast(`Задача закрыта`, 'success'); addLogEvent(`Закрыт ${currentTaskId}`, 'green');
+                saveState(); showToast(`Задача закрыта`, 'success'); addLogEvent(`Закрыл(а) ${currentTaskId}`, 'green');
             }
             updateAllCounters(); renderTasks(); closeModal('taskModal');
         }
 
+        // Обновляет все счетчики на сайте
         function updateAllCounters() {
             document.getElementById('sidebar-task-count').innerText = myTasks.length;
             document.getElementById('assigned-count').innerText = myTasks.length;
@@ -1287,6 +1613,7 @@
             document.getElementById('stat-resolved').innerText = resolvedTasks.length;
         }
 
+        // Отрисовывает задачи на разных страницах
         function renderTasks() {
             const inProgressGrid = document.getElementById('in-progress-grid');
             const profileList = document.getElementById('profile-task-list');
@@ -1295,6 +1622,7 @@
             inProgressGrid.innerHTML = ''; 
             resolvedGrid.innerHTML = '';
 
+            // Вкладка "В работе"
             if (myTasks.length === 0) {
                 inProgressGrid.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Нет задач.</p>';
             } else {
@@ -1307,6 +1635,7 @@
                 });
             }
 
+            // Вкладка в профиле
             if (profileList) {
                 profileList.innerHTML = '';
                 if (myTasks.length === 0) {
@@ -1322,6 +1651,7 @@
                 }
             }
 
+            // Решенные задачи
             if (resolvedTasks.length === 0) {
                 resolvedGrid.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Список пуст.</p>';
             } else {
@@ -1334,6 +1664,10 @@
             }
         }
 
+        // ====================================================
+        // 20. ТОСТЫ (всплывашки)
+        // ====================================================
+        
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -1344,28 +1678,17 @@
             setTimeout(() => { toast.style.animation = 'fadeOut 0.3s ease forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        function addLogEvent(text, type = 'blue') {
-            const list = document.getElementById('event-list');
-            const item = document.createElement('div');
-            item.className = 'event-item';
-            let icon = type === 'red' ? 'fa-triangle-exclamation' : (type === 'green' ? 'fa-check' : 'fa-bolt');
-            item.innerHTML = `<div class="event-icon ${type}"><i class="fa-solid ${icon}"></i></div><div class="event-text"><p>${text}</p><span>Только что</span></div>`;
-            list.prepend(item);
-            if (list.children.length > 5) list.removeChild(list.lastElementChild);
-
-            const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-            activityLog.unshift({ text, type, time });
-            if (activityLog.length > 10) activityLog.pop();
-            saveState();
-            renderActivityLog();
-        }
-
+        // ====================================================
+        // 21. ОТКРЫТИЕ/ЗАКРЫТИЕ МОДАЛОК
+        // ====================================================
+        
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('mobile-overlay').classList.toggle('active'); }
         function openCreateModal() { document.getElementById('createModal').style.display = 'flex'; }
         function openAddUserModal() { document.getElementById('addUserModal').style.display = 'flex'; }
         function openTaskModal(id, title) { currentTaskId = id; document.getElementById('task-modal-id').innerText = id; document.getElementById('task-modal-title').innerText = title; document.getElementById('taskModal').style.display = 'flex'; }
         
+        // Открывает карточку инцидента
         function openIncidentModal(id, title, severity, source) {
             currentIncident = { id, title, severity, source };
             document.getElementById('modal-id').innerText = id;
@@ -1389,6 +1712,10 @@
             document.getElementById('incidentModal').style.display = 'flex';
         }
 
+        // ====================================================
+        // 22. ИИ-АССИСТЕНТ (имитация)
+        // ====================================================
+        
         function runAIAnalysis() {
             const btn = document.getElementById('btn-ai');
             const resultDiv = document.getElementById('ai-result');
@@ -1416,6 +1743,10 @@
             }, 2000);
         }
 
+        // ====================================================
+        // 23. СОЗДАНИЕ ИНЦИДЕНТА
+        // ====================================================
+        
         function submitNewIncident(event) {
             event.preventDefault();
             const title = document.getElementById('new-inc-title').value;
@@ -1437,9 +1768,13 @@
             closeModal('createModal');
             document.getElementById('new-inc-title').value = ''; 
             showToast(`Инцидент создан`, 'success');
-            addLogEvent(`Создан ${newId}`, 'red');
+            addLogEvent(`Создал(а) ${newId}`, 'red');
         }
 
+        // ====================================================
+        // 24. КОММЕНТАРИИ К ИНЦИДЕНТУ
+        // ====================================================
+        
         function addComment() {
             const input = document.getElementById('comment-input');
             const text = input.value.trim();
@@ -1452,23 +1787,30 @@
             input.value = ''; 
             list.parentElement.scrollTop = list.parentElement.scrollHeight;
             showToast('Комментарий добавлен', 'success');
-            addLogEvent(`Добавлен комментарий к ${currentIncident.id}`, 'blue');
+            addLogEvent(`Добавил(а) комментарий к ${currentIncident.id}`, 'blue');
         }
 
+        // ====================================================
+        // 25. ВЫХОД ИЗ СИСТЕМЫ
+        // ====================================================
+        
         function logout() {
-            document.getElementById('app-container').style.display = 'none';
-            document.getElementById('login-screen').style.display = 'flex';
             const user = teamMembers.find(u => u.email === currentUser.email);
             if (user) user.status = 'offline';
             saveState();
             renderTeam();
             
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('role-switcher').value = 'analyst';
-            updateUIBasedOnRole();
-
+            
             switchPage('view-overview', document.querySelectorAll('.nav-item')[0]);
         }
 
+        // ====================================================
+        // 26. ЭКСПОРТ В EXCEL
+        // ====================================================
+        
         function exportToExcel() {
             const cards = document.querySelectorAll('#incidents-grid .incident-card');
             const data = [];
@@ -1481,7 +1823,7 @@
             XLSX.utils.book_append_sheet(wb, ws, "Инциденты");
             XLSX.writeFile(wb, "Sibur_Incidents.xlsx");
             showToast('Отчет скачан', 'success');
-            addLogEvent(`Выгружен отчет по инцидентам`, 'blue');
+            addLogEvent(`Выгрузил(а) отчет по инцидентам`, 'blue');
         }
 
         function exportAnalyticsToExcel() {
@@ -1490,9 +1832,13 @@
             XLSX.utils.book_append_sheet(wb, ws, "KPI");
             XLSX.writeFile(wb, "Sibur_Analytics.xlsx");
             showToast('Аналитика скачана', 'success');
-            addLogEvent(`Выгружен аналитический отчет`, 'blue');
+            addLogEvent(`Выгрузил(а) аналитический отчет`, 'blue');
         }
 
+        // ====================================================
+        // 27. ЗАКРЫТИЕ МОДАЛОК ПРИ КЛИКЕ ВНЕ ИХ
+        // ====================================================
+        
         window.onclick = function(event) { if (event.target.classList.contains('modal-overlay')) event.target.style.display = 'none'; }
     </script>
 </body>
