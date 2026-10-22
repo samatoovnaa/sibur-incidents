@@ -205,7 +205,8 @@
 
         /* КОМАНДА */
         .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .team-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); display: flex; align-items: flex-start; gap: 16px; }
+        .team-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); display: flex; align-items: flex-start; gap: 16px; cursor: pointer; transition: 0.2s; }
+        .team-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .team-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--blue-bg); color: var(--primary); display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 18px; position: relative; flex-shrink: 0; }
         .status-dot { position: absolute; bottom: 0; right: 0; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg-card); }
         .status-online { background: var(--low); }
@@ -221,6 +222,8 @@
         .profile-names h2 { font-size: 24px; color: var(--text-main); margin-bottom: 4px; }
         .profile-names p { font-size: 14px; color: var(--text-muted); }
         .profile-actions { margin-left: auto; padding-bottom: 10px; }
+        .btn-edit-profile { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-edit-profile:hover { background: var(--border); }
         .profile-body { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; padding: 30px 40px; }
         .info-item { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-size: 14px; margin-bottom: 16px; }
         .info-item i { color: var(--text-muted); font-size: 18px; width: 24px; }
@@ -283,6 +286,10 @@
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); }
+        
+        .password-group { display: flex; gap: 8px; }
+        .password-group input { flex: 1; }
+        .btn-gen-pass { background: var(--blue-bg); color: var(--blue-badge); border: 1px solid var(--blue-badge); padding: 0 12px; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 
         /* =========================================
            АДАПТИВНОСТЬ
@@ -535,7 +542,7 @@
                     </div>
                 </div>
 
-                <!-- КОМАНДА (Динамическая) -->
+                <!-- КОМАНДА -->
                 <div id="view-team" class="page-view">
                     <div class="incident-header-actions">
                         <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Команда SOC</h1>
@@ -553,13 +560,19 @@
                         <div class="profile-cover"></div>
                         <div class="profile-header-info">
                             <div class="profile-avatar-large" id="profile-avatar">ХЛ</div>
-                            <div class="profile-names"><h2 id="profile-name">Хасаншина Лейсан</h2><p id="profile-role">Старший аналитик SOC</p></div>
+                            <div class="profile-names">
+                                <h2 id="profile-name">Хасаншина Лейсан</h2>
+                                <p id="profile-role">Старший аналитик SOC</p>
+                            </div>
+                            <div class="profile-actions">
+                                <button class="btn-edit-profile" onclick="openEditProfileModal()"><i class="fa-solid fa-pen"></i> Редактировать</button>
+                            </div>
                         </div>
                         <div class="profile-body">
                             <div>
                                 <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-main);">Контакты</h3>
                                 <div class="info-item"><i class="fa-regular fa-envelope"></i> <div><span>Email:</span> <b id="profile-email">khasanshina447@gmail.com</b></div></div>
-                                <div class="info-item"><i class="fa-solid fa-phone"></i> <div><span>Тел:</span> <b>+7 (999) 123-45-67</b></div></div>
+                                <div class="info-item"><i class="fa-solid fa-phone"></i> <div><span>Тел:</span> <b id="profile-phone">+7 (999) 123-45-67</b></div></div>
                                 <button class="btn-logout" onclick="logout()">Выйти</button>
                             </div>
                             <div>
@@ -578,6 +591,7 @@
     </div>
 
     <!-- МОДАЛЬНЫЕ ОКНА -->
+    <!-- 1. Инцидент -->
     <div class="modal-overlay" id="incidentModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Инцидент</div><div class="modal-actions"><button onclick="closeModal('incidentModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -619,6 +633,7 @@
         </div>
     </div>
 
+    <!-- 2. Создание инцидента -->
     <div class="modal-overlay" id="createModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Новый</div><div class="modal-actions"><button onclick="closeModal('createModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -632,6 +647,7 @@
         </div>
     </div>
 
+    <!-- 3. Задача -->
     <div class="modal-overlay" id="taskModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Задача</div><div class="modal-actions"><button onclick="closeModal('taskModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -641,7 +657,7 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ СОТРУДНИКА -->
+    <!-- 4. Добавление сотрудника -->
     <div class="modal-overlay" id="addUserModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Новый сотрудник</div><div class="modal-actions"><button onclick="closeModal('addUserModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -651,48 +667,89 @@
                 <div class="form-group"><label>Почта</label><input type="email" id="new-user-email" placeholder="ivanov@sibur.ru" required></div>
                 <div class="form-group"><label>Должность</label><input type="text" id="new-user-position" placeholder="Аналитик SOC" required></div>
                 <div class="form-group"><label>Дата рождения</label><input type="date" id="new-user-dob" required></div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
-                    <i class="fa-solid fa-circle-info"></i> Пароль будет сгенерирован автоматически после нажатия кнопки.
+                
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <div class="password-group">
+                        <input type="text" id="new-user-password" placeholder="Нажмите сгенерировать" readonly required>
+                        <button type="button" class="btn-gen-pass" onclick="generatePassword()"><i class="fa-solid fa-key"></i> Сгенерировать</button>
+                    </div>
                 </div>
-                <button type="submit" class="btn-primary-large"><i class="fa-solid fa-user-plus"></i> Добавить сотрудника</button>
+                
+                <button type="submit" class="btn-primary-large"><i class="fa-solid fa-user-plus"></i> Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. Детали сотрудника -->
+    <div class="modal-overlay" id="employeeDetailsModal">
+        <div class="incident-modal">
+            <div class="modal-header"><div class="modal-subtitle">Сотрудник</div><div class="modal-actions"><button onclick="closeModal('employeeDetailsModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
+            <h2 class="modal-title" id="emp-detail-name" style="margin-bottom: 20px;">Имя</h2>
+            
+            <div class="modal-grid" style="grid-template-columns: 1fr;">
+                <div class="modal-grid-item"><span>Email</span><strong id="emp-detail-email"></strong></div>
+                <div class="modal-grid-item"><span>Должность</span><strong id="emp-detail-position"></strong></div>
+                <div class="modal-grid-item"><span>Дата рождения</span><strong id="emp-detail-dob"></strong></div>
+                <div class="modal-grid-item" style="border-color: var(--blue-badge); background: var(--blue-bg);">
+                    <span style="color: var(--blue-badge);">Пароль</span>
+                    <strong id="emp-detail-password" style="color: var(--blue-badge);"></strong>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary-large" onclick="closeModal('employeeDetailsModal')">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Редактирование профиля -->
+    <div class="modal-overlay" id="editProfileModal">
+        <div class="incident-modal">
+            <div class="modal-header"><div class="modal-subtitle">Профиль</div><div class="modal-actions"><button onclick="closeModal('editProfileModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
+            <h2 class="modal-title" style="margin-bottom: 20px;">Редактировать профиль</h2>
+            <form onsubmit="saveProfileChanges(event)">
+                <div class="form-group"><label>ФИО</label><input type="text" id="edit-profile-name" required></div>
+                <div class="form-group"><label>Телефон</label><input type="text" id="edit-profile-phone" required></div>
+                <button type="submit" class="btn-primary-large">Сохранить изменения</button>
             </form>
         </div>
     </div>
 
     <script>
-        let currentUser = { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com' };
+        let currentUser = { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', phone: '+7 (999) 123-45-67' };
         let myTasks = []; 
         let resolvedTasks = []; 
-        let teamMembers = []; // Массив для сотрудников
+        let teamMembers = []; 
         let currentIncident = null; 
         let currentTaskId = null; 
         let currentRole = 'analyst';
         let chartCriticalityInstance = null;
         let chartActivityInstance = null;
 
-        // === СОХРАНЕНИЕ И ЗАГРУЗКА ===
         function saveState() {
             localStorage.setItem('sibur_myTasks', JSON.stringify(myTasks));
             localStorage.setItem('sibur_resolvedTasks', JSON.stringify(resolvedTasks));
             localStorage.setItem('sibur_team', JSON.stringify(teamMembers));
+            localStorage.setItem('sibur_currentUser', JSON.stringify(currentUser));
         }
 
         function loadState() {
             const savedTasks = localStorage.getItem('sibur_myTasks');
             const savedResolved = localStorage.getItem('sibur_resolvedTasks');
             const savedTeam = localStorage.getItem('sibur_team');
+            const savedUser = localStorage.getItem('sibur_currentUser');
             
             if (savedTasks) myTasks = JSON.parse(savedTasks);
             if (savedResolved) resolvedTasks = JSON.parse(savedResolved);
+            if (savedUser) currentUser = JSON.parse(savedUser);
             
             if (savedTeam) {
                 teamMembers = JSON.parse(savedTeam);
             } else {
-                // Базовые сотрудники при первом входе
                 teamMembers = [
-                    { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', position: 'Старший аналитик', dob: '2000-01-01', status: 'online' },
-                    { name: 'Иванов Иван', email: 'ivanov@sibur.ru', position: 'Аналитик', dob: '1995-05-15', status: 'online' },
-                    { name: 'Петров Петр', email: 'petrov@sibur.ru', position: 'Аналитик', dob: '1990-10-20', status: 'offline' }
+                    { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', position: 'Старший аналитик', dob: '2000-01-01', status: 'online', password: '11111' },
+                    { name: 'Иванов Иван', email: 'ivanov@sibur.ru', position: 'Аналитик', dob: '1995-05-15', status: 'online', password: '12345678' },
+                    { name: 'Петров Петр', email: 'petrov@sibur.ru', position: 'Аналитик', dob: '1990-10-20', status: 'offline', password: '87654321' }
                 ];
                 saveState();
             }
@@ -702,14 +759,23 @@
             loadState();
             updateAllCounters(); 
             renderTasks();
-            renderTeam(); // Отрисовываем команду при загрузке
+            renderTeam(); 
             changeRole(); 
             
+            // Установка данных текущего пользователя в профиль
+            document.getElementById('profile-phone').innerText = currentUser.phone;
+
             if (localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark-mode');
                 document.querySelector('#theme-toggle i').className = 'fa-solid fa-sun';
             }
         });
+
+        // === ГЕНЕРАЦИЯ ПАРОЛЯ ===
+        function generatePassword() {
+            const pwd = Math.random().toString(36).slice(-8);
+            document.getElementById('new-user-password').value = pwd;
+        }
 
         // === РЕНДЕР КОМАНДЫ ===
         function renderTeam() {
@@ -717,13 +783,13 @@
             grid.innerHTML = '';
             
             teamMembers.forEach(user => {
-                // Генерируем инициалы (например, "ИИ" или "ХЛ")
                 const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
                 const statusClass = user.status === 'online' ? 'status-online' : 'status-offline';
                 const statusText = user.status === 'online' ? 'В сети' : 'Не в сети';
                 
                 const card = document.createElement('div');
                 card.className = 'team-card';
+                card.onclick = () => openEmployeeDetails(user.email);
                 card.innerHTML = `
                     <div class="team-avatar">${initials}<div class="status-dot ${statusClass}"></div></div>
                     <div class="team-info">
@@ -736,66 +802,69 @@
             });
         }
 
-        // === ДОБАВЛЕНИЕ НОВОГО СОТРУДНИКА ===
+        // === ДЕТАЛИ СОТРУДНИКА ===
+        function openEmployeeDetails(email) {
+            const user = teamMembers.find(u => u.email === email);
+            if (!user) return;
+
+            document.getElementById('emp-detail-name').innerText = user.name;
+            document.getElementById('emp-detail-email').innerText = user.email;
+            document.getElementById('emp-detail-position').innerText = user.position;
+            document.getElementById('emp-detail-dob').innerText = user.dob;
+            document.getElementById('emp-detail-password').innerText = user.password;
+            
+            document.getElementById('employeeDetailsModal').style.display = 'flex';
+        }
+
+        // === ДОБАВЛЕНИЕ СОТРУДНИКА ===
         function submitNewUser(event) {
             event.preventDefault();
             const name = document.getElementById('new-user-name').value;
             const email = document.getElementById('new-user-email').value;
             const position = document.getElementById('new-user-position').value;
             const dob = document.getElementById('new-user-dob').value;
+            const password = document.getElementById('new-user-password').value;
             
-            // Генерация случайного пароля (8 символов)
-            const password = Math.random().toString(36).slice(-8);
-            
-            // Добавляем в массив
             teamMembers.push({
                 name: name,
                 email: email,
                 position: position,
                 dob: dob,
-                password: password, // Сохраняем пароль
-                status: 'offline' // По умолчанию не в сети
+                password: password,
+                status: 'offline'
             });
             
             saveState();
-            renderTeam(); // Сразу перерисовываем список
+            renderTeam();
             closeModal('addUserModal');
             
-            // Показываем пароль (через всплывающее окно, так как это важно)
-            setTimeout(() => {
-                alert(`✅ Сотрудник ${name} успешно добавлен!\n\nЛогин: ${email}\nПароль: ${password}\n\nОбязательно сохраните эти данные!`);
-            }, 300);
+            showToast(`Сотрудник ${name} добавлен`, 'success');
+            addLogEvent(`Добавлен пользователь: ${name}`, 'green');
             
             // Очищаем форму
             document.getElementById('new-user-name').value = '';
             document.getElementById('new-user-email').value = '';
             document.getElementById('new-user-position').value = '';
             document.getElementById('new-user-dob').value = '';
+            document.getElementById('new-user-password').value = '';
         }
 
-        // === АВТОРИЗАЦИЯ (С проверкой пароля) ===
+        // === АВТОРИЗАЦИЯ ===
         function login(event) {
             event.preventDefault();
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value.trim();
             
-            // Ищем пользователя в команде (или проверяем админа)
             const user = teamMembers.find(u => u.email === email);
             
-            // Если это админ (Хасаншина) и пароль 11111
-            if (email === 'khasanshina447@gmail.com' && password === '11111') {
-                authorizeUser('Хасаншина Лейсан', email);
-            } 
-            // Если это добавленный сотрудник и пароль совпадает
-            else if (user && user.password === password) {
+            if (user && user.password === password) {
+                currentUser = { name: user.name, email: user.email, phone: currentUser.phone };
                 authorizeUser(user.name, email);
-                // Ставим статус "В сети"
                 user.status = 'online';
                 saveState();
                 renderTeam();
             } 
             else {
-                // Ошибка входа
                 showToast('Доступ запрещён. Неверный логин или пароль.', 'error');
                 addSecurityNotification(email);
                 document.getElementById('login-password').value = '';
@@ -828,7 +897,65 @@
             addLogEvent(`Попытка несанкционированного входа: ${attemptedEmail}`, 'red');
         }
 
-        // === ОСТАЛЬНЫЕ ФУНКЦИИ (Графики, Задачи и т.д. - без изменений) ===
+        // === РЕДАКТИРОВАНИЕ ПРОФИЛЯ ===
+        function openEditProfileModal() {
+            document.getElementById('edit-profile-name').value = currentUser.name;
+            document.getElementById('edit-profile-phone').value = currentUser.phone;
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
+
+        function saveProfileChanges(event) {
+            event.preventDefault();
+            const newName = document.getElementById('edit-profile-name').value;
+            const newPhone = document.getElementById('edit-profile-phone').value;
+
+            currentUser.name = newName;
+            currentUser.phone = newPhone;
+            
+            // Обновляем массив команды
+            const userInTeam = teamMembers.find(u => u.email === currentUser.email);
+            if (userInTeam) userInTeam.name = newName;
+            
+            saveState();
+            
+            // Обновляем UI
+            let shortName = newName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('top-name').innerText = newName;
+            document.getElementById('top-avatar').innerText = shortName;
+            document.getElementById('profile-name').innerText = newName;
+            document.getElementById('profile-avatar').innerText = shortName;
+            document.getElementById('profile-phone').innerText = newPhone;
+            document.getElementById('greeting-text').innerText = `Доброе утро, ${newName.split(' ')[0]}`;
+            
+            renderTeam();
+            closeModal('editProfileModal');
+            showToast('Профиль обновлен', 'success');
+        }
+
+        // === СМЕНА РОЛИ ===
+        function changeRole() {
+            currentRole = document.getElementById('role-switcher').value;
+            
+            // Кнопки и вкладки
+            if (document.getElementById('btn-create-incident')) 
+                document.getElementById('btn-create-incident').style.display = currentRole === 'manager' ? 'flex' : 'none';
+            if (document.getElementById('nav-team')) 
+                document.getElementById('nav-team').style.display = currentRole === 'manager' ? 'flex' : 'none';
+            
+            // Блок назначения в модалке
+            if (document.getElementById('incidentModal').style.display === 'flex') 
+                document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
+
+            // Обновление текста в профиле
+            const roleText = document.getElementById('profile-role');
+            if (currentRole === 'manager') {
+                roleText.innerText = 'Руководитель отдела ИБ';
+            } else {
+                roleText.innerText = 'Старший аналитик SOC';
+            }
+        }
+
+        // === ОСТАЛЬНЫЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ) ===
         function renderCharts() {
             const isDark = document.body.classList.contains('dark-mode');
             const textColor = isDark ? '#f1f5f9' : '#1a1f36';
@@ -890,13 +1017,6 @@
                 document.getElementById('sidebar').classList.remove('open');
                 document.getElementById('mobile-overlay').classList.remove('active');
             }
-        }
-
-        function changeRole() {
-            currentRole = document.getElementById('role-switcher').value;
-            if (document.getElementById('btn-create-incident')) document.getElementById('btn-create-incident').style.display = currentRole === 'manager' ? 'flex' : 'none';
-            if (document.getElementById('nav-team')) document.getElementById('nav-team').style.display = currentRole === 'manager' ? 'flex' : 'none';
-            if (document.getElementById('incidentModal').style.display === 'flex') document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
         }
 
         function takeToWork() {
@@ -1082,13 +1202,11 @@
         function logout() {
             document.getElementById('app-container').style.display = 'none';
             document.getElementById('login-screen').style.display = 'flex';
-            // Ставим текущему пользователю статус "Не в сети"
             const user = teamMembers.find(u => u.email === currentUser.email);
             if (user) user.status = 'offline';
             saveState();
             renderTeam();
             
-            // Очищаем данные сессии, но НЕ удаляем задачи (они в localStorage)
             switchPage('view-overview', document.querySelectorAll('.nav-item')[0]);
         }
 
