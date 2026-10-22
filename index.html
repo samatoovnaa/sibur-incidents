@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- ЗАЩИТА ОТ КЭШИРОВАНИЯ -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <title>Управление инцидентами ИБ - Сибур</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -199,13 +205,13 @@
 
         /* КОМАНДА */
         .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .team-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
-        .team-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--blue-bg); color: var(--primary); display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 18px; position: relative; }
+        .team-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); display: flex; align-items: flex-start; gap: 16px; }
+        .team-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--blue-bg); color: var(--primary); display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 18px; position: relative; flex-shrink: 0; }
         .status-dot { position: absolute; bottom: 0; right: 0; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg-card); }
         .status-online { background: var(--low); }
         .status-offline { background: var(--text-muted); }
         .team-info h4 { font-size: 15px; color: var(--text-main); margin-bottom: 4px; }
-        .team-info p { font-size: 12px; color: var(--text-muted); }
+        .team-info p { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
 
         /* ПРОФИЛЬ */
         .profile-container { max-width: 900px; margin: 0 auto; background: var(--bg-card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
@@ -273,6 +279,7 @@
         .modal-footer { display: flex; gap: 12px; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
         .btn-primary-large { flex: 1; height: 48px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-primary-large.done { background: var(--low); }
+        
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); }
@@ -306,9 +313,16 @@
         <div class="login-box">
             <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
             <h2>Вход в систему</h2>
+            <p>Введите корпоративные данные</p>
             <form onsubmit="login(event)">
-                <div class="input-group"><i class="fa-regular fa-envelope"></i><input type="email" id="login-email" value="khasanshina447@gmail.com" required></div>
-                <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" value="password123" required></div>
+                <div class="input-group">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" id="login-email" placeholder="Корпоративная почта" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="login-password" placeholder="Пароль" required>
+                </div>
                 <button type="submit" class="login-btn">Войти</button>
             </form>
         </div>
@@ -375,7 +389,7 @@
                     
                     <div class="overview-layout">
                         <div class="stats-grid">
-                            <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div><div><span class="stat-value">12</span><br><span class="stat-label">Открыто</span></div></div>
+                            <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div><div><span class="stat-value">15</span><br><span class="stat-label">Открыто</span></div></div>
                             <div class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-wave-square"></i></div><div><span class="stat-value" id="stat-in-progress">0</span><br><span class="stat-label">В работе</span></div></div>
                             <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-check-double"></i></div><div><span class="stat-value" id="stat-resolved">0</span><br><span class="stat-label">Решено</span></div></div>
                         </div>
@@ -426,6 +440,61 @@
                             <div class="inc-title">Попытка несанкционированного доступа к БД</div>
                             <div class="inc-bottom"><div><i class="fa-solid fa-database"></i> SIEM</div><div class="status-new">Новый</div></div>
                         </div>
+                        <div class="incident-card low-border" data-severity="low" data-source="EDR" onclick="openIncidentModal('INC-2827', 'Устаревшая версия', 'Низкий', 'EDR')">
+                            <div class="inc-top"><div class="inc-id">INC-2827</div><div class="badge low">Низкий</div></div>
+                            <div class="inc-title">Устаревшая версия агента защиты</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-shield-virus"></i> EDR</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card high-border" data-severity="high" data-source="SIEM" onclick="openIncidentModal('INC-2850', 'Брутфорс', 'Высокий', 'SIEM')">
+                            <div class="inc-top"><div class="inc-id">INC-2850</div><div class="badge high">Высокий</div></div>
+                            <div class="inc-title">Множественные неудачные попытки входа</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-user-lock"></i> SIEM</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card medium-border" data-severity="medium" data-source="DLP" onclick="openIncidentModal('INC-2861', 'FTP-передача', 'Средний', 'DLP')">
+                            <div class="inc-top"><div class="inc-id">INC-2861</div><div class="badge medium">Средний</div></div>
+                            <div class="inc-title">Передача данных на внешний FTP-сервер</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-network-wired"></i> DLP</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card critical-border" data-severity="critical" data-source="DLP" onclick="openIncidentModal('INC-2868', 'Утечка клиентов', 'Критический', 'DLP')">
+                            <div class="inc-top"><div class="inc-id">INC-2868</div><div class="badge critical">Критический</div></div>
+                            <div class="inc-title">Утечка базы данных клиентов</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-file-export"></i> DLP</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card high-border" data-severity="high" data-source="SCADA" onclick="openIncidentModal('INC-2870', 'Сбой контроллера', 'Высокий', 'SCADA')">
+                            <div class="inc-top"><div class="inc-id">INC-2870</div><div class="badge high">Высокий</div></div>
+                            <div class="inc-title">Отклонение в работе промышленного контроллера</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-microchip"></i> SCADA</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card low-border" data-severity="low" data-source="EDR" onclick="openIncidentModal('INC-2855', 'Нежелательный файл', 'Низкий', 'EDR')">
+                            <div class="inc-top"><div class="inc-id">INC-2855</div><div class="badge low">Низкий</div></div>
+                            <div class="inc-title">Обнаружен потенциально нежелательный файл</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-file-virus"></i> EDR</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card medium-border" data-severity="medium" data-source="SIEM" onclick="openIncidentModal('INC-2881', 'Аномалия DNS', 'Средний', 'SIEM')">
+                            <div class="inc-top"><div class="inc-id">INC-2881</div><div class="badge medium">Средний</div></div>
+                            <div class="inc-title">Аномальный DNS-трафик на неавторизованные ресурсы</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-globe"></i> SIEM</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card high-border" data-severity="high" data-source="DLP" onclick="openIncidentModal('INC-2875', 'Отправка в мессенджер', 'Высокий', 'DLP')">
+                            <div class="inc-top"><div class="inc-id">INC-2875</div><div class="badge high">Высокий</div></div>
+                            <div class="inc-title">Отправка конфиденциальных файлов в мессенджер</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-message"></i> DLP</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card critical-border" data-severity="critical" data-source="SIEM" onclick="openIncidentModal('INC-2872', 'Ransomware', 'Критический', 'SIEM')">
+                            <div class="inc-top"><div class="inc-id">INC-2872</div><div class="badge critical">Критический</div></div>
+                            <div class="inc-title">Обнаружены признаки шифрования файлов (Ransomware)</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-lock"></i> SIEM</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card low-border" data-severity="low" data-source="EDR" onclick="openIncidentModal('INC-2864', 'Не обновлен антивирус', 'Низкий', 'EDR')">
+                            <div class="inc-top"><div class="inc-id">INC-2864</div><div class="badge low">Низкий</div></div>
+                            <div class="inc-title">Антивирусные базы не обновлялись 7 дней</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-shield-virus"></i> EDR</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card high-border" data-severity="high" data-source="SCADA" onclick="openIncidentModal('INC-2853', 'Доступ в АСУ ТП', 'Высокий', 'SCADA')">
+                            <div class="inc-top"><div class="inc-id">INC-2853</div><div class="badge high">Высокий</div></div>
+                            <div class="inc-title">Попытка несанкционированного подключения к АСУ ТП</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-plug"></i> SCADA</div><div class="status-new">Новый</div></div>
+                        </div>
                     </div>
                 </div>
 
@@ -466,26 +535,15 @@
                     </div>
                 </div>
 
-                <!-- КОМАНДА -->
+                <!-- КОМАНДА (Динамическая) -->
                 <div id="view-team" class="page-view">
                     <div class="incident-header-actions">
                         <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Команда SOC</h1>
                         <button class="btn-create" onclick="openAddUserModal()"><i class="fa-solid fa-user-plus"></i> Добавить</button>
                     </div>
                     
-                    <div class="team-grid">
-                        <div class="team-card">
-                            <div class="team-avatar">ХЛ<div class="status-dot status-online"></div></div>
-                            <div class="team-info"><h4>Хасаншина Лейсан</h4><p>Старший аналитик • В сети</p></div>
-                        </div>
-                        <div class="team-card">
-                            <div class="team-avatar">ИИ<div class="status-dot status-online"></div></div>
-                            <div class="team-info"><h4>Иванов Иван</h4><p>Аналитик • В сети</p></div>
-                        </div>
-                        <div class="team-card">
-                            <div class="team-avatar">ПП<div class="status-dot status-offline"></div></div>
-                            <div class="team-info"><h4>Петров Петр</h4><p>Аналитик • Не в сети</p></div>
-                        </div>
+                    <div class="team-grid" id="team-grid">
+                        <!-- Сюда рендерятся карточки сотрудников -->
                     </div>
                 </div>
 
@@ -537,7 +595,6 @@
                 <div class="modal-grid-item"><span>Актив</span><strong>srv-db-01</strong></div>
             </div>
 
-            <!-- БЛОК ИИ-АССИСТЕНТА -->
             <div class="ai-section" id="ai-section">
                 <button class="btn-ai" id="btn-ai" onclick="runAIAnalysis()">
                     <i class="fa-solid fa-robot"></i> Запустить AI-анализ
@@ -584,13 +641,20 @@
         </div>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ СОТРУДНИКА -->
     <div class="modal-overlay" id="addUserModal">
         <div class="incident-modal">
-            <div class="modal-header"><div class="modal-subtitle">Сотрудник</div><div class="modal-actions"><button onclick="closeModal('addUserModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
+            <div class="modal-header"><div class="modal-subtitle">Новый сотрудник</div><div class="modal-actions"><button onclick="closeModal('addUserModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
+            <h2 class="modal-title" style="margin-bottom: 20px;">Добавить в команду</h2>
             <form onsubmit="submitNewUser(event)">
-                <div class="form-group"><label>ФИО</label><input type="text" id="new-user-name" required></div>
-                <div class="form-group"><label>Роль</label><select id="new-user-role"><option>Аналитик</option><option>Старший аналитик</option></select></div>
-                <button type="submit" class="btn-primary-large">Добавить</button>
+                <div class="form-group"><label>ФИО</label><input type="text" id="new-user-name" placeholder="Иванов Иван" required></div>
+                <div class="form-group"><label>Почта</label><input type="email" id="new-user-email" placeholder="ivanov@sibur.ru" required></div>
+                <div class="form-group"><label>Должность</label><input type="text" id="new-user-position" placeholder="Аналитик SOC" required></div>
+                <div class="form-group"><label>Дата рождения</label><input type="date" id="new-user-dob" required></div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+                    <i class="fa-solid fa-circle-info"></i> Пароль будет сгенерирован автоматически после нажатия кнопки.
+                </div>
+                <button type="submit" class="btn-primary-large"><i class="fa-solid fa-user-plus"></i> Добавить сотрудника</button>
             </form>
         </div>
     </div>
@@ -599,28 +663,46 @@
         let currentUser = { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com' };
         let myTasks = []; 
         let resolvedTasks = []; 
+        let teamMembers = []; // Массив для сотрудников
         let currentIncident = null; 
         let currentTaskId = null; 
         let currentRole = 'analyst';
         let chartCriticalityInstance = null;
         let chartActivityInstance = null;
 
+        // === СОХРАНЕНИЕ И ЗАГРУЗКА ===
         function saveState() {
             localStorage.setItem('sibur_myTasks', JSON.stringify(myTasks));
             localStorage.setItem('sibur_resolvedTasks', JSON.stringify(resolvedTasks));
+            localStorage.setItem('sibur_team', JSON.stringify(teamMembers));
         }
 
         function loadState() {
             const savedTasks = localStorage.getItem('sibur_myTasks');
             const savedResolved = localStorage.getItem('sibur_resolvedTasks');
+            const savedTeam = localStorage.getItem('sibur_team');
+            
             if (savedTasks) myTasks = JSON.parse(savedTasks);
             if (savedResolved) resolvedTasks = JSON.parse(savedResolved);
+            
+            if (savedTeam) {
+                teamMembers = JSON.parse(savedTeam);
+            } else {
+                // Базовые сотрудники при первом входе
+                teamMembers = [
+                    { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', position: 'Старший аналитик', dob: '2000-01-01', status: 'online' },
+                    { name: 'Иванов Иван', email: 'ivanov@sibur.ru', position: 'Аналитик', dob: '1995-05-15', status: 'online' },
+                    { name: 'Петров Петр', email: 'petrov@sibur.ru', position: 'Аналитик', dob: '1990-10-20', status: 'offline' }
+                ];
+                saveState();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             loadState();
             updateAllCounters(); 
             renderTasks();
+            renderTeam(); // Отрисовываем команду при загрузке
             changeRole(); 
             
             if (localStorage.getItem('theme') === 'dark') {
@@ -629,6 +711,124 @@
             }
         });
 
+        // === РЕНДЕР КОМАНДЫ ===
+        function renderTeam() {
+            const grid = document.getElementById('team-grid');
+            grid.innerHTML = '';
+            
+            teamMembers.forEach(user => {
+                // Генерируем инициалы (например, "ИИ" или "ХЛ")
+                const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                const statusClass = user.status === 'online' ? 'status-online' : 'status-offline';
+                const statusText = user.status === 'online' ? 'В сети' : 'Не в сети';
+                
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.innerHTML = `
+                    <div class="team-avatar">${initials}<div class="status-dot ${statusClass}"></div></div>
+                    <div class="team-info">
+                        <h4>${user.name}</h4>
+                        <p>${user.position} • ${statusText}</p>
+                        <p style="font-size: 11px; margin-top: 4px; color: #8e9aaf;">${user.email}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // === ДОБАВЛЕНИЕ НОВОГО СОТРУДНИКА ===
+        function submitNewUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('new-user-name').value;
+            const email = document.getElementById('new-user-email').value;
+            const position = document.getElementById('new-user-position').value;
+            const dob = document.getElementById('new-user-dob').value;
+            
+            // Генерация случайного пароля (8 символов)
+            const password = Math.random().toString(36).slice(-8);
+            
+            // Добавляем в массив
+            teamMembers.push({
+                name: name,
+                email: email,
+                position: position,
+                dob: dob,
+                password: password, // Сохраняем пароль
+                status: 'offline' // По умолчанию не в сети
+            });
+            
+            saveState();
+            renderTeam(); // Сразу перерисовываем список
+            closeModal('addUserModal');
+            
+            // Показываем пароль (через всплывающее окно, так как это важно)
+            setTimeout(() => {
+                alert(`✅ Сотрудник ${name} успешно добавлен!\n\nЛогин: ${email}\nПароль: ${password}\n\nОбязательно сохраните эти данные!`);
+            }, 300);
+            
+            // Очищаем форму
+            document.getElementById('new-user-name').value = '';
+            document.getElementById('new-user-email').value = '';
+            document.getElementById('new-user-position').value = '';
+            document.getElementById('new-user-dob').value = '';
+        }
+
+        // === АВТОРИЗАЦИЯ (С проверкой пароля) ===
+        function login(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            
+            // Ищем пользователя в команде (или проверяем админа)
+            const user = teamMembers.find(u => u.email === email);
+            
+            // Если это админ (Хасаншина) и пароль 11111
+            if (email === 'khasanshina447@gmail.com' && password === '11111') {
+                authorizeUser('Хасаншина Лейсан', email);
+            } 
+            // Если это добавленный сотрудник и пароль совпадает
+            else if (user && user.password === password) {
+                authorizeUser(user.name, email);
+                // Ставим статус "В сети"
+                user.status = 'online';
+                saveState();
+                renderTeam();
+            } 
+            else {
+                // Ошибка входа
+                showToast('Доступ запрещён. Неверный логин или пароль.', 'error');
+                addSecurityNotification(email);
+                document.getElementById('login-password').value = '';
+            }
+        }
+
+        function authorizeUser(displayName, email) {
+            let shortName = displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            
+            document.getElementById('top-name').innerText = displayName;
+            document.getElementById('top-avatar').innerText = shortName;
+            document.getElementById('profile-name').innerText = displayName;
+            document.getElementById('profile-email').innerText = email;
+            document.getElementById('profile-avatar').innerText = shortName;
+            document.getElementById('greeting-text').innerText = `Доброе утро, ${displayName.split(' ')[0]}`;
+            
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+            document.getElementById('login-password').value = ''; 
+            showToast('Успешный вход в систему', 'success');
+        }
+
+        function addSecurityNotification(attemptedEmail) {
+            const list = document.getElementById('notif-list');
+            const item = document.createElement('div');
+            item.className = 'notif-item';
+            item.innerHTML = `⚠️ <b>Попытка входа</b> под почтой: ${attemptedEmail}<span>Только что</span>`;
+            list.prepend(item);
+            document.getElementById('bell-btn').classList.add('has-unread');
+            addLogEvent(`Попытка несанкционированного входа: ${attemptedEmail}`, 'red');
+        }
+
+        // === ОСТАЛЬНЫЕ ФУНКЦИИ (Графики, Задачи и т.д. - без изменений) ===
         function renderCharts() {
             const isDark = document.body.classList.contains('dark-mode');
             const textColor = isDark ? '#f1f5f9' : '#1a1f36';
@@ -639,14 +839,14 @@
             const ctx1 = document.getElementById('chartCriticality').getContext('2d');
             chartCriticalityInstance = new Chart(ctx1, {
                 type: 'doughnut',
-                data: { labels: ['Критические', 'Высокие', 'Средние', 'Низкие'], datasets: [{ data: [12, 28, 45, 15], backgroundColor: ['#ef4444', '#f97316', '#eab308', '#22c55e'], borderWidth: 0 }] },
+                data: { labels: ['Критические', 'Высокие', 'Средние', 'Низкие'], datasets: [{ data: [15, 35, 35, 15], backgroundColor: ['#ef4444', '#f97316', '#eab308', '#22c55e'], borderWidth: 0 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Inter' } } } } }
             });
 
             const ctx2 = document.getElementById('chartActivity').getContext('2d');
             chartActivityInstance = new Chart(ctx2, {
                 type: 'bar',
-                data: { labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'], datasets: [{ label: 'Инциденты', data: [5, 8, 6, 12, 7, 3, 2], backgroundColor: '#8b5cf6', borderRadius: 4 }] },
+                data: { labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'], datasets: [{ label: 'Инциденты', data: [8, 10, 7, 15, 9, 4, 3], backgroundColor: '#8b5cf6', borderRadius: 4 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: isDark ? '#334155' : '#e2e8f0' } }, x: { ticks: { color: textColor }, grid: { display: false } } } }
             });
         }
@@ -807,23 +1007,19 @@
             btn.innerHTML = 'Взять в работу'; btn.className = 'btn-primary-large'; btn.disabled = false;
             if (myTasks.some(t => t.id === id)) { btn.innerHTML = 'Уже в работе'; btn.className = 'btn-primary-large done'; btn.disabled = true; }
             
-            // СБРОС ИИ-БЛОКА ПРИ ОТКРЫТИИ НОВОГО ИНЦИДЕНТА
             document.getElementById('ai-result').style.display = 'none';
             const aiBtn = document.getElementById('btn-ai');
-            aiBtn.style.display = 'flex';
-            aiBtn.disabled = false;
+            aiBtn.style.display = 'flex'; aiBtn.disabled = false;
             aiBtn.innerHTML = '<i class="fa-solid fa-robot"></i> Запустить AI-анализ';
             
             document.getElementById('incidentModal').style.display = 'flex';
         }
 
-        // === ФУНКЦИЯ ИИ-АССИСТЕНТА ===
         function runAIAnalysis() {
             const btn = document.getElementById('btn-ai');
             const resultDiv = document.getElementById('ai-result');
             const textDiv = document.getElementById('ai-text');
             
-            // Имитация загрузки
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Анализируем данные...';
             
@@ -831,19 +1027,18 @@
                 btn.style.display = 'none';
                 resultDiv.style.display = 'block';
                 
-                // Генерируем разный текст в зависимости от инцидента (для реализма)
                 let recommendation = "";
                 if (currentIncident.severity === 'Критический') {
-                    recommendation = "Обнаружена аномальная сетевая активность. На основе паттернов поведения рекомендую: <b>1.</b> Немедленно изолировать хост <code>srv-db-01</code> от сети. <b>2.</b> Заблокировать IP-адрес источника на межсетевом экране. <b>3.</b> Запросить у пользователя подтверждение последних действий.";
+                    recommendation = "Обнаружена аномальная сетевая активность. Рекомендую: <b>1.</b> Немедленно изолировать хост <code>srv-db-01</code>. <b>2.</b> Заблокировать IP-адрес источника. <b>3.</b> Запросить подтверждение действий у владельца.";
                 } else if (currentIncident.source === 'DLP') {
-                    recommendation = "Зафиксирована попытка выгрузки данных. Рекомендую: <b>1.</b> Связаться с руководителем отдела. <b>2.</b> Проверить журналы доступа к файловому хранилищу. <b>3.</b> При необходимости ограничить права доступа учетной записи.";
+                    recommendation = "Зафиксирована попытка выгрузки данных. Рекомендую: <b>1.</b> Связаться с руководителем отдела. <b>2.</b> Проверить журналы доступа к файлам. <b>3.</b> Ограничить права учетной записи.";
                 } else {
-                    recommendation = "Поведение системы отклоняется от базовой линии (Baseline). Рекомендую: <b>1.</b> Проверить системные логи за последние 24 часа. <b>2.</b> Запустить сканирование на наличие вредоносного ПО. <b>3.</b> Убедиться в актуальности антивирусных баз.";
+                    recommendation = "Поведение системы отклоняется от базовой линии. Рекомендую: <b>1.</b> Проверить логи за 24 часа. <b>2.</b> Запустить сканирование на вредоносное ПО. <b>3.</b> Обновить антивирусные базы.";
                 }
                 
                 textDiv.innerHTML = recommendation;
                 showToast('AI-анализ завершен', 'success');
-            }, 2000); // Задержка 2 секунды
+            }, 2000);
         }
 
         function submitNewIncident(event) {
@@ -870,13 +1065,6 @@
             addLogEvent(`Создан ${newId}`, 'red');
         }
 
-        function submitNewUser(event) {
-            event.preventDefault();
-            const name = document.getElementById('new-user-name').value;
-            showToast(`Сотрудник ${name} добавлен`, 'success');
-            closeModal('addUserModal');
-        }
-
         function addComment() {
             const input = document.getElementById('comment-input');
             const text = input.value.trim();
@@ -891,28 +1079,16 @@
             showToast('Комментарий добавлен', 'success');
         }
 
-        function login(event) {
-            event.preventDefault();
-            const email = document.getElementById('login-email').value;
-            let displayName = email === 'khasanshina447@gmail.com' ? 'Хасаншина Лейсан' : email.split('@')[0];
-            let shortName = email === 'khasanshina447@gmail.com' ? 'ХЛ' : displayName[0].toUpperCase();
-            document.getElementById('top-name').innerText = displayName;
-            document.getElementById('top-avatar').innerText = shortName;
-            document.getElementById('profile-name').innerText = displayName;
-            document.getElementById('profile-email').innerText = email;
-            document.getElementById('profile-avatar').innerText = shortName;
-            document.getElementById('greeting-text').innerText = `Доброе утро, ${displayName.split(' ')[0]}`;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-container').style.display = 'flex';
-        }
-
         function logout() {
             document.getElementById('app-container').style.display = 'none';
             document.getElementById('login-screen').style.display = 'flex';
-            localStorage.removeItem('sibur_myTasks');
-            localStorage.removeItem('sibur_resolvedTasks');
-            myTasks = []; resolvedTasks = [];
-            updateAllCounters(); renderTasks();
+            // Ставим текущему пользователю статус "Не в сети"
+            const user = teamMembers.find(u => u.email === currentUser.email);
+            if (user) user.status = 'offline';
+            saveState();
+            renderTeam();
+            
+            // Очищаем данные сессии, но НЕ удаляем задачи (они в localStorage)
             switchPage('view-overview', document.querySelectorAll('.nav-item')[0]);
         }
 
