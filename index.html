@@ -108,7 +108,9 @@
 
         /* ОСНОВНАЯ ЧАСТЬ */
         .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; }
-        .topbar { height: 72px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+        
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
+        .topbar { height: 72px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: relative; z-index: 100; }
         
         .menu-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; padding: 8px; margin-right: 12px; }
         .search-container { position: relative; width: 400px; }
@@ -119,11 +121,12 @@
         .theme-toggle { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 8px; }
         .role-switcher { background: var(--bg-body); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; display: none; }
         
+        /* Уведомления */
         .bell-container { position: relative; }
         .bell-btn { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; position: relative; padding: 8px; border-radius: 8px; }
         .bell-btn.has-unread::after { content: ''; position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--critical); border-radius: 50%; border: 2px solid var(--bg-card); }
         
-        .notif-dropdown { display: none; position: absolute; top: 50px; right: 0; width: 320px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; }
+        .notif-dropdown { display: none; position: absolute; top: 50px; right: 0; width: 320px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000; }
         .notif-dropdown.active { display: block; }
         .notif-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; color: var(--text-main); }
         .notif-header span { font-size: 12px; color: var(--blue-badge); cursor: pointer; }
@@ -229,11 +232,12 @@
         .info-item i { color: var(--text-muted); font-size: 18px; width: 24px; }
         .info-item span { color: var(--text-muted); }
         .btn-logout { width: 100%; background: var(--critical-bg); color: var(--critical); border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+        
         .profile-tabs { display: flex; gap: 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-        .profile-tab { padding: 10px 0; font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; }
+        .profile-tab { padding: 10px 0; font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
         .profile-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block; animation: fadeIn 0.2s ease; }
 
         /* МОДАЛЬНЫЕ ОКНА */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(4px); }
@@ -282,6 +286,9 @@
         .modal-footer { display: flex; gap: 12px; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
         .btn-primary-large { flex: 1; height: 48px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-primary-large.done { background: var(--low); }
+        
+        .btn-danger { background: var(--critical-bg); color: var(--critical); border: 1px solid var(--critical); height: 48px; padding: 0 20px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-danger:hover { background: var(--critical); color: white; }
         
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
@@ -350,7 +357,6 @@
                 <button class="nav-item" data-target="view-resolved" onclick="switchPage('view-resolved', this)"><i class="fa-solid fa-check-double"></i> <span>Решенные</span><span class="nav-badge green" id="sidebar-resolved-count">0</span></button>
                 <button class="nav-item" data-target="view-analytics" onclick="switchPage('view-analytics', this)"><i class="fa-solid fa-chart-pie"></i> <span>Аналитика</span></button>
                 
-                <!-- Вкладка Команда (по умолчанию скрыта, включается только для Руководителя) -->
                 <button class="nav-item" id="nav-team" data-target="view-team" onclick="switchPage('view-team', this)" style="display: none;"><i class="fa-solid fa-users"></i> <span>Команда</span></button>
                 
                 <button class="nav-item" data-target="view-profile" onclick="switchPage('view-profile', this)"><i class="fa-regular fa-user"></i> <span>Мой профиль</span></button>
@@ -372,14 +378,13 @@
                 <div class="topbar-right">
                     <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
                     
-                    <!-- Переключатель ролей (по умолчанию скрыт) -->
                     <select class="role-switcher" id="role-switcher" onchange="changeRole()">
                         <option value="analyst">Аналитик</option>
                         <option value="manager">Руководитель</option>
                     </select>
                     
                     <div class="bell-container">
-                        <button class="bell-btn has-unread" id="bell-btn" onclick="toggleNotifications()"><i class="fa-regular fa-bell"></i></button>
+                        <button class="bell-btn has-unread" id="bell-btn" onclick="toggleNotifications(event)"><i class="fa-regular fa-bell"></i></button>
                         <div class="notif-dropdown" id="notif-dropdown">
                             <div class="notif-header">Уведомления <span onclick="clearNotifications()">Прочитать все</span></div>
                             <div class="notif-list" id="notif-list">
@@ -433,6 +438,7 @@
                     </div>
 
                     <div class="incident-grid" id="incidents-grid">
+                        <!-- 15 инцидентов -->
                         <div class="incident-card critical-border" data-severity="critical" data-source="SIEM" onclick="openIncidentModal('INC-2841', 'Подозрительная активность', 'Критический', 'SIEM')">
                             <div class="inc-top"><div class="inc-id">INC-2841</div><div class="badge critical">Критический</div></div>
                             <div class="inc-title">Подозрительная активность привилегированной учётной записи</div>
@@ -582,12 +588,25 @@
                                 <button class="btn-logout" onclick="logout()">Выйти</button>
                             </div>
                             <div>
+                                <!-- ИСПРАВЛЕНЫ ВКЛАДКИ -->
                                 <div class="profile-tabs">
                                     <div class="profile-tab active" onclick="switchProfileTab('tab-activity', this)">Активность</div>
                                     <div class="profile-tab" onclick="switchProfileTab('tab-assigned', this)">В работе (<span id="assigned-count">0</span>)</div>
                                 </div>
-                                <div id="tab-activity" class="tab-content active"><p style="font-size: 14px; color: var(--text-muted);">Закрыла INC-2827</p></div>
-                                <div id="tab-assigned" class="tab-content"><div id="profile-task-list"></div></div>
+                                
+                                <!-- Контент вкладки "Активность" (динамический лог) -->
+                                <div id="tab-activity" class="tab-content active">
+                                    <div id="activity-log-list">
+                                        <p style="font-size: 14px; color: var(--text-muted);">Здесь будут отображаться последние действия.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Контент вкладки "В работе" -->
+                                <div id="tab-assigned" class="tab-content">
+                                    <div id="profile-task-list">
+                                        <p style="font-size: 14px; color: var(--text-muted);">У вас пока нет активных задач.</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -694,7 +713,7 @@
         </div>
     </div>
 
-    <!-- 5. Детали сотрудника -->
+    <!-- 5. Детали сотрудника (С кнопками Редактировать и Удалить) -->
     <div class="modal-overlay" id="employeeDetailsModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Сотрудник</div><div class="modal-actions"><button onclick="closeModal('employeeDetailsModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -709,13 +728,15 @@
                     <strong id="emp-detail-password" style="color: var(--blue-badge);"></strong>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-primary-large" onclick="closeModal('employeeDetailsModal')">Закрыть</button>
+            
+            <div class="modal-footer" style="justify-content: space-between;">
+                <button class="btn-danger" onclick="deleteEmployee()"><i class="fa-solid fa-trash"></i> Удалить</button>
+                <button class="btn-primary-large" style="flex: 0.6;" onclick="openEditEmployeeModal()"><i class="fa-solid fa-pen"></i> Редактировать</button>
             </div>
         </div>
     </div>
 
-    <!-- 6. Редактирование профиля -->
+    <!-- 6. Редактирование профиля (Свой) -->
     <div class="modal-overlay" id="editProfileModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Профиль</div><div class="modal-actions"><button onclick="closeModal('editProfileModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -723,6 +744,32 @@
             <form onsubmit="saveProfileChanges(event)">
                 <div class="form-group"><label>ФИО</label><input type="text" id="edit-profile-name" required></div>
                 <div class="form-group"><label>Телефон</label><input type="text" id="edit-profile-phone" required></div>
+                <button type="submit" class="btn-primary-large">Сохранить изменения</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 7. Редактирование сотрудника (Чужой) -->
+    <div class="modal-overlay" id="editEmployeeModal">
+        <div class="incident-modal">
+            <div class="modal-header"><div class="modal-subtitle">Редактирование</div><div class="modal-actions"><button onclick="closeModal('editEmployeeModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
+            <h2 class="modal-title" style="margin-bottom: 20px;">Изменить данные</h2>
+            <form onsubmit="saveEditedEmployee(event)">
+                <div class="form-group"><label>ФИО</label><input type="text" id="edit-emp-name" required></div>
+                <div class="form-group"><label>Почта</label><input type="email" id="edit-emp-email" required></div>
+                <div class="form-group"><label>Должность</label><input type="text" id="edit-emp-position" required></div>
+                <div class="form-group"><label>Дата рождения</label><input type="date" id="edit-emp-dob" required></div>
+                <div class="form-group">
+                    <label>Роль в системе</label>
+                    <select id="edit-emp-role">
+                        <option value="analyst">Аналитик</option>
+                        <option value="manager">Руководитель</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="text" id="edit-emp-password" required>
+                </div>
                 <button type="submit" class="btn-primary-large">Сохранить изменения</button>
             </form>
         </div>
@@ -736,14 +783,17 @@
         let teamMembers = []; 
         let currentIncident = null; 
         let currentTaskId = null; 
+        let currentEmployeeEmail = null; // Для хранения почты выбранного сотрудника
         let chartCriticalityInstance = null;
         let chartActivityInstance = null;
+        let activityLog = []; 
 
         function saveState() {
             localStorage.setItem('sibur_myTasks', JSON.stringify(myTasks));
             localStorage.setItem('sibur_resolvedTasks', JSON.stringify(resolvedTasks));
             localStorage.setItem('sibur_team', JSON.stringify(teamMembers));
             localStorage.setItem('sibur_currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('sibur_activity', JSON.stringify(activityLog));
         }
 
         function loadState() {
@@ -751,15 +801,16 @@
             const savedResolved = localStorage.getItem('sibur_resolvedTasks');
             const savedTeam = localStorage.getItem('sibur_team');
             const savedUser = localStorage.getItem('sibur_currentUser');
+            const savedActivity = localStorage.getItem('sibur_activity');
             
             if (savedTasks) myTasks = JSON.parse(savedTasks);
             if (savedResolved) resolvedTasks = JSON.parse(savedResolved);
             if (savedUser) currentUser = JSON.parse(savedUser);
+            if (savedActivity) activityLog = JSON.parse(savedActivity);
             
             if (savedTeam) {
                 teamMembers = JSON.parse(savedTeam);
             } else {
-                // При первом запуске создаем Хасаншину (Manager) и Сафина (Analyst)
                 teamMembers = [
                     { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', position: 'Руководитель отдела ИБ', dob: '2000-01-01', status: 'online', password: '11111', role: 'manager' },
                     { name: 'Сафин Ильдар', email: 'safin@sibur.ru', position: 'Аналитик SOC', dob: '1995-05-15', status: 'offline', password: '22222', role: 'analyst' }
@@ -773,8 +824,8 @@
             updateAllCounters(); 
             renderTasks();
             renderTeam(); 
+            renderActivityLog(); 
             
-            // Установка данных текущего пользователя в профиль
             document.getElementById('profile-phone').innerText = currentUser.phone || '+7 (999) 123-45-67';
 
             if (localStorage.getItem('theme') === 'dark') {
@@ -803,15 +854,67 @@
             }
         }
 
+        // === УВЕДОМЛЕНИЯ ===
+        function toggleNotifications(event) {
+            if(event) event.stopPropagation();
+            const dropdown = document.getElementById('notif-dropdown');
+            dropdown.classList.toggle('active');
+            if (dropdown.classList.contains('active')) {
+                document.getElementById('bell-btn').classList.remove('has-unread');
+            }
+        }
+        
+        function clearNotifications() {
+            document.getElementById('notif-list').innerHTML = '<div class="notif-item" style="text-align:center; color: var(--text-muted);">Нет новых уведомлений</div>';
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('notif-dropdown');
+            const bell = document.getElementById('bell-btn');
+            if (dropdown.classList.contains('active') && !dropdown.contains(e.target) && !bell.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // === ВКЛАДКИ В ПРОФИЛЕ ===
+        function switchProfileTab(tabId, element) {
+            document.querySelectorAll('.profile-tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
         // === ГЕНЕРАЦИЯ ПАРОЛЯ ===
         function generatePassword() {
             const pwd = Math.random().toString(36).slice(-8);
             document.getElementById('new-user-password').value = pwd;
         }
 
+        // === ЛЕНТА АКТИВНОСТИ ===
+        function renderActivityLog() {
+            const list = document.getElementById('activity-log-list');
+            if (!list) return;
+            
+            if (activityLog.length === 0) {
+                list.innerHTML = '<p style="font-size: 14px; color: var(--text-muted);">Нет недавних действий.</p>';
+                return;
+            }
+
+            list.innerHTML = activityLog.map(log => `
+                <div style="font-size: 14px; margin-bottom: 12px; display: flex; gap: 8px; align-items: flex-start; color: var(--text-main);">
+                    <i class="fa-solid ${log.type === 'red' ? 'fa-triangle-exclamation' : log.type === 'green' ? 'fa-check-circle' : 'fa-bolt'}" style="color: var(--${log.type === 'red' ? 'critical' : log.type === 'green' ? 'low' : 'blue-badge'}); margin-top: 2px;"></i>
+                    <div>
+                        ${log.text}
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${log.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         // === РЕНДЕР КОМАНДЫ ===
         function renderTeam() {
             const grid = document.getElementById('team-grid');
+            if(!grid) return;
             grid.innerHTML = '';
             
             teamMembers.forEach(user => {
@@ -838,6 +941,8 @@
         function openEmployeeDetails(email) {
             const user = teamMembers.find(u => u.email === email);
             if (!user) return;
+            
+            currentEmployeeEmail = email; // Запоминаем, кого выбрали
 
             document.getElementById('emp-detail-name').innerText = user.name;
             document.getElementById('emp-detail-email').innerText = user.email;
@@ -846,6 +951,85 @@
             document.getElementById('emp-detail-password').innerText = user.password;
             
             document.getElementById('employeeDetailsModal').style.display = 'flex';
+        }
+
+        // === РЕДАКТИРОВАНИЕ СОТРУДНИКА ===
+        function openEditEmployeeModal() {
+            const user = teamMembers.find(u => u.email === currentEmployeeEmail);
+            if (!user) return;
+
+            document.getElementById('edit-emp-name').value = user.name;
+            document.getElementById('edit-emp-email').value = user.email;
+            document.getElementById('edit-emp-position').value = user.position;
+            document.getElementById('edit-emp-dob').value = user.dob;
+            document.getElementById('edit-emp-role').value = user.role;
+            document.getElementById('edit-emp-password').value = user.password;
+
+            closeModal('employeeDetailsModal');
+            document.getElementById('editEmployeeModal').style.display = 'flex';
+        }
+
+        function saveEditedEmployee(event) {
+            event.preventDefault();
+            
+            const newName = document.getElementById('edit-emp-name').value;
+            const newEmail = document.getElementById('edit-emp-email').value;
+            const newPosition = document.getElementById('edit-emp-position').value;
+            const newDob = document.getElementById('edit-emp-dob').value;
+            const newRole = document.getElementById('edit-emp-role').value;
+            const newPassword = document.getElementById('edit-emp-password').value;
+
+            const userIndex = teamMembers.findIndex(u => u.email === currentEmployeeEmail);
+            if (userIndex !== -1) {
+                // Обновляем данные
+                teamMembers[userIndex].name = newName;
+                teamMembers[userIndex].email = newEmail;
+                teamMembers[userIndex].position = newPosition;
+                teamMembers[userIndex].dob = newDob;
+                teamMembers[userIndex].role = newRole;
+                teamMembers[userIndex].password = newPassword;
+
+                // Если редактируем самого себя - обновляем текущего пользователя
+                if (currentEmployeeEmail === currentUser.email) {
+                    currentUser.name = newName;
+                    currentUser.email = newEmail;
+                    currentUser.role = newRole;
+                    
+                    let shortName = newName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                    document.getElementById('top-name').innerText = newName;
+                    document.getElementById('top-avatar').innerText = shortName;
+                    document.getElementById('profile-name').innerText = newName;
+                    document.getElementById('profile-email').innerText = newEmail;
+                    document.getElementById('profile-avatar').innerText = shortName;
+                    updateUIBasedOnRole();
+                }
+
+                saveState();
+                renderTeam();
+                closeModal('editEmployeeModal');
+                showToast('Данные сотрудника обновлены', 'success');
+                addLogEvent(`Обновлены данные: ${newName}`, 'blue');
+            }
+        }
+
+        // === УДАЛЕНИЕ СОТРУДНИКА ===
+        function deleteEmployee() {
+            if (currentEmployeeEmail === currentUser.email) {
+                showToast('Вы не можете удалить свой собственный аккаунт!', 'error');
+                return;
+            }
+
+            if (confirm('Вы уверены, что хотите безвозвратно удалить этого сотрудника?')) {
+                const userName = teamMembers.find(u => u.email === currentEmployeeEmail).name;
+                
+                teamMembers = teamMembers.filter(u => u.email !== currentEmployeeEmail);
+                
+                saveState();
+                renderTeam();
+                closeModal('employeeDetailsModal');
+                showToast(`Сотрудник ${userName} удален`, 'success');
+                addLogEvent(`Удален пользователь: ${userName}`, 'red');
+            }
         }
 
         // === ДОБАВЛЕНИЕ СОТРУДНИКА ===
@@ -883,13 +1067,13 @@
             document.getElementById('new-user-password').value = '';
         }
 
-        // === АВТОРИЗАЦИЯ (С ЖЕЛЕЗОБЕТОННОЙ ЗАЩИТОЙ АДМИНА) ===
+        // === АВТОРИЗАЦИЯ ===
         function login(event) {
             event.preventDefault();
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value.trim();
             
-            // 1. ЖЕЛЕЗНЫЙ ВХОД ДЛЯ ХАСАНШИНОЙ (Игнорирует ошибки localStorage)
+            // Железный вход для админа
             if (email === 'khasanshina447@gmail.com' && password === '11111') {
                 let admin = teamMembers.find(u => u.email === email);
                 if (!admin) {
@@ -907,7 +1091,6 @@
                 return;
             }
             
-            // 2. СТАНДАРТНЫЙ ВХОД ДЛЯ ОСТАЛЬНЫХ
             const user = teamMembers.find(u => u.email === email);
             
             if (user && user.password === password) {
@@ -934,13 +1117,14 @@
             document.getElementById('profile-avatar').innerText = shortName;
             document.getElementById('greeting-text').innerText = `Доброе утро, ${currentUser.name.split(' ')[0]}`;
             
-            // Ограничиваем права
             updateUIBasedOnRole();
 
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-container').style.display = 'flex';
             document.getElementById('login-password').value = ''; 
             showToast('Успешный вход в систему', 'success');
+            
+            addLogEvent(`Вы вошли в систему`, 'blue');
         }
 
         function addSecurityNotification(attemptedEmail) {
@@ -953,7 +1137,7 @@
             addLogEvent(`Попытка несанкционированного входа: ${attemptedEmail}`, 'red');
         }
 
-        // === РЕДАКТИРОВАНИЕ ПРОФИЛЯ ===
+        // === РЕДАКТИРОВАНИЕ СВОЕГО ПРОФИЛЯ ===
         function openEditProfileModal() {
             document.getElementById('edit-profile-name').value = currentUser.name;
             document.getElementById('edit-profile-phone').value = currentUser.phone;
@@ -968,13 +1152,11 @@
             currentUser.name = newName;
             currentUser.phone = newPhone;
             
-            // Обновляем массив команды
             const userInTeam = teamMembers.find(u => u.email === currentUser.email);
             if (userInTeam) userInTeam.name = newName;
             
             saveState();
             
-            // Обновляем UI
             let shortName = newName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             document.getElementById('top-name').innerText = newName;
             document.getElementById('top-avatar').innerText = shortName;
@@ -986,6 +1168,7 @@
             renderTeam();
             closeModal('editProfileModal');
             showToast('Профиль обновлен', 'success');
+            addLogEvent(`Профиль обновлен`, 'blue');
         }
 
         // === СМЕНА РОЛИ ===
@@ -1108,11 +1291,12 @@
             const inProgressGrid = document.getElementById('in-progress-grid');
             const profileList = document.getElementById('profile-task-list');
             const resolvedGrid = document.getElementById('resolved-grid');
-            inProgressGrid.innerHTML = ''; profileList.innerHTML = ''; resolvedGrid.innerHTML = '';
+            
+            inProgressGrid.innerHTML = ''; 
+            resolvedGrid.innerHTML = '';
 
             if (myTasks.length === 0) {
                 inProgressGrid.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Нет задач.</p>';
-                profileList.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Пусто.</p>';
             } else {
                 myTasks.forEach(task => {
                     const card = document.createElement('div');
@@ -1120,13 +1304,22 @@
                     card.onclick = () => openTaskModal(task.id, task.title);
                     card.innerHTML = `<div class="inc-top"><div class="inc-id">${task.id}</div><div class="badge progress">В работе</div></div><div class="inc-title">${task.title}</div>`;
                     inProgressGrid.appendChild(card);
-
-                    const pCard = document.createElement('div');
-                    pCard.style.cssText = 'padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;';
-                    pCard.onclick = () => openTaskModal(task.id, task.title);
-                    pCard.innerHTML = `<div><div style="font-size: 14px; font-weight: 600; color: var(--text-main);">${task.title}</div><div style="font-size: 12px; color: var(--text-muted);">${task.id}</div></div><i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>`;
-                    profileList.appendChild(pCard);
                 });
+            }
+
+            if (profileList) {
+                profileList.innerHTML = '';
+                if (myTasks.length === 0) {
+                    profileList.innerHTML = '<p style="font-size: 14px; color: var(--text-muted);">У вас пока нет активных задач.</p>';
+                } else {
+                    myTasks.forEach(task => {
+                        const pCard = document.createElement('div');
+                        pCard.style.cssText = 'padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;';
+                        pCard.onclick = () => openTaskModal(task.id, task.title);
+                        pCard.innerHTML = `<div><div style="font-size: 14px; font-weight: 600; color: var(--text-main);">${task.title}</div><div style="font-size: 12px; color: var(--text-muted);">${task.id}</div></div><i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>`;
+                        profileList.appendChild(pCard);
+                    });
+                }
             }
 
             if (resolvedTasks.length === 0) {
@@ -1159,6 +1352,12 @@
             item.innerHTML = `<div class="event-icon ${type}"><i class="fa-solid ${icon}"></i></div><div class="event-text"><p>${text}</p><span>Только что</span></div>`;
             list.prepend(item);
             if (list.children.length > 5) list.removeChild(list.lastElementChild);
+
+            const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            activityLog.unshift({ text, type, time });
+            if (activityLog.length > 10) activityLog.pop();
+            saveState();
+            renderActivityLog();
         }
 
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -1213,6 +1412,7 @@
                 
                 textDiv.innerHTML = recommendation;
                 showToast('AI-анализ завершен', 'success');
+                addLogEvent(`Запущен AI-анализ для ${currentIncident.id}`, 'blue');
             }, 2000);
         }
 
@@ -1252,6 +1452,7 @@
             input.value = ''; 
             list.parentElement.scrollTop = list.parentElement.scrollHeight;
             showToast('Комментарий добавлен', 'success');
+            addLogEvent(`Добавлен комментарий к ${currentIncident.id}`, 'blue');
         }
 
         function logout() {
@@ -1262,7 +1463,6 @@
             saveState();
             renderTeam();
             
-            // Сброс UI на случай входа другого пользователя
             document.getElementById('role-switcher').value = 'analyst';
             updateUIBasedOnRole();
 
@@ -1281,6 +1481,7 @@
             XLSX.utils.book_append_sheet(wb, ws, "Инциденты");
             XLSX.writeFile(wb, "Sibur_Incidents.xlsx");
             showToast('Отчет скачан', 'success');
+            addLogEvent(`Выгружен отчет по инцидентам`, 'blue');
         }
 
         function exportAnalyticsToExcel() {
@@ -1289,6 +1490,7 @@
             XLSX.utils.book_append_sheet(wb, ws, "KPI");
             XLSX.writeFile(wb, "Sibur_Analytics.xlsx");
             showToast('Аналитика скачана', 'success');
+            addLogEvent(`Выгружен аналитический отчет`, 'blue');
         }
 
         window.onclick = function(event) { if (event.target.classList.contains('modal-overlay')) event.target.style.display = 'none'; }
