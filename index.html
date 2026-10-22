@@ -117,7 +117,7 @@
         
         .topbar-right { display: flex; align-items: center; gap: 16px; }
         .theme-toggle { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 8px; }
-        .role-switcher { background: var(--bg-body); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; }
+        .role-switcher { background: var(--bg-body); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; display: none; }
         
         .bell-container { position: relative; }
         .bell-btn { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; position: relative; padding: 8px; border-radius: 8px; }
@@ -168,7 +168,7 @@
 
         /* ИНЦИДЕНТЫ */
         .incident-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-        .btn-create { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .btn-create { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: none; align-items: center; gap: 8px; }
         .btn-export { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         
         .incident-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
@@ -349,7 +349,10 @@
                 <button class="nav-item" data-target="view-in-progress" onclick="switchPage('view-in-progress', this)"><i class="fa-solid fa-spinner"></i> <span>В работе</span><span class="nav-badge" id="sidebar-task-count">0</span></button>
                 <button class="nav-item" data-target="view-resolved" onclick="switchPage('view-resolved', this)"><i class="fa-solid fa-check-double"></i> <span>Решенные</span><span class="nav-badge green" id="sidebar-resolved-count">0</span></button>
                 <button class="nav-item" data-target="view-analytics" onclick="switchPage('view-analytics', this)"><i class="fa-solid fa-chart-pie"></i> <span>Аналитика</span></button>
+                
+                <!-- Вкладка Команда (по умолчанию скрыта, включается только для Руководителя) -->
                 <button class="nav-item" id="nav-team" data-target="view-team" onclick="switchPage('view-team', this)" style="display: none;"><i class="fa-solid fa-users"></i> <span>Команда</span></button>
+                
                 <button class="nav-item" data-target="view-profile" onclick="switchPage('view-profile', this)"><i class="fa-regular fa-user"></i> <span>Мой профиль</span></button>
             </nav>
 
@@ -368,10 +371,13 @@
                 </div>
                 <div class="topbar-right">
                     <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+                    
+                    <!-- Переключатель ролей (по умолчанию скрыт) -->
                     <select class="role-switcher" id="role-switcher" onchange="changeRole()">
                         <option value="analyst">Аналитик</option>
                         <option value="manager">Руководитель</option>
                     </select>
+                    
                     <div class="bell-container">
                         <button class="bell-btn has-unread" id="bell-btn" onclick="toggleNotifications()"><i class="fa-regular fa-bell"></i></button>
                         <div class="notif-dropdown" id="notif-dropdown">
@@ -415,7 +421,7 @@
                         <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Все инциденты</h1>
                         <div style="display: flex; gap: 12px;">
                             <button class="btn-export" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
-                            <button class="btn-create" id="btn-create-incident" onclick="openCreateModal()" style="display: none;"><i class="fa-solid fa-plus"></i> Создать</button>
+                            <button class="btn-create" id="btn-create-incident" onclick="openCreateModal()"><i class="fa-solid fa-plus"></i> Создать</button>
                         </div>
                     </div>
 
@@ -562,7 +568,7 @@
                             <div class="profile-avatar-large" id="profile-avatar">ХЛ</div>
                             <div class="profile-names">
                                 <h2 id="profile-name">Хасаншина Лейсан</h2>
-                                <p id="profile-role">Старший аналитик SOC</p>
+                                <p id="profile-role">Руководитель отдела ИБ</p>
                             </div>
                             <div class="profile-actions">
                                 <button class="btn-edit-profile" onclick="openEditProfileModal()"><i class="fa-solid fa-pen"></i> Редактировать</button>
@@ -619,7 +625,7 @@
                 </div>
             </div>
 
-            <div class="assign-block" id="assign-block"><select><option>Хасаншина Лейсан</option><option>Иванов Иван</option></select></div>
+            <div class="assign-block" id="assign-block"><select><option>Хасаншина Лейсан</option><option>Сафин Ильдар</option></select></div>
             
             <div class="modal-timeline">
                 <div class="timeline-header"><h3>Хронология</h3></div>
@@ -663,10 +669,17 @@
             <div class="modal-header"><div class="modal-subtitle">Новый сотрудник</div><div class="modal-actions"><button onclick="closeModal('addUserModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
             <h2 class="modal-title" style="margin-bottom: 20px;">Добавить в команду</h2>
             <form onsubmit="submitNewUser(event)">
-                <div class="form-group"><label>ФИО</label><input type="text" id="new-user-name" placeholder="Иванов Иван" required></div>
-                <div class="form-group"><label>Почта</label><input type="email" id="new-user-email" placeholder="ivanov@sibur.ru" required></div>
+                <div class="form-group"><label>ФИО</label><input type="text" id="new-user-name" placeholder="Сафин Ильдар" required></div>
+                <div class="form-group"><label>Почта</label><input type="email" id="new-user-email" placeholder="safin@sibur.ru" required></div>
                 <div class="form-group"><label>Должность</label><input type="text" id="new-user-position" placeholder="Аналитик SOC" required></div>
                 <div class="form-group"><label>Дата рождения</label><input type="date" id="new-user-dob" required></div>
+                <div class="form-group">
+                    <label>Роль в системе</label>
+                    <select id="new-user-role">
+                        <option value="analyst">Аналитик (без прав руководителя)</option>
+                        <option value="manager">Руководитель (полные права)</option>
+                    </select>
+                </div>
                 
                 <div class="form-group">
                     <label>Пароль</label>
@@ -716,13 +729,13 @@
     </div>
 
     <script>
-        let currentUser = { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', phone: '+7 (999) 123-45-67' };
+        // Начальный пользователь (Админ)
+        let currentUser = { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', phone: '+7 (999) 123-45-67', role: 'manager' };
         let myTasks = []; 
         let resolvedTasks = []; 
         let teamMembers = []; 
         let currentIncident = null; 
         let currentTaskId = null; 
-        let currentRole = 'analyst';
         let chartCriticalityInstance = null;
         let chartActivityInstance = null;
 
@@ -746,10 +759,10 @@
             if (savedTeam) {
                 teamMembers = JSON.parse(savedTeam);
             } else {
+                // При первом запуске создаем Хасаншину (Manager) и Сафина (Analyst)
                 teamMembers = [
-                    { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', position: 'Старший аналитик', dob: '2000-01-01', status: 'online', password: '11111' },
-                    { name: 'Иванов Иван', email: 'ivanov@sibur.ru', position: 'Аналитик', dob: '1995-05-15', status: 'online', password: '12345678' },
-                    { name: 'Петров Петр', email: 'petrov@sibur.ru', position: 'Аналитик', dob: '1990-10-20', status: 'offline', password: '87654321' }
+                    { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', position: 'Руководитель отдела ИБ', dob: '2000-01-01', status: 'online', password: '11111', role: 'manager' },
+                    { name: 'Сафин Ильдар', email: 'safin@sibur.ru', position: 'Аналитик SOC', dob: '1995-05-15', status: 'offline', password: '22222', role: 'analyst' }
                 ];
                 saveState();
             }
@@ -760,16 +773,35 @@
             updateAllCounters(); 
             renderTasks();
             renderTeam(); 
-            changeRole(); 
             
             // Установка данных текущего пользователя в профиль
-            document.getElementById('profile-phone').innerText = currentUser.phone;
+            document.getElementById('profile-phone').innerText = currentUser.phone || '+7 (999) 123-45-67';
 
             if (localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark-mode');
                 document.querySelector('#theme-toggle i').className = 'fa-solid fa-sun';
             }
         });
+
+        // === ПРОВЕРКА ПРАВ ДОСТУПА ===
+        function updateUIBasedOnRole() {
+            const roleSwitcher = document.querySelector('.role-switcher');
+            const navTeam = document.getElementById('nav-team');
+            const btnCreate = document.getElementById('btn-create-incident');
+            const profileRole = document.getElementById('profile-role');
+
+            if (currentUser.role === 'manager') {
+                roleSwitcher.style.display = 'block';
+                navTeam.style.display = 'flex';
+                btnCreate.style.display = 'flex';
+                profileRole.innerText = 'Руководитель отдела ИБ';
+            } else {
+                roleSwitcher.style.display = 'none';
+                navTeam.style.display = 'none';
+                btnCreate.style.display = 'none';
+                profileRole.innerText = 'Аналитик SOC';
+            }
+        }
 
         // === ГЕНЕРАЦИЯ ПАРОЛЯ ===
         function generatePassword() {
@@ -823,6 +855,7 @@
             const email = document.getElementById('new-user-email').value;
             const position = document.getElementById('new-user-position').value;
             const dob = document.getElementById('new-user-dob').value;
+            const role = document.getElementById('new-user-role').value;
             const password = document.getElementById('new-user-password').value;
             
             teamMembers.push({
@@ -831,6 +864,7 @@
                 position: position,
                 dob: dob,
                 password: password,
+                role: role,
                 status: 'offline'
             });
             
@@ -849,17 +883,36 @@
             document.getElementById('new-user-password').value = '';
         }
 
-        // === АВТОРИЗАЦИЯ ===
+        // === АВТОРИЗАЦИЯ (С ЖЕЛЕЗОБЕТОННОЙ ЗАЩИТОЙ АДМИНА) ===
         function login(event) {
             event.preventDefault();
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value.trim();
             
+            // 1. ЖЕЛЕЗНЫЙ ВХОД ДЛЯ ХАСАНШИНОЙ (Игнорирует ошибки localStorage)
+            if (email === 'khasanshina447@gmail.com' && password === '11111') {
+                let admin = teamMembers.find(u => u.email === email);
+                if (!admin) {
+                    admin = { name: 'Хасаншина Лейсан', email: email, position: 'Руководитель отдела ИБ', dob: '2000-01-01', status: 'online', password: '11111', role: 'manager' };
+                    teamMembers.push(admin);
+                }
+                admin.password = '11111';
+                admin.role = 'manager';
+                admin.status = 'online';
+                
+                currentUser = { name: admin.name, email: admin.email, phone: admin.phone || '+7 (999) 123-45-67', role: 'manager' };
+                saveState();
+                authorizeUser();
+                renderTeam();
+                return;
+            }
+            
+            // 2. СТАНДАРТНЫЙ ВХОД ДЛЯ ОСТАЛЬНЫХ
             const user = teamMembers.find(u => u.email === email);
             
             if (user && user.password === password) {
-                currentUser = { name: user.name, email: user.email, phone: currentUser.phone };
-                authorizeUser(user.name, email);
+                currentUser = { name: user.name, email: user.email, phone: currentUser.phone || '+7 (999) 123-45-67', role: user.role || 'analyst' };
+                authorizeUser();
                 user.status = 'online';
                 saveState();
                 renderTeam();
@@ -871,16 +924,19 @@
             }
         }
 
-        function authorizeUser(displayName, email) {
-            let shortName = displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        function authorizeUser() {
+            let shortName = currentUser.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             
-            document.getElementById('top-name').innerText = displayName;
+            document.getElementById('top-name').innerText = currentUser.name;
             document.getElementById('top-avatar').innerText = shortName;
-            document.getElementById('profile-name').innerText = displayName;
-            document.getElementById('profile-email').innerText = email;
+            document.getElementById('profile-name').innerText = currentUser.name;
+            document.getElementById('profile-email').innerText = currentUser.email;
             document.getElementById('profile-avatar').innerText = shortName;
-            document.getElementById('greeting-text').innerText = `Доброе утро, ${displayName.split(' ')[0]}`;
+            document.getElementById('greeting-text').innerText = `Доброе утро, ${currentUser.name.split(' ')[0]}`;
             
+            // Ограничиваем права
+            updateUIBasedOnRole();
+
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-container').style.display = 'flex';
             document.getElementById('login-password').value = ''; 
@@ -934,28 +990,26 @@
 
         // === СМЕНА РОЛИ ===
         function changeRole() {
-            currentRole = document.getElementById('role-switcher').value;
-            
-            // Кнопки и вкладки
-            if (document.getElementById('btn-create-incident')) 
-                document.getElementById('btn-create-incident').style.display = currentRole === 'manager' ? 'flex' : 'none';
-            if (document.getElementById('nav-team')) 
-                document.getElementById('nav-team').style.display = currentRole === 'manager' ? 'flex' : 'none';
-            
-            // Блок назначения в модалке
-            if (document.getElementById('incidentModal').style.display === 'flex') 
-                document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
+            if (currentUser.role !== 'manager') return; 
 
-            // Обновление текста в профиле
-            const roleText = document.getElementById('profile-role');
+            const currentRole = document.getElementById('role-switcher').value;
+            
             if (currentRole === 'manager') {
-                roleText.innerText = 'Руководитель отдела ИБ';
+                document.getElementById('nav-team').style.display = 'flex';
+                document.getElementById('btn-create-incident').style.display = 'flex';
+                document.getElementById('profile-role').innerText = 'Руководитель отдела ИБ';
             } else {
-                roleText.innerText = 'Старший аналитик SOC';
+                document.getElementById('nav-team').style.display = 'none';
+                document.getElementById('btn-create-incident').style.display = 'none';
+                document.getElementById('profile-role').innerText = 'Аналитик SOC';
+            }
+
+            if (document.getElementById('incidentModal').style.display === 'flex') {
+                document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
             }
         }
 
-        // === ОСТАЛЬНЫЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ) ===
+        // === ОСТАЛЬНЫЕ ФУНКЦИИ ===
         function renderCharts() {
             const isDark = document.body.classList.contains('dark-mode');
             const textColor = isDark ? '#f1f5f9' : '#1a1f36';
@@ -1121,7 +1175,8 @@
             const sevBadge = document.getElementById('modal-severity');
             sevBadge.innerText = severity;
             sevBadge.className = 'badge ' + (severity === 'Критический' ? 'critical' : severity === 'Высокий' ? 'high' : severity === 'Средний' ? 'medium' : 'low');
-            document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
+            
+            document.getElementById('assign-block').style.display = currentUser.role === 'manager' ? 'block' : 'none';
             
             const btn = document.getElementById('btn-take-work');
             btn.innerHTML = 'Взять в работу'; btn.className = 'btn-primary-large'; btn.disabled = false;
@@ -1207,6 +1262,10 @@
             saveState();
             renderTeam();
             
+            // Сброс UI на случай входа другого пользователя
+            document.getElementById('role-switcher').value = 'analyst';
+            updateUIBasedOnRole();
+
             switchPage('view-overview', document.querySelectorAll('.nav-item')[0]);
         }
 
