@@ -6,7 +6,10 @@
     <title>Управление инцидентами ИБ - Сибур</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Библиотеки: Экспорт в Excel и Графики -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
@@ -54,7 +57,7 @@
 
         /* ТОСТ-УВЕДОМЛЕНИЯ */
         #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
-        .toast { background: var(--bg-card); color: var(--text-main); padding: 14px 20px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 14px; border: 1px solid var(--border); animation: slideInRight 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; }
+        .toast { background: var(--bg-card); color: var(--text-main); padding: 14px 20px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 14px; border: 1px solid var(--border); animation: slideInRight 0.3s forwards; }
         .toast.success { border-left: 4px solid var(--low); }
         .toast.error { border-left: 4px solid var(--critical); }
         .toast.info { border-left: 4px solid var(--blue-badge); }
@@ -93,59 +96,43 @@
         .nav-badge { background: var(--primary); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: auto; }
         .nav-badge.green { background: var(--low); }
 
-        /* СТАТУС ИНТЕГРАЦИЙ ВНИЗУ САЙДБАРА */
         .integrations-status { padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px; }
         .int-item { display: flex; justify-content: space-between; align-items: center; }
         .dot-green { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; box-shadow: 0 0 4px #22c55e; }
 
         /* ОСНОВНАЯ ЧАСТЬ */
         .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; }
-        
-        /* ВЕРХНЯЯ ПАНЕЛЬ */
         .topbar { height: 72px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
         
-        /* Кнопка меню (Гамбургер) */
         .menu-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; padding: 8px; margin-right: 12px; }
-        
         .search-container { position: relative; width: 400px; }
         .search-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        .search-container input { width: 100%; padding: 10px 16px 10px 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); font-size: 14px; outline: none; color: var(--text-main); transition: 0.2s; }
-        .search-container input:focus { border-color: var(--primary); }
+        .search-container input { width: 100%; padding: 10px 16px 10px 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); font-size: 14px; outline: none; color: var(--text-main); }
         
         .topbar-right { display: flex; align-items: center; gap: 16px; }
-        
-        /* Кнопка темы */
-        .theme-toggle { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 8px; transition: 0.2s; }
-        .theme-toggle:hover { background: var(--bg-body); color: var(--text-main); }
-
+        .theme-toggle { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 8px; }
         .role-switcher { background: var(--bg-body); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; }
         
-        /* Уведомления */
         .bell-container { position: relative; }
-        .bell-btn { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; position: relative; padding: 8px; border-radius: 8px; transition: 0.2s; }
-        .bell-btn:hover { background: var(--bg-body); }
+        .bell-btn { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; position: relative; padding: 8px; border-radius: 8px; }
         .bell-btn.has-unread::after { content: ''; position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--critical); border-radius: 50%; border: 2px solid var(--bg-card); }
         
-        .notif-dropdown { display: none; position: absolute; top: 50px; right: 0; width: 320px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; overflow: hidden; }
+        .notif-dropdown { display: none; position: absolute; top: 50px; right: 0; width: 320px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; }
         .notif-dropdown.active { display: block; }
         .notif-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; color: var(--text-main); }
         .notif-header span { font-size: 12px; color: var(--blue-badge); cursor: pointer; }
-        .notif-list { max-height: 300px; overflow-y: auto; }
         .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-main); }
-        .notif-item:last-child { border-bottom: none; }
         .notif-item span { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
-        .user-profile-top { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 4px; border-radius: 20px; transition: 0.2s; }
-        .user-profile-top:hover { background: var(--bg-body); }
+        .user-profile-top { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 4px; border-radius: 20px; }
         .user-avatar-sm { width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 600; font-size: 13px; }
 
-        /* РАБОЧАЯ ОБЛАСТЬ (СКРОЛЛ) */
         .content-area { flex: 1; overflow-y: auto; padding: 32px; -webkit-overflow-scrolling: touch; }
         .page-view { display: none; }
         .page-view.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ОБЗОР И ЛЕНТА СОБЫТИЙ */
+        /* СТАТИСТИКА */
         .overview-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start; }
         .stats-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px; }
         .stat-card { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); display: flex; align-items: center; gap: 20px; }
@@ -167,42 +154,17 @@
         .event-text p { color: var(--text-main); margin-bottom: 2px; line-height: 1.4; }
         .event-text span { font-size: 11px; color: var(--text-muted); }
 
-        /* АНАЛИТИКА */
-        .analytics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-        .chart-card { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
-        .chart-card h3 { font-size: 16px; margin-bottom: 20px; color: var(--text-main); }
-        .bar-chart-row { margin-bottom: 16px; }
-        .bar-chart-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text-main); }
-        .bar-chart-track { height: 8px; background: var(--bg-body); border-radius: 4px; overflow: hidden; }
-        .bar-chart-fill { height: 100%; border-radius: 4px; }
-        .column-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 150px; padding-top: 20px; }
-        .column { width: 40px; border-radius: 4px 4px 0 0; position: relative; transition: 0.3s; }
-        .column:hover { opacity: 0.8; }
-        .column span { position: absolute; bottom: -24px; left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--text-muted); }
-        .donut-container { display: flex; align-items: center; justify-content: center; gap: 30px; height: 180px; }
-        .donut { width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(var(--critical) 0% 35%, var(--high) 35% 65%, var(--medium) 65% 85%, var(--low) 85% 100%); position: relative; }
-        .donut::after { content: '100%'; position: absolute; width: 90px; height: 90px; background: var(--bg-card); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: var(--text-main); }
-        .donut-legend { display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--text-main); }
-        .legend-item { display: flex; align-items: center; gap: 8px; }
-        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
-        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-        .kpi-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); text-align: center; }
-        .kpi-value { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
-        .kpi-label { font-size: 13px; color: var(--text-muted); }
-        .analyst-list { display: flex; flex-direction: column; gap: 12px; }
-        .analyst-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
-        .analyst-info { display: flex; align-items: center; gap: 12px; }
-        .analyst-rank { width: 24px; height: 24px; background: var(--bg-body); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: 700; color: var(--text-main); }
-        .analyst-name { font-size: 14px; font-weight: 600; color: var(--text-main); }
-        .analyst-count { font-size: 13px; color: var(--low); font-weight: 600; }
+        /* ФИЛЬТРЫ ИНЦИДЕНТОВ (НОВОЕ) */
+        .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        .filter-btn:hover { background: var(--bg-body); color: var(--text-main); }
+        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* ИНЦИДЕНТЫ */
-        .incident-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-        .btn-create { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-create:hover { background: var(--primary-hover); }
-        .btn-export { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-export:hover { background: var(--bg-body); }
+        .incident-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .btn-create { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .btn-export { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        
         .incident-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .incident-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
         .incident-card:hover { box-shadow: 0 8px 16px rgba(0,0,0,0.05); transform: translateY(-2px); border-color: var(--primary); }
@@ -222,7 +184,29 @@
         .inc-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; line-height: 1.4; }
         .inc-bottom { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 16px; }
         .status-new { color: var(--blue-badge); font-weight: 600; }
-        .status-done { color: var(--low); font-weight: 600; }
+
+        /* АНАЛИТИКА (ОБНОВЛЕНО) */
+        .analytics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .chart-card { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
+        .chart-card h3 { font-size: 16px; margin-bottom: 20px; color: var(--text-main); }
+        
+        .chart-container { position: relative; height: 200px; width: 100%; display: flex; justify-content: center; }
+        
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .kpi-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); text-align: center; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+        .kpi-label { font-size: 13px; color: var(--text-muted); }
+
+        /* КОМАНДА (НОВОЕ) */
+        .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .team-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
+        .team-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--blue-bg); color: var(--primary); display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 18px; position: relative; }
+        .status-dot { position: absolute; bottom: 0; right: 0; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg-card); }
+        .status-online { background: var(--low); }
+        .status-offline { background: var(--text-muted); }
+        .team-info h4 { font-size: 15px; color: var(--text-main); margin-bottom: 4px; }
+        .team-info p { font-size: 12px; color: var(--text-muted); }
 
         /* ПРОФИЛЬ */
         .profile-container { max-width: 900px; margin: 0 auto; background: var(--bg-card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
@@ -248,8 +232,7 @@
         .incident-modal { background: var(--bg-card); width: 480px; max-width: 95%; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
         .modal-subtitle { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; }
-        .modal-actions button { background: var(--bg-body); border: none; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; color: var(--text-muted); margin-left: 8px; transition: 0.2s; }
-        .modal-actions button:hover { color: var(--critical); }
+        .modal-actions button { background: var(--bg-body); border: none; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; color: var(--text-muted); margin-left: 8px; }
         .modal-id { font-size: 22px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; }
         .modal-badges { display: flex; gap: 8px; margin-bottom: 16px; }
         .modal-badges .badge-blue { background: var(--blue-bg); color: var(--blue-badge); font-size: 12px; padding: 4px 12px; border-radius: 12px; font-weight: 600; }
@@ -280,7 +263,6 @@
         .comment-box button { background: var(--primary); color: white; border: none; padding: 0 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .modal-footer { display: flex; gap: 12px; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
         .btn-primary-large { flex: 1; height: 48px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-primary-large:hover { background: var(--primary-hover); }
         .btn-primary-large.done { background: var(--low); }
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
@@ -288,54 +270,27 @@
         .form-group textarea { resize: vertical; min-height: 80px; }
 
         /* =========================================
-           АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ (Mobile First)
+           АДАПТИВНОСТЬ
            ========================================= */
         @media (max-width: 900px) {
-            /* Левого меню по умолчанию нет на экране */
             .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
             .sidebar.open { left: 0; }
-            
-            /* Затемнение фона */
-            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; backdrop-filter: blur(2px); }
+            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
             .mobile-overlay.active { display: block; }
-
-            /* Показываем гамбургер */
             .menu-toggle { display: block; }
-
-            /* Убираем поиск с шапки на мобилке (или переносим ниже) */
             .search-container { display: none; }
-
-            /* Настройка шапки */
             .topbar { padding: 0 16px; justify-content: flex-start; }
             .topbar-right { margin-left: auto; gap: 8px; }
-
-            /* Скрываем имя пользователя, оставляем только аватарку */
             #top-name { display: none; }
-
-            /* Перестраиваем сетки в одну колонку */
-            .overview-layout, .charts-grid, .kpi-grid, .stats-grid { grid-template-columns: 1fr; }
-            .profile-body { grid-template-columns: 1fr; padding: 20px; }
-            .profile-header-info { padding: 0 20px 20px 20px; }
-            .profile-actions { width: 100%; margin-top: 10px; }
-            
-            /* Убираем отступы по бокам */
+            .overview-layout, .charts-grid, .kpi-grid, .stats-grid, .profile-body, .team-grid { grid-template-columns: 1fr; }
             .content-area { padding: 16px; }
-
-            /* Скрываем лишние колонки в таблицах на телефоне */
-            .incident-grid { grid-template-columns: 1fr; }
-            .charts-grid { gap: 12px; }
-            .chart-card { padding: 16px; }
-            
             .modal-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <!-- КОНТЕЙНЕР ДЛЯ ТОСТ-УВЕДОМЛЕНИЙ -->
     <div id="toast-container"></div>
-
-    <!-- ЗАТЕМНЕНИЕ ФОНА ПРИ ОТКРЫТОМ МЕНЮ -->
     <div class="mobile-overlay" id="mobile-overlay" onclick="toggleSidebar()"></div>
 
     <!-- ЭКРАН АВТОРИЗАЦИИ -->
@@ -343,16 +298,9 @@
         <div class="login-box">
             <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
             <h2>Вход в систему</h2>
-            <p>Введите почту</p>
             <form onsubmit="login(event)">
-                <div class="input-group">
-                    <i class="fa-regular fa-envelope"></i>
-                    <input type="email" id="login-email" placeholder="Корпоративная почта" value="khasanshina447@gmail.com" required>
-                </div>
-                <div class="input-group">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" placeholder="Пароль" value="password123" required>
-                </div>
+                <div class="input-group"><i class="fa-regular fa-envelope"></i><input type="email" id="login-email" value="khasanshina447@gmail.com" required></div>
+                <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" value="password123" required></div>
                 <button type="submit" class="login-btn">Войти</button>
             </form>
         </div>
@@ -363,68 +311,49 @@
         <aside class="sidebar" id="sidebar">
             <div class="logo-container">
                 <div class="logo-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                <div class="logo-text-wrapper">
-                    <span class="logo-subtitle">Security</span>
-                    <span class="logo-title">Центр реагирования</span>
-                </div>
+                <div class="logo-text-wrapper"><span class="logo-subtitle">Security</span><span class="logo-title">Центр реагирования</span></div>
             </div>
             
             <nav class="nav-menu">
                 <button class="nav-item active" data-target="view-overview" onclick="switchPage('view-overview', this)"><i class="fa-solid fa-house"></i> <span>Обзор</span></button>
                 <button class="nav-item" data-target="view-incidents" onclick="switchPage('view-incidents', this)"><i class="fa-solid fa-triangle-exclamation"></i> <span>Инциденты</span></button>
-                <button class="nav-item" data-target="view-in-progress" onclick="switchPage('view-in-progress', this)">
-                    <i class="fa-solid fa-spinner"></i> <span>В работе</span>
-                    <span class="nav-badge" id="sidebar-task-count">0</span>
-                </button>
-                <button class="nav-item" data-target="view-resolved" onclick="switchPage('view-resolved', this)">
-                    <i class="fa-solid fa-check-double"></i> <span>Решенные</span>
-                    <span class="nav-badge green" id="sidebar-resolved-count">0</span>
-                </button>
-                <button class="nav-item" data-target="view-analytics" onclick="switchPage('view-analytics', this)">
-                    <i class="fa-solid fa-chart-pie"></i> <span>Аналитика</span>
-                </button>
+                <button class="nav-item" data-target="view-in-progress" onclick="switchPage('view-in-progress', this)"><i class="fa-solid fa-spinner"></i> <span>В работе</span><span class="nav-badge" id="sidebar-task-count">0</span></button>
+                <button class="nav-item" data-target="view-resolved" onclick="switchPage('view-resolved', this)"><i class="fa-solid fa-check-double"></i> <span>Решенные</span><span class="nav-badge green" id="sidebar-resolved-count">0</span></button>
+                <button class="nav-item" data-target="view-analytics" onclick="switchPage('view-analytics', this)"><i class="fa-solid fa-chart-pie"></i> <span>Аналитика</span></button>
+                <!-- НОВАЯ ВКЛАДКА КОМАНДА (Скрыта по умолчанию) -->
+                <button class="nav-item" id="nav-team" data-target="view-team" onclick="switchPage('view-team', this)" style="display: none;"><i class="fa-solid fa-users"></i> <span>Команда</span></button>
                 <button class="nav-item" data-target="view-profile" onclick="switchPage('view-profile', this)"><i class="fa-regular fa-user"></i> <span>Мой профиль</span></button>
             </nav>
 
             <div class="integrations-status">
                 <div class="int-item"><span><i class="fa-solid fa-server"></i> SIEM</span> <span>Онлайн <span class="dot-green"></span></span></div>
                 <div class="int-item"><span><i class="fa-brands fa-jira"></i> Jira</span> <span>Подключена <span class="dot-green"></span></span></div>
-                <div class="int-item"><span><i class="fa-solid fa-database"></i> SAP</span> <span>Синхронизация <span class="dot-green"></span></span></div>
             </div>
         </aside>
 
         <div class="main-wrapper">
             <header class="topbar">
-                <!-- Кнопка гамбургер для мобильных -->
                 <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-
                 <div class="search-container">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" id="global-search" placeholder="Поиск по ID или названию...">
                 </div>
-                
                 <div class="topbar-right">
-                    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Переключить тему">
-                        <i class="fa-solid fa-moon"></i>
-                    </button>
-
+                    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
                     <select class="role-switcher" id="role-switcher" onchange="changeRole()">
                         <option value="analyst">Аналитик</option>
                         <option value="manager">Руководитель</option>
                     </select>
-
                     <div class="bell-container">
                         <button class="bell-btn has-unread" id="bell-btn" onclick="toggleNotifications()"><i class="fa-regular fa-bell"></i></button>
                         <div class="notif-dropdown" id="notif-dropdown">
                             <div class="notif-header">Уведомления <span onclick="clearNotifications()">Прочитать все</span></div>
                             <div class="notif-list" id="notif-list">
-                                <div class="notif-item">Инцидент <b>INC-2841</b> создан системой<span>10 минут назад</span></div>
-                                <div class="notif-item">Задача <b>INC-2839</b> переведена в статус "В работе"<span>30 минут назад</span></div>
+                                <div class="notif-item">Инцидент <b>INC-2841</b> создан<span>10 мин назад</span></div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="user-profile-top" onclick="switchPage('view-profile', document.querySelectorAll('.nav-item')[5])">
+                    <div class="user-profile-top" onclick="switchPage('view-profile', document.querySelectorAll('.nav-item')[6])">
                         <div class="user-avatar-sm" id="top-avatar">ХЛ</div>
                         <div id="top-name">Хасаншина Л.</div>
                     </div>
@@ -434,78 +363,63 @@
             <main class="content-area" id="main-content">
                 <!-- ОБЗОР -->
                 <div id="view-overview" class="page-view active">
-                    <div style="margin-bottom: 24px;">
-                        <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 4px; color: var(--text-main);" id="greeting-text">Доброе утро, Лейсан</h1>
-                        <p style="font-size: 14px; color: var(--text-muted);">Четверг, 14 ноября. Вот сводка на сегодня.</p>
-                    </div>
+                    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 4px; color: var(--text-main);" id="greeting-text">Доброе утро, Лейсан</h1>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">Четверг, 14 ноября. Вот сводка.</p>
                     
                     <div class="overview-layout">
-                        <div>
-                            <div class="stats-grid">
-                                <div class="stat-card">
-                                    <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                                    <div><span class="stat-value">12</span><br><span class="stat-label">Открыто инцидентов</span></div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-icon blue"><i class="fa-solid fa-wave-square"></i></div>
-                                    <div><span class="stat-value" id="stat-in-progress">0</span><br><span class="stat-label">В работе (у вас)</span></div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-icon green"><i class="fa-solid fa-check-double"></i></div>
-                                    <div><span class="stat-value" id="stat-resolved">0</span><br><span class="stat-label">Решено задач</span></div>
-                                </div>
-                            </div>
+                        <div class="stats-grid">
+                            <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div><div><span class="stat-value">12</span><br><span class="stat-label">Открыто</span></div></div>
+                            <div class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-wave-square"></i></div><div><span class="stat-value" id="stat-in-progress">0</span><br><span class="stat-label">В работе</span></div></div>
+                            <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-check-double"></i></div><div><span class="stat-value" id="stat-resolved">0</span><br><span class="stat-label">Решено</span></div></div>
                         </div>
-
                         <div class="event-feed">
                             <h3><i class="fa-solid fa-bolt" style="color: var(--high);"></i> Лента событий</h3>
                             <div class="event-list" id="event-list">
-                                <div class="event-item">
-                                    <div class="event-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                                    <div class="event-text"><p>Система создала инцидент INC-2841</p><span>Только что</span></div>
-                                </div>
+                                <div class="event-item"><div class="event-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="event-text"><p>Система создала INC-2841</p><span>Только что</span></div></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ВСЕ ИНЦИДЕНТЫ -->
+                <!-- ИНЦИДЕНТЫ -->
                 <div id="view-incidents" class="page-view">
                     <div class="incident-header-actions">
                         <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Все инциденты</h1>
-                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                            <button class="btn-export" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Отчет</button>
-                            <button class="btn-create" id="btn-create-incident" onclick="openCreateModal()" style="display: none;">
-                                <i class="fa-solid fa-plus"></i> Создать
-                            </button>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn-export" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                            <button class="btn-create" id="btn-create-incident" onclick="openCreateModal()" style="display: none;"><i class="fa-solid fa-plus"></i> Создать</button>
                         </div>
                     </div>
 
+                    <!-- НОВЫЕ ФИЛЬТРЫ -->
+                    <div class="filter-row">
+                        <button class="filter-btn active" onclick="filterIncidents('all', this)">Все</button>
+                        <button class="filter-btn" onclick="filterIncidents('critical', this)">Критические</button>
+                        <button class="filter-btn" onclick="filterIncidents('SIEM', this)">SIEM</button>
+                        <button class="filter-btn" onclick="filterIncidents('DLP', this)">DLP</button>
+                    </div>
+
                     <div class="incident-grid" id="incidents-grid">
-                        <div class="incident-card critical-border" onclick="openIncidentModal('INC-2841', 'Подозрительная активность привилегированной учётной записи', 'Критический', 'SIEM')">
+                        <!-- data-атрибуты нужны для работы фильтров -->
+                        <div class="incident-card critical-border" data-severity="critical" data-source="SIEM" onclick="openIncidentModal('INC-2841', 'Подозрительная активность', 'Критический', 'SIEM')">
                             <div class="inc-top"><div class="inc-id">INC-2841</div><div class="badge critical">Критический</div></div>
                             <div class="inc-title">Подозрительная активность привилегированной учётной записи</div>
                             <div class="inc-bottom"><div><i class="fa-solid fa-server"></i> SIEM</div><div class="status-new">Новый</div></div>
                         </div>
-                        <div class="incident-card high-border" onclick="openIncidentModal('INC-2839', 'Выгрузка конфиденциальных документов', 'Высокий', 'DLP')">
+                        <div class="incident-card high-border" data-severity="high" data-source="DLP" onclick="openIncidentModal('INC-2839', 'Выгрузка документов', 'Высокий', 'DLP')">
                             <div class="inc-top"><div class="inc-id">INC-2839</div><div class="badge high">Высокий</div></div>
                             <div class="inc-title">Выгрузка конфиденциальных документов</div>
                             <div class="inc-bottom"><div><i class="fa-solid fa-file-shield"></i> DLP</div><div class="status-new" style="color: var(--high);">Новый</div></div>
                         </div>
-                        <div class="incident-card medium-border" onclick="openIncidentModal('INC-2836', 'Аномалия сетевого трафика АСУ ТП', 'Средний', 'SCADA')">
+                        <div class="incident-card medium-border" data-severity="medium" data-source="SCADA" onclick="openIncidentModal('INC-2836', 'Аномалия трафика', 'Средний', 'SCADA')">
                             <div class="inc-top"><div class="inc-id">INC-2836</div><div class="badge medium">Средний</div></div>
                             <div class="inc-title">Аномалия сетевого трафика АСУ ТП</div>
                             <div class="inc-bottom"><div><i class="fa-solid fa-network-wired"></i> SCADA</div><div class="status-new">Новый</div></div>
                         </div>
-                        <div class="incident-card low-border" onclick="openIncidentModal('INC-2827', 'Устаревшая версия агента защиты', 'Низкий', 'EDR')">
-                            <div class="inc-top"><div class="inc-id">INC-2827</div><div class="badge low">Низкий</div></div>
-                            <div class="inc-title">Устаревшая версия агента защиты</div>
-                            <div class="inc-bottom"><div><i class="fa-solid fa-shield-virus"></i> EDR</div><div class="status-new">Новый</div></div>
-                        </div>
-                        <div class="incident-card high-border" onclick="openIncidentModal('INC-2850', 'Множественные неудачные попытки входа', 'Высокий', 'SIEM')">
-                            <div class="inc-top"><div class="inc-id">INC-2850</div><div class="badge high">Высокий</div></div>
-                            <div class="inc-title">Множественные неудачные попытки входа</div>
-                            <div class="inc-bottom"><div><i class="fa-solid fa-server"></i> SIEM</div><div class="status-new">Новый</div></div>
+                        <div class="incident-card critical-border" data-severity="critical" data-source="SIEM" onclick="openIncidentModal('INC-2848', 'Доступ к БД', 'Критический', 'SIEM')">
+                            <div class="inc-top"><div class="inc-id">INC-2848</div><div class="badge critical">Критический</div></div>
+                            <div class="inc-title">Попытка несанкционированного доступа к БД</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-database"></i> SIEM</div><div class="status-new">Новый</div></div>
                         </div>
                     </div>
                 </div>
@@ -513,108 +427,63 @@
                 <!-- В РАБОТЕ -->
                 <div id="view-in-progress" class="page-view">
                     <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-main);">Задачи в работе</h1>
-                    <div class="incident-grid" id="in-progress-grid">
-                        <p style="color: var(--text-muted); font-size: 14px;" id="empty-in-progress">У вас пока нет активных задач.</p>
-                    </div>
+                    <div class="incident-grid" id="in-progress-grid"><p style="color: var(--text-muted); font-size: 14px;" id="empty-in-progress">Нет задач.</p></div>
                 </div>
 
                 <!-- РЕШЕННЫЕ -->
                 <div id="view-resolved" class="page-view">
                     <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-main);">Решенные задачи</h1>
-                    <div class="incident-grid" id="resolved-grid">
-                        <p style="color: var(--text-muted); font-size: 14px;" id="empty-resolved">Список решенных задач пуст.</p>
-                    </div>
+                    <div class="incident-grid" id="resolved-grid"><p style="color: var(--text-muted); font-size: 14px;" id="empty-resolved">Список пуст.</p></div>
                 </div>
 
-                <!-- АНАЛИТИКА -->
+                <!-- АНАЛИТИКА (CHART.JS) -->
                 <div id="view-analytics" class="page-view">
                     <div class="analytics-header">
                         <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Аналитика</h1>
-                        <button class="btn-export" onclick="exportAnalyticsToExcel()">
-                            <i class="fa-solid fa-file-excel"></i> Скачать (Excel)
-                        </button>
+                        <button class="btn-export" onclick="exportAnalyticsToExcel()"><i class="fa-solid fa-file-excel"></i> Скачать</button>
                     </div>
                     
                     <div class="kpi-grid">
-                        <div class="kpi-card">
-                            <div class="kpi-value" id="kpi-mttr">14 мин</div>
-                            <div class="kpi-label">Среднее время реакции</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-value" id="kpi-resolved" style="color: var(--low);">42</div>
-                            <div class="kpi-label">Решено за неделю</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-value" id="kpi-asset" style="color: var(--critical);">srv-fin-db-02</div>
-                            <div class="kpi-label">Уязвимый актив</div>
-                        </div>
+                        <div class="kpi-card"><div class="kpi-value" id="kpi-mttr">14 мин</div><div class="kpi-label">Среднее время реакции</div></div>
+                        <div class="kpi-card"><div class="kpi-value" id="kpi-resolved" style="color: var(--low);">42</div><div class="kpi-label">Решено за неделю</div></div>
+                        <div class="kpi-card"><div class="kpi-value" id="kpi-asset" style="color: var(--critical);">srv-fin-db-02</div><div class="kpi-label">Уязвимый актив</div></div>
                     </div>
 
                     <div class="charts-grid">
                         <div class="chart-card">
                             <h3>Распределение по критичности</h3>
-                            <div class="bar-chart-row">
-                                <div class="bar-chart-label"><span>Критические</span> <span>12%</span></div>
-                                <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 12%; background: var(--critical);"></div></div>
-                            </div>
-                            <div class="bar-chart-row">
-                                <div class="bar-chart-label"><span>Высокие</span> <span>28%</span></div>
-                                <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 28%; background: var(--high);"></div></div>
-                            </div>
-                            <div class="bar-chart-row">
-                                <div class="bar-chart-label"><span>Средние</span> <span>45%</span></div>
-                                <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 45%; background: var(--medium);"></div></div>
-                            </div>
-                            <div class="bar-chart-row">
-                                <div class="bar-chart-label"><span>Низкие</span> <span>15%</span></div>
-                                <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 15%; background: var(--low);"></div></div>
-                            </div>
+                            <div class="chart-container"><canvas id="chartCriticality"></canvas></div>
                         </div>
-
                         <div class="chart-card">
                             <h3>Активность за неделю</h3>
-                            <div class="column-chart">
-                                <div class="column" style="height: 40%; background: var(--critical);"><span>Пн</span></div>
-                                <div class="column" style="height: 70%; background: var(--high);"><span>Вт</span></div>
-                                <div class="column" style="height: 55%; background: var(--medium);"><span>Ср</span></div>
-                                <div class="column" style="height: 90%; background: var(--low);"><span>Чт</span></div>
-                                <div class="column" style="height: 60%; background: var(--critical);"><span>Пт</span></div>
-                                <div class="column" style="height: 30%; background: var(--high);"><span>Сб</span></div>
-                                <div class="column" style="height: 20%; background: var(--medium);"><span>Вс</span></div>
-                            </div>
+                            <div class="chart-container"><canvas id="chartActivity"></canvas></div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="charts-grid">
-                        <div class="chart-card">
-                            <h3>Источники инцидентов</h3>
-                            <div class="donut-container">
-                                <div class="donut"></div>
-                                <div class="donut-legend">
-                                    <div class="legend-item"><div class="legend-color" style="background: var(--critical);"></div> SIEM (35%)</div>
-                                    <div class="legend-item"><div class="legend-color" style="background: var(--high);"></div> DLP (30%)</div>
-                                    <div class="legend-item"><div class="legend-color" style="background: var(--medium);"></div> SCADA (20%)</div>
-                                    <div class="legend-item"><div class="legend-color" style="background: var(--low);"></div> EDR (15%)</div>
-                                </div>
-                            </div>
+                <!-- КОМАНДА (ТОЛЬКО ДЛЯ РУКОВОДИТЕЛЯ) -->
+                <div id="view-team" class="page-view">
+                    <div class="incident-header-actions">
+                        <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Команда SOC</h1>
+                        <button class="btn-create" onclick="openAddUserModal()"><i class="fa-solid fa-user-plus"></i> Добавить</button>
+                    </div>
+                    
+                    <div class="team-grid">
+                        <div class="team-card">
+                            <div class="team-avatar">ХЛ<div class="status-dot status-online"></div></div>
+                            <div class="team-info"><h4>Хасаншина Лейсан</h4><p>Старший аналитик • В сети</p></div>
                         </div>
-
-                        <div class="chart-card">
-                            <h3>Рейтинг аналитиков</h3>
-                            <div class="analyst-list">
-                                <div class="analyst-item">
-                                    <div class="analyst-info"><div class="analyst-rank">1</div><div class="analyst-name">Хасаншина Лейсан</div></div>
-                                    <div class="analyst-count">24</div>
-                                </div>
-                                <div class="analyst-item">
-                                    <div class="analyst-info"><div class="analyst-rank">2</div><div class="analyst-name">Иванов Иван</div></div>
-                                    <div class="analyst-count">18</div>
-                                </div>
-                                <div class="analyst-item">
-                                    <div class="analyst-info"><div class="analyst-rank">3</div><div class="analyst-name">Петров Петр</div></div>
-                                    <div class="analyst-count">15</div>
-                                </div>
-                            </div>
+                        <div class="team-card">
+                            <div class="team-avatar">ИИ<div class="status-dot status-online"></div></div>
+                            <div class="team-info"><h4>Иванов Иван</h4><p>Аналитик • В сети</p></div>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-avatar">ПП<div class="status-dot status-offline"></div></div>
+                            <div class="team-info"><h4>Петров Петр</h4><p>Аналитик • Не в сети</p></div>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-avatar">АС<div class="status-dot status-offline"></div></div>
+                            <div class="team-info"><h4>Сидоров Алексей</h4><p>Аналитик • Не в сети</p></div>
                         </div>
                     </div>
                 </div>
@@ -625,15 +494,7 @@
                         <div class="profile-cover"></div>
                         <div class="profile-header-info">
                             <div class="profile-avatar-large" id="profile-avatar">ХЛ</div>
-                            <div class="profile-names">
-                                <h2 id="profile-name">Хасаншина Лейсан</h2>
-                                <p id="profile-role">Старший аналитик SOC</p>
-                            </div>
-                            <div class="profile-actions">
-                                <button class="btn-create" id="btn-add-user" onclick="openAddUserModal()" style="display: none;">
-                                    <i class="fa-solid fa-user-plus"></i> Добавить
-                                </button>
-                            </div>
+                            <div class="profile-names"><h2 id="profile-name">Хасаншина Лейсан</h2><p id="profile-role">Старший аналитик SOC</p></div>
                         </div>
                         <div class="profile-body">
                             <div>
@@ -642,20 +503,13 @@
                                 <div class="info-item"><i class="fa-solid fa-phone"></i> <div><span>Тел:</span> <b>+7 (999) 123-45-67</b></div></div>
                                 <button class="btn-logout" onclick="logout()">Выйти</button>
                             </div>
-                            
                             <div>
                                 <div class="profile-tabs">
                                     <div class="profile-tab active" onclick="switchProfileTab('tab-activity', this)">Активность</div>
                                     <div class="profile-tab" onclick="switchProfileTab('tab-assigned', this)">В работе (<span id="assigned-count">0</span>)</div>
                                 </div>
-                                
-                                <div id="tab-activity" class="tab-content active">
-                                    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;"><i class="fa-solid fa-check-circle" style="color: var(--low);"></i> Закрыла инцидент INC-2827</p>
-                                </div>
-
-                                <div id="tab-assigned" class="tab-content">
-                                    <div id="profile-task-list"></div>
-                                </div>
+                                <div id="tab-activity" class="tab-content active"><p style="font-size: 14px; color: var(--text-muted);">Закрыла INC-2827</p></div>
+                                <div id="tab-assigned" class="tab-content"><div id="profile-task-list"></div></div>
                             </div>
                         </div>
                     </div>
@@ -664,54 +518,38 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНЫЕ ОКНА (ОСТАЛЬНОЙ КОД БЕЗ ИЗМЕНЕНИЙ) -->
+    <!-- МОДАЛЬНЫЕ ОКНА -->
     <div class="modal-overlay" id="incidentModal">
         <div class="incident-modal">
-            <div class="modal-header">
-                <div class="modal-subtitle">Карточка инцидента</div>
-                <div class="modal-actions"><button onclick="closeModal('incidentModal')"><i class="fa-solid fa-xmark"></i></button></div>
-            </div>
+            <div class="modal-header"><div class="modal-subtitle">Инцидент</div><div class="modal-actions"><button onclick="closeModal('incidentModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
             <div class="modal-id" id="modal-id">INC-0000</div>
-            <div class="modal-badges">
-                <span class="badge critical" id="modal-severity">Критический</span>
-                <span class="badge-blue" id="modal-status">Новый</span>
-            </div>
+            <div class="modal-badges"><span class="badge critical" id="modal-severity">Критический</span><span class="badge-blue" id="modal-status">Новый</span></div>
             <h2 class="modal-title" id="modal-title">Название</h2>
             <div class="modal-desc"><div class="modal-desc-title">Описание</div><p>Зафиксировано подозрительное поведение.</p></div>
             <div class="modal-grid">
                 <div class="modal-grid-item"><span>Источник</span><strong id="modal-source">SIEM</strong></div>
-                <div class="modal-grid-item"><span>Актив</span><strong>srv-fin-db-02</strong></div>
+                <div class="modal-grid-item"><span>Актив</span><strong>srv-db-01</strong></div>
             </div>
-            <div class="assign-block" id="assign-block">
-                <div class="modal-desc-title" style="margin-bottom: 8px;">Назначить исполнителя</div>
-                <select><option>Хасаншина Лейсан</option><option>Иванов Иван</option></select>
-            </div>
+            <div class="assign-block" id="assign-block"><select><option>Хасаншина Лейсан</option><option>Иванов Иван</option></select></div>
             <div class="modal-timeline">
-                <div class="timeline-header"><h3>Хронология</h3><span>Сегодня</span></div>
+                <div class="timeline-header"><h3>Хронология</h3></div>
                 <div class="timeline-list" id="modal-timeline-list">
-                    <div class="timeline-item active-red">
-                        <div class="timeline-content"><div class="timeline-text"><p>Инцидент создан</p><span>SIEM</span></div><div class="timeline-time">10:42</div></div>
-                    </div>
+                    <div class="timeline-item active-red"><div class="timeline-content"><div class="timeline-text"><p>Создан</p><span>SIEM</span></div><div class="timeline-time">10:42</div></div></div>
                 </div>
-                <div class="comment-box">
-                    <input type="text" id="comment-input" placeholder="Написать комментарий...">
-                    <button onclick="addComment()">ОК</button>
-                </div>
+                <div class="comment-box"><input type="text" id="comment-input" placeholder="Комментарий..."><button onclick="addComment()">ОК</button></div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-primary-large" id="btn-take-work" onclick="takeToWork()">Взять в работу</button>
-            </div>
+            <div class="modal-footer"><button class="btn-primary-large" id="btn-take-work" onclick="takeToWork()">Взять в работу</button></div>
         </div>
     </div>
 
     <div class="modal-overlay" id="createModal">
         <div class="incident-modal">
-            <div class="modal-header"><div class="modal-subtitle">Новый инцидент</div><div class="modal-actions"><button onclick="closeModal('createModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
+            <div class="modal-header"><div class="modal-subtitle">Новый</div><div class="modal-actions"><button onclick="closeModal('createModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
             <h2 class="modal-title" style="margin-bottom: 20px;">Создать инцидент</h2>
             <form onsubmit="submitNewIncident(event)">
                 <div class="form-group"><label>Название</label><input type="text" id="new-inc-title" required></div>
-                <div class="form-group"><label>Критичность</label><select id="new-inc-severity"><option>Критический</option><option>Высокий</option><option>Средний</option><option>Низкий</option></select></div>
-                <div class="form-group"><label>Источник</label><select id="new-inc-source"><option>Ручной</option><option>SIEM</option><option>DLP</option></select></div>
+                <div class="form-group"><label>Критичность</label><select id="new-inc-severity"><option value="Критический">Критический</option><option value="Высокий">Высокий</option></select></div>
+                <div class="form-group"><label>Источник</label><select id="new-inc-source"><option value="SIEM">SIEM</option><option value="DLP">DLP</option></select></div>
                 <button type="submit" class="btn-primary-large">Создать</button>
             </form>
         </div>
@@ -722,20 +560,17 @@
             <div class="modal-header"><div class="modal-subtitle">Задача</div><div class="modal-actions"><button onclick="closeModal('taskModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
             <div class="modal-id" id="task-modal-id">INC-0000</div>
             <h2 class="modal-title" id="task-modal-title">Название</h2>
-            <div class="modal-footer">
-                <button class="btn-primary-large done" onclick="completeTask()">Завершить</button>
-            </div>
+            <div class="modal-footer"><button class="btn-primary-large done" onclick="completeTask()">Завершить</button></div>
         </div>
     </div>
 
     <div class="modal-overlay" id="addUserModal">
         <div class="incident-modal">
-            <div class="modal-header"><div class="modal-subtitle">Новый сотрудник</div><div class="modal-actions"><button onclick="closeModal('addUserModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
+            <div class="modal-header"><div class="modal-subtitle">Сотрудник</div><div class="modal-actions"><button onclick="closeModal('addUserModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
             <form onsubmit="submitNewUser(event)">
                 <div class="form-group"><label>ФИО</label><input type="text" id="new-user-name" required></div>
-                <div class="form-group"><label>Email</label><input type="email" id="new-user-email" required></div>
-                <div class="form-group"><label>Роль</label><select id="new-user-role"><option>Аналитик</option><option>Руководитель</option></select></div>
-                <button type="submit" class="btn-primary-large">Создать</button>
+                <div class="form-group"><label>Роль</label><select id="new-user-role"><option>Аналитик</option><option>Старший аналитик</option></select></div>
+                <button type="submit" class="btn-primary-large">Добавить</button>
             </form>
         </div>
     </div>
@@ -746,23 +581,113 @@
         let resolvedTasks = []; 
         let currentIncident = null; 
         let currentTaskId = null; 
-        let currentRole = 'analyst'; 
+        let currentRole = 'analyst';
+        let chartCriticalityInstance = null;
+        let chartActivityInstance = null;
+
+        // === 1. LOCALSTORAGE (СОХРАНЕНИЕ ДАННЫХ) ===
+        function saveState() {
+            localStorage.setItem('sibur_myTasks', JSON.stringify(myTasks));
+            localStorage.setItem('sibur_resolvedTasks', JSON.stringify(resolvedTasks));
+        }
+
+        function loadState() {
+            const savedTasks = localStorage.getItem('sibur_myTasks');
+            const savedResolved = localStorage.getItem('sibur_resolvedTasks');
+            if (savedTasks) myTasks = JSON.parse(savedTasks);
+            if (savedResolved) resolvedTasks = JSON.parse(savedResolved);
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            updateAllCounters(); 
+            renderTasks();
             changeRole(); 
+            
             if (localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark-mode');
                 document.querySelector('#theme-toggle i').className = 'fa-solid fa-sun';
             }
         });
 
-        // --- БОКОВОЕ МЕНЮ НА ТЕЛЕФОНЕ ---
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('mobile-overlay').classList.toggle('active');
+        // === 2. CHART.JS (ГРАФИКИ) ===
+        function renderCharts() {
+            const isDark = document.body.classList.contains('dark-mode');
+            const textColor = isDark ? '#f1f5f9' : '#1a1f36';
+
+            // Уничтожаем старые графики, если они есть, чтобы избежать наложения
+            if (chartCriticalityInstance) chartCriticalityInstance.destroy();
+            if (chartActivityInstance) chartActivityInstance.destroy();
+
+            // График 1: Пончик (Критичность)
+            const ctx1 = document.getElementById('chartCriticality').getContext('2d');
+            chartCriticalityInstance = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Критические', 'Высокие', 'Средние', 'Низкие'],
+                    datasets: [{
+                        data: [12, 28, 45, 15],
+                        backgroundColor: ['#ef4444', '#f97316', '#eab308', '#22c55e'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Inter' } } }
+                    }
+                }
+            });
+
+            // График 2: Столбцы (Активность)
+            const ctx2 = document.getElementById('chartActivity').getContext('2d');
+            chartActivityInstance = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+                    datasets: [{
+                        label: 'Инциденты',
+                        data: [5, 8, 6, 12, 7, 3, 2],
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: isDark ? '#334155' : '#e2e8f0' } },
+                        x: { ticks: { color: textColor }, grid: { display: false } }
+                    }
+                }
+            });
         }
 
-        // --- ТЕМНАЯ ТЕМА ---
+        // === 5. ФИЛЬТРАЦИЯ ИНЦИДЕНТОВ ===
+        function filterIncidents(filterType, btnElement) {
+            // Меняем активную кнопку
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            const cards = document.querySelectorAll('#incidents-grid .incident-card');
+            
+            cards.forEach(card => {
+                const severity = card.getAttribute('data-severity');
+                const source = card.getAttribute('data-source');
+                
+                let show = false;
+                if (filterType === 'all') show = true;
+                else if (filterType === 'critical') show = (severity === 'critical');
+                else if (filterType === 'SIEM') show = (source === 'SIEM');
+                else if (filterType === 'DLP') show = (source === 'DLP');
+
+                card.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        // --- ТЕМНАЯ ТЕМА (с перерисовкой графиков) ---
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
             const icon = document.querySelector('#theme-toggle i');
@@ -773,143 +698,54 @@
                 icon.className = 'fa-solid fa-moon';
                 localStorage.setItem('theme', 'light');
             }
-        }
-
-        // --- ТОСТ-УВЕДОМЛЕНИЯ ---
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            let icon = type === 'success' ? 'fa-circle-check' : (type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info');
-            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'fadeOut 0.3s ease forwards';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // --- ЛЕНТА СОБЫТИЙ ---
-        function addLogEvent(text, type = 'blue') {
-            const list = document.getElementById('event-list');
-            const item = document.createElement('div');
-            item.className = 'event-item';
-            let icon = type === 'red' ? 'fa-triangle-exclamation' : (type === 'green' ? 'fa-check' : 'fa-bolt');
-            item.innerHTML = `<div class="event-icon ${type}"><i class="fa-solid ${icon}"></i></div><div class="event-text"><p>${text}</p><span>Только что</span></div>`;
-            list.prepend(item);
-            if (list.children.length > 5) list.removeChild(list.lastElementChild);
-        }
-
-        // --- ПОИСК ---
-        document.getElementById('global-search').addEventListener('input', function(e) {
-            const term = e.target.value.toLowerCase().trim();
-            if (term.length > 0 && !document.getElementById('view-incidents').classList.contains('active')) {
-                switchPage('view-incidents', document.querySelector('[data-target="view-incidents"]'));
+            if (document.getElementById('view-analytics').classList.contains('active')) {
+                renderCharts();
             }
-            const cards = document.querySelectorAll('#incidents-grid .incident-card');
-            cards.forEach(card => {
-                card.style.display = card.innerText.toLowerCase().includes(term) ? 'block' : 'none';
-            });
-        });
-
-        function login(event) {
-            event.preventDefault();
-            const email = document.getElementById('login-email').value;
-            let displayName = email === 'khasanshina447@gmail.com' ? 'Хасаншина Лейсан' : email.split('@')[0];
-            let shortName = email === 'khasanshina447@gmail.com' ? 'ХЛ' : displayName[0].toUpperCase();
-            
-            document.getElementById('top-name').innerText = displayName.split(' ')[0] + ' ' + (displayName.split(' ')[1] ? displayName.split(' ')[1][0] + '.' : '');
-            document.getElementById('top-avatar').innerText = shortName;
-            document.getElementById('profile-name').innerText = displayName;
-            document.getElementById('profile-email').innerText = email;
-            document.getElementById('profile-avatar').innerText = shortName;
-            document.getElementById('greeting-text').innerText = `Доброе утро, ${displayName.split(' ')[0]}`;
-
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-container').style.display = 'flex';
-            showToast(`Добро пожаловать!`, 'success');
         }
 
-        function logout() {
-            document.getElementById('app-container').style.display = 'none';
-            document.getElementById('login-screen').style.display = 'flex';
-            myTasks = []; resolvedTasks = [];
-            updateAllCounters(); renderTasks();
-            switchPage('view-overview', document.querySelectorAll('.nav-item')[0]);
-            showToast('Вы вышли', 'info');
-        }
-
+        // --- НАВИГАЦИЯ И РОЛИ ---
         function switchPage(targetId, navElement) {
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             if(navElement) navElement.classList.add('active');
             document.querySelectorAll('.page-view').forEach(page => page.classList.remove('active'));
             document.getElementById(targetId).classList.add('active');
             
-            // Автоматически закрываем меню на телефоне после выбора вкладки
+            // При переходе в Аналитику рисуем графики
+            if (targetId === 'view-analytics') {
+                renderCharts();
+            }
+
             if (window.innerWidth <= 900) {
                 document.getElementById('sidebar').classList.remove('open');
                 document.getElementById('mobile-overlay').classList.remove('active');
             }
         }
 
-        function switchProfileTab(tabId, element) {
-            document.querySelectorAll('.profile-tab').forEach(tab => tab.classList.remove('active'));
-            element.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-        }
-
         function changeRole() {
             currentRole = document.getElementById('role-switcher').value;
-            if (document.getElementById('btn-create-incident')) document.getElementById('btn-create-incident').style.display = currentRole === 'manager' ? 'flex' : 'none';
-            if (document.getElementById('btn-add-user')) document.getElementById('btn-add-user').style.display = currentRole === 'manager' ? 'flex' : 'none';
+            
+            // Кнопка создания инцидента
+            if (document.getElementById('btn-create-incident')) 
+                document.getElementById('btn-create-incident').style.display = currentRole === 'manager' ? 'flex' : 'none';
+            
+            // Вкладка Команда
+            if (document.getElementById('nav-team')) 
+                document.getElementById('nav-team').style.display = currentRole === 'manager' ? 'flex' : 'none';
+            
+            // Блок назначения в модалке
             if (document.getElementById('incidentModal').style.display === 'flex') {
                 document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
             }
         }
 
-        function toggleNotifications() {
-            document.getElementById('notif-dropdown').classList.toggle('active');
-            document.getElementById('bell-btn').classList.remove('has-unread');
-        }
-        function clearNotifications() {
-            document.getElementById('notif-list').innerHTML = '<div class="notif-item" style="text-align:center; color: var(--text-muted);">Нет новых уведомлений</div>';
-        }
-        window.addEventListener('click', function(e) {
-            const bell = document.getElementById('bell-btn');
-            const dropdown = document.getElementById('notif-dropdown');
-            if (!bell.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.remove('active');
-        });
-
-        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
-
-        function openIncidentModal(id, title, severity, source) {
-            currentIncident = { id, title, severity, source };
-            document.getElementById('modal-id').innerText = id;
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-source').innerText = source;
-            const sevBadge = document.getElementById('modal-severity');
-            sevBadge.innerText = severity;
-            sevBadge.className = 'badge ' + (severity === 'Критический' ? 'critical' : severity === 'Высокий' ? 'high' : severity === 'Средний' ? 'medium' : 'low');
-            document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
-            
-            const btn = document.getElementById('btn-take-work');
-            btn.innerHTML = 'Взять в работу';
-            btn.className = 'btn-primary-large';
-            btn.disabled = false;
-            if (myTasks.some(t => t.id === id)) {
-                btn.innerHTML = 'Уже в работе';
-                btn.className = 'btn-primary-large done';
-                btn.disabled = true;
-            }
-            document.getElementById('incidentModal').style.display = 'flex';
-        }
-
+        // --- ЗАДАЧИ И ИНЦИДЕНТЫ ---
         function takeToWork() {
             if (!currentIncident) return;
             if (!myTasks.some(t => t.id === currentIncident.id)) {
                 myTasks.push({ id: currentIncident.id, title: currentIncident.title });
-                updateAllCounters(); renderTasks();
+                saveState(); // Сохраняем
+                updateAllCounters(); 
+                renderTasks();
                 showToast(`Взято в работу`, 'success');
                 addLogEvent(`${currentUser.name.split(' ')[0]} взял ${currentIncident.id}`, 'blue');
             }
@@ -918,69 +754,17 @@
             setTimeout(() => closeModal('incidentModal'), 1000);
         }
 
-        function addComment() {
-            const input = document.getElementById('comment-input');
-            const text = input.value.trim();
-            if (!text) return;
-            const list = document.getElementById('modal-timeline-list');
-            const newItem = document.createElement('div');
-            newItem.className = 'timeline-item active-blue';
-            newItem.innerHTML = `<div class="timeline-content"><div class="timeline-text"><p>${text}</p><span>Вы</span></div><div class="timeline-time">Сейчас</div></div>`;
-            list.appendChild(newItem);
-            input.value = ''; 
-            list.parentElement.scrollTop = list.parentElement.scrollHeight;
-            showToast('Комментарий добавлен', 'success');
-        }
-
-        function openCreateModal() { document.getElementById('createModal').style.display = 'flex'; }
-
-        function submitNewIncident(event) {
-            event.preventDefault();
-            const title = document.getElementById('new-inc-title').value;
-            const severity = document.getElementById('new-inc-severity').value;
-            const source = document.getElementById('new-inc-source').value;
-            const newId = 'INC-' + Math.floor(1000 + Math.random() * 9000);
-            const grid = document.getElementById('incidents-grid');
-            const card = document.createElement('div');
-            card.className = 'incident-card' + (severity === 'Критический' ? ' critical-border' : severity === 'Высокий' ? ' high-border' : severity === 'Средний' ? ' medium-border' : ' low-border');
-            card.onclick = () => openIncidentModal(newId, title, severity, source);
-            let badgeClass = severity === 'Критический' ? 'critical' : severity === 'Высокий' ? 'high' : severity === 'Средний' ? 'medium' : 'low';
-            card.innerHTML = `<div class="inc-top"><div class="inc-id">${newId}</div><div class="badge ${badgeClass}">${severity}</div></div><div class="inc-title">${title}</div><div class="inc-bottom"><div><i class="fa-solid fa-user-pen"></i> ${source}</div><div class="status-new">Новый</div></div>`;
-            grid.prepend(card);
-            closeModal('createModal');
-            document.getElementById('new-inc-title').value = ''; 
-            showToast(`Инцидент создан`, 'success');
-            addLogEvent(`Создан инцидент ${newId}`, 'red');
-        }
-
-        function openAddUserModal() { document.getElementById('addUserModal').style.display = 'flex'; }
-
-        function submitNewUser(event) {
-            event.preventDefault();
-            const name = document.getElementById('new-user-name').value;
-            showToast(`Сотрудник ${name} добавлен`, 'success');
-            addLogEvent(`Добавлен пользователь: ${name}`, 'green');
-            document.getElementById('new-user-name').value = '';
-            document.getElementById('new-user-email').value = '';
-            closeModal('addUserModal');
-        }
-
-        function openTaskModal(id, title) {
-            currentTaskId = id;
-            document.getElementById('task-modal-id').innerText = id;
-            document.getElementById('task-modal-title').innerText = title;
-            document.getElementById('taskModal').style.display = 'flex';
-        }
-
         function completeTask() {
             const taskIndex = myTasks.findIndex(t => t.id === currentTaskId);
             if (taskIndex !== -1) {
                 const completedTask = myTasks.splice(taskIndex, 1)[0];
                 resolvedTasks.push(completedTask);
+                saveState(); // Сохраняем
                 showToast(`Задача закрыта`, 'success');
-                addLogEvent(`Закрыт инцидент ${currentTaskId}`, 'green');
+                addLogEvent(`Закрыт ${currentTaskId}`, 'green');
             }
-            updateAllCounters(); renderTasks();
+            updateAllCounters(); 
+            renderTasks();
             closeModal('taskModal');
         }
 
@@ -1029,36 +813,144 @@
             }
         }
 
+        // --- ОСТАЛЬНЫЕ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (Модалки, Тосты и т.д.) ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            let icon = type === 'success' ? 'fa-circle-check' : (type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info');
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.animation = 'fadeOut 0.3s ease forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function addLogEvent(text, type = 'blue') {
+            const list = document.getElementById('event-list');
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            let icon = type === 'red' ? 'fa-triangle-exclamation' : (type === 'green' ? 'fa-check' : 'fa-bolt');
+            item.innerHTML = `<div class="event-icon ${type}"><i class="fa-solid ${icon}"></i></div><div class="event-text"><p>${text}</p><span>Только что</span></div>`;
+            list.prepend(item);
+            if (list.children.length > 5) list.removeChild(list.lastElementChild);
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('mobile-overlay').classList.toggle('active'); }
+        function openCreateModal() { document.getElementById('createModal').style.display = 'flex'; }
+        function openAddUserModal() { document.getElementById('addUserModal').style.display = 'flex'; }
+        function openTaskModal(id, title) { currentTaskId = id; document.getElementById('task-modal-id').innerText = id; document.getElementById('task-modal-title').innerText = title; document.getElementById('taskModal').style.display = 'flex'; }
+        
+        function openIncidentModal(id, title, severity, source) {
+            currentIncident = { id, title, severity, source };
+            document.getElementById('modal-id').innerText = id;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-source').innerText = source;
+            const sevBadge = document.getElementById('modal-severity');
+            sevBadge.innerText = severity;
+            sevBadge.className = 'badge ' + (severity === 'Критический' ? 'critical' : severity === 'Высокий' ? 'high' : severity === 'Средний' ? 'medium' : 'low');
+            document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
+            
+            const btn = document.getElementById('btn-take-work');
+            btn.innerHTML = 'Взять в работу'; btn.className = 'btn-primary-large'; btn.disabled = false;
+            if (myTasks.some(t => t.id === id)) { btn.innerHTML = 'Уже в работе'; btn.className = 'btn-primary-large done'; btn.disabled = true; }
+            document.getElementById('incidentModal').style.display = 'flex';
+        }
+
+        function submitNewIncident(event) {
+            event.preventDefault();
+            const title = document.getElementById('new-inc-title').value;
+            const severity = document.getElementById('new-inc-severity').value;
+            const source = document.getElementById('new-inc-source').value;
+            const newId = 'INC-' + Math.floor(1000 + Math.random() * 9000);
+            
+            const grid = document.getElementById('incidents-grid');
+            const card = document.createElement('div');
+            let sevClass = severity === 'Критический' ? 'critical' : 'high';
+            card.className = `incident-card ${sevClass}-border`;
+            card.setAttribute('data-severity', sevClass);
+            card.setAttribute('data-source', source);
+            card.onclick = () => openIncidentModal(newId, title, severity, source);
+            
+            card.innerHTML = `<div class="inc-top"><div class="inc-id">${newId}</div><div class="badge ${sevClass}">${severity}</div></div><div class="inc-title">${title}</div><div class="inc-bottom"><div><i class="fa-solid fa-user-pen"></i> ${source}</div><div class="status-new">Новый</div></div>`;
+            grid.prepend(card);
+            
+            closeModal('createModal');
+            document.getElementById('new-inc-title').value = ''; 
+            showToast(`Инцидент создан`, 'success');
+            addLogEvent(`Создан ${newId}`, 'red');
+        }
+
+        function submitNewUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('new-user-name').value;
+            showToast(`Сотрудник ${name} добавлен`, 'success');
+            closeModal('addUserModal');
+        }
+
+        function addComment() {
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+            if (!text) return;
+            const list = document.getElementById('modal-timeline-list');
+            const newItem = document.createElement('div');
+            newItem.className = 'timeline-item active-blue';
+            newItem.innerHTML = `<div class="timeline-content"><div class="timeline-text"><p>${text}</p><span>Вы</span></div><div class="timeline-time">Сейчас</div></div>`;
+            list.appendChild(newItem);
+            input.value = ''; 
+            list.parentElement.scrollTop = list.parentElement.scrollHeight;
+            showToast('Комментарий добавлен', 'success');
+        }
+
+        function login(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            let displayName = email === 'khasanshina447@gmail.com' ? 'Хасаншина Лейсан' : email.split('@')[0];
+            let shortName = email === 'khasanshina447@gmail.com' ? 'ХЛ' : displayName[0].toUpperCase();
+            document.getElementById('top-name').innerText = displayName;
+            document.getElementById('top-avatar').innerText = shortName;
+            document.getElementById('profile-name').innerText = displayName;
+            document.getElementById('profile-email').innerText = email;
+            document.getElementById('profile-avatar').innerText = shortName;
+            document.getElementById('greeting-text').innerText = `Доброе утро, ${displayName.split(' ')[0]}`;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+        }
+
+        function logout() {
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+            // Очищаем LocalStorage при выходе (чтобы следующий пользователь не видел чужие задачи)
+            localStorage.removeItem('sibur_myTasks');
+            localStorage.removeItem('sibur_resolvedTasks');
+            myTasks = []; resolvedTasks = [];
+            updateAllCounters(); renderTasks();
+            switchPage('view-overview', document.querySelectorAll('.nav-item')[0]);
+        }
+
+        // Экспорт
         function exportToExcel() {
             const cards = document.querySelectorAll('#incidents-grid .incident-card');
-            const dataForExcel = [];
+            const data = [];
             cards.forEach(card => {
                 if(card.style.display === 'none') return;
-                dataForExcel.push({
-                    "ID": card.querySelector('.inc-id').innerText,
-                    "Название": card.querySelector('.inc-title').innerText,
-                    "Критичность": card.querySelector('.badge').innerText
-                });
+                data.push({"ID": card.querySelector('.inc-id').innerText, "Название": card.querySelector('.inc-title').innerText, "Критичность": card.querySelector('.badge').innerText});
             });
-            const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Инциденты");
-            XLSX.writeFile(workbook, "Sibur_Incidents_Report.xlsx");
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Инциденты");
+            XLSX.writeFile(wb, "Sibur_Incidents.xlsx");
             showToast('Отчет скачан', 'success');
         }
 
         function exportAnalyticsToExcel() {
             const wb = XLSX.utils.book_new();
-            const kpiData = [["Показатель", "Значение"], ["Среднее время реакции", document.getElementById('kpi-mttr').innerText], ["Решено за неделю", document.getElementById('kpi-resolved').innerText], ["Самый уязвимый актив", document.getElementById('kpi-asset').innerText]];
-            const wsKpi = XLSX.utils.aoa_to_sheet(kpiData);
-            XLSX.utils.book_append_sheet(wb, wsKpi, "KPI");
-            XLSX.writeFile(wb, "Sibur_Analytics_Report.xlsx");
+            const ws = XLSX.utils.aoa_to_sheet([["Показатель", "Значение"], ["Среднее время реакции", "14 мин"]]);
+            XLSX.utils.book_append_sheet(wb, ws, "KPI");
+            XLSX.writeFile(wb, "Sibur_Analytics.xlsx");
             showToast('Аналитика скачана', 'success');
         }
 
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal-overlay')) event.target.style.display = 'none';
-        }
+        window.onclick = function(event) { if (event.target.classList.contains('modal-overlay')) event.target.style.display = 'none'; }
     </script>
 </body>
 </html>
