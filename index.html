@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление инцидентами ИБ - Сибур</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Библиотека для экспорта в Excel (SheetJS) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --bg-body: #f4f7f9;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --text-main: #1a1f36;
+            --text-muted: #8e9aaf;
+            --primary: #1e3a8a;
+            --primary-hover: #152c6b;
+            
+            --critical: #ef4444;
+            --critical-bg: #fee2e2;
+            --high: #f97316;
+            --high-bg: #ffedd5;
+            --medium: #eab308;
+            --medium-bg: #fef9c3;
+            --low: #22c55e;
+            --low-bg: #dcfce7;
+            --blue-badge: #3b82f6;
+            --blue-bg: #eff6ff;
+            --border: #e2e8f0;
+        }
+
+        /* ТЕМНАЯ ТЕМА */
+        body.dark-mode {
+            --bg-body: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --border: #334155;
+            
+            --critical-bg: #7f1d1d;
+            --high-bg: #7c2d12;
+            --medium-bg: #713f12;
+            --low-bg: #14532d;
+            --blue-bg: #1e3a8a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-body); height: 100vh; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
+
+        /* ТОСТ-УВЕДОМЛЕНИЯ */
+        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
+        .toast { background: var(--bg-card); color: var(--text-main); padding: 14px 20px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 14px; border: 1px solid var(--border); animation: slideInRight 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; }
+        .toast.success { border-left: 4px solid var(--low); }
+        .toast.error { border-left: 4px solid var(--critical); }
+        .toast.info { border-left: 4px solid var(--blue-badge); }
+        .toast i { font-size: 18px; }
+        .toast.success i { color: var(--low); }
+        .toast.error i { color: var(--critical); }
+        .toast.info i { color: var(--blue-badge); }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
+
+        /* ЭКРАН АВТОРИЗАЦИИ */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            display: flex; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .login-box { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .login-logo { background: var(--primary); color: white; width: 60px; height: 60px; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 28px; margin: 0 auto 20px auto; }
+        .login-box h2 { color: #1a1f36; margin-bottom: 8px; }
+        .login-box p { color: #8e9aaf; margin-bottom: 30px; font-size: 14px; }
+        .input-group { position: relative; margin-bottom: 16px; text-align: left; }
+        .input-group i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #8e9aaf; }
+        .input-group input { width: 100%; padding: 14px 16px 14px 44px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; }
+        .login-btn { width: 100%; padding: 14px; background: #1e3a8a; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+
+        /* ОСНОВНОЙ САЙТ */
+        #app-container { display: none; height: 100vh; }
+        #app-container.active { display: flex; }
+
+        /* БОКОВАЯ ПАНЕЛЬ */
+        .sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 16px; }
+        .logo-container { display: flex; align-items: center; gap: 12px; padding: 0 12px 32px 12px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .logo-icon { background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+        .logo-text-wrapper { display: flex; flex-direction: column; }
+        .logo-subtitle { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+        .logo-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        
+        .nav-menu { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: var(--text-muted); font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: transparent; width: 100%; text-align: left; position: relative; transition: 0.2s; }
+        .nav-item:hover { background: var(--bg-body); color: var(--text-main); }
+        .nav-item.active { background: var(--blue-bg); color: var(--primary); font-weight: 600; }
+        .nav-item i { font-size: 18px; width: 24px; text-align: center; }
+        
+        .nav-badge { background: var(--primary); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: auto; }
+        .nav-badge.green { background: var(--low); }
+
+        /* СТАТУС ИНТЕГРАЦИЙ ВНИЗУ САЙДБАРА */
+        .integrations-status { padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px; }
+        .int-item { display: flex; justify-content: space-between; align-items: center; }
+        .dot-green { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; box-shadow: 0 0 4px #22c55e; }
+
+        /* ОСНОВНАЯ ЧАСТЬ */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
+        .topbar { height: 72px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+        .search-container { position: relative; width: 400px; }
+        .search-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-container input { width: 100%; padding: 10px 16px 10px 40px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); font-size: 14px; outline: none; color: var(--text-main); transition: 0.2s; }
+        .search-container input:focus { border-color: var(--primary); }
+        
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+        
+        /* Кнопка темы */
+        .theme-toggle { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 8px; transition: 0.2s; }
+        .theme-toggle:hover { background: var(--bg-body); color: var(--text-main); }
+
+        .role-switcher { background: var(--bg-body); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; }
+        
+        /* Уведомления */
+        .bell-container { position: relative; }
+        .bell-btn { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; position: relative; padding: 8px; border-radius: 8px; transition: 0.2s; }
+        .bell-btn:hover { background: var(--bg-body); }
+        .bell-btn.has-unread::after { content: ''; position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--critical); border-radius: 50%; border: 2px solid var(--bg-card); }
+        
+        .notif-dropdown { display: none; position: absolute; top: 50px; right: 0; width: 320px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; overflow: hidden; }
+        .notif-dropdown.active { display: block; }
+        .notif-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; color: var(--text-main); }
+        .notif-header span { font-size: 12px; color: var(--blue-badge); cursor: pointer; }
+        .notif-list { max-height: 300px; overflow-y: auto; }
+        .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-main); }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item span { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        .user-profile-top { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 4px; border-radius: 20px; transition: 0.2s; }
+        .user-profile-top:hover { background: var(--bg-body); }
+        .user-avatar-sm { width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 600; font-size: 13px; }
+
+        /* РАБОЧАЯ ОБЛАСТЬ */
+        .content-area { flex: 1; overflow-y: auto; padding: 32px; }
+        .page-view { display: none; }
+        .page-view.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ОБЗОР И ЛЕНТА СОБЫТИЙ */
+        .overview-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); display: flex; align-items: center; gap: 20px; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 20px; }
+        .stat-icon.red { background: var(--critical-bg); color: var(--critical); }
+        .stat-icon.blue { background: var(--blue-bg); color: var(--blue-badge); }
+        .stat-icon.green { background: var(--low-bg); color: var(--low); }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--text-main); }
+        .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+        /* Лента событий */
+        .event-feed { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); height: 100%; }
+        .event-feed h3 { font-size: 16px; margin-bottom: 16px; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+        .event-list { display: flex; flex-direction: column; gap: 16px; }
+        .event-item { display: flex; gap: 12px; font-size: 13px; }
+        .event-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; flex-shrink: 0; }
+        .event-icon.blue { background: var(--blue-bg); color: var(--blue-badge); }
+        .event-icon.red { background: var(--critical-bg); color: var(--critical); }
+        .event-icon.green { background: var(--low-bg); color: var(--low); }
+        .event-text p { color: var(--text-main); margin-bottom: 2px; line-height: 1.4; }
+        .event-text span { font-size: 11px; color: var(--text-muted); }
+
+        /* АНАЛИТИКА */
+        .analytics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .chart-card { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
+        .chart-card h3 { font-size: 16px; margin-bottom: 20px; color: var(--text-main); }
+        
+        .bar-chart-row { margin-bottom: 16px; }
+        .bar-chart-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text-main); }
+        .bar-chart-track { height: 8px; background: var(--bg-body); border-radius: 4px; overflow: hidden; }
+        .bar-chart-fill { height: 100%; border-radius: 4px; }
+
+        .column-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 150px; padding-top: 20px; }
+        .column { width: 40px; border-radius: 4px 4px 0 0; position: relative; transition: 0.3s; }
+        .column:hover { opacity: 0.8; }
+        .column span { position: absolute; bottom: -24px; left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--text-muted); }
+
+        .donut-container { display: flex; align-items: center; justify-content: center; gap: 30px; height: 180px; }
+        .donut { width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(var(--critical) 0% 35%, var(--high) 35% 65%, var(--medium) 65% 85%, var(--low) 85% 100%); position: relative; }
+        .donut::after { content: '100%'; position: absolute; width: 90px; height: 90px; background: var(--bg-card); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: var(--text-main); }
+        .donut-legend { display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--text-main); }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .kpi-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); text-align: center; }
+        .kpi-value { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+        .kpi-label { font-size: 13px; color: var(--text-muted); }
+
+        .analyst-list { display: flex; flex-direction: column; gap: 12px; }
+        .analyst-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+        .analyst-info { display: flex; align-items: center; gap: 12px; }
+        .analyst-rank { width: 24px; height: 24px; background: var(--bg-body); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: 700; color: var(--text-main); }
+        .analyst-name { font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .analyst-count { font-size: 13px; color: var(--low); font-weight: 600; }
+
+        /* ИНЦИДЕНТЫ */
+        .incident-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .btn-create { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-create:hover { background: var(--primary-hover); }
+        .btn-export { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-export:hover { background: var(--bg-body); }
+
+        .incident-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .incident-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
+        .incident-card:hover { box-shadow: 0 8px 16px rgba(0,0,0,0.05); transform: translateY(-2px); border-color: var(--primary); }
+        .incident-card.critical-border { border-left: 4px solid var(--critical); }
+        .incident-card.high-border { border-left: 4px solid var(--high); }
+        .incident-card.medium-border { border-left: 4px solid var(--medium); }
+        .incident-card.low-border { border-left: 4px solid var(--low); }
+        .inc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .inc-id { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+        .badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px; }
+        .badge.critical { background: var(--critical-bg); color: var(--critical); }
+        .badge.high { background: var(--high-bg); color: var(--high); }
+        .badge.medium { background: var(--medium-bg); color: #ca8a04; }
+        .badge.low { background: var(--low-bg); color: var(--low); }
+        .badge.progress { background: var(--blue-bg); color: var(--blue-badge); }
+        .badge.resolved { background: var(--low-bg); color: var(--low); }
+        .inc-title { font-size: 15px; font-weight: 600; color: var(--text-main); margin-bottom: 20px; line-height: 1.4; }
+        .inc-bottom { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 16px; }
+        .status-new { color: var(--blue-badge); font-weight: 600; }
+        .status-done { color: var(--low); font-weight: 600; }
+
+        /* ПРОФИЛЬ */
+        .profile-container { max-width: 900px; margin: 0 auto; background: var(--bg-card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+        .profile-cover { height: 200px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+        .profile-header-info { padding: 0 40px 30px 40px; display: flex; align-items: flex-end; gap: 24px; border-bottom: 1px solid var(--border); position: relative; }
+        .profile-avatar-large { width: 140px; height: 140px; background: var(--bg-card); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 46px; font-weight: 700; color: var(--primary); border: 4px solid var(--bg-card); margin-top: -70px; }
+        .profile-names h2 { font-size: 26px; color: var(--text-main); margin-bottom: 4px; }
+        .profile-names p { font-size: 15px; color: var(--text-muted); }
+        .profile-actions { margin-left: auto; padding-bottom: 20px; }
+        .profile-body { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; padding: 30px 40px; }
+        .info-item { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-size: 14px; margin-bottom: 16px; }
+        .info-item i { color: var(--text-muted); font-size: 18px; width: 24px; }
+        .info-item span { color: var(--text-muted); }
+        .btn-logout { width: 100%; background: var(--critical-bg); color: var(--critical); border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+        .profile-tabs { display: flex; gap: 16px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .profile-tab { padding: 10px 0; font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; }
+        .profile-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
+        .incident-modal { background: var(--bg-card); width: 480px; max-width: 95%; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .modal-subtitle { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; }
+        .modal-actions button { background: var(--bg-body); border: none; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; color: var(--text-muted); margin-left: 8px; transition: 0.2s; }
+        .modal-actions button:hover { color: var(--critical); }
+        .modal-id { font-size: 22px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; }
+        .modal-badges { display: flex; gap: 8px; margin-bottom: 16px; }
+        .modal-badges .badge-blue { background: var(--blue-bg); color: var(--blue-badge); font-size: 12px; padding: 4px 12px; border-radius: 12px; font-weight: 600; }
+        .modal-title { font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1.4; margin-bottom: 20px; }
+        .modal-desc { background: var(--bg-body); border-radius: 12px; padding: 16px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .modal-desc-title { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
+        .modal-desc p { font-size: 14px; color: var(--text-main); line-height: 1.5; }
+        .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+        .modal-grid-item { border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; background: var(--bg-card); }
+        .modal-grid-item span { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
+        .modal-grid-item strong { font-size: 14px; color: var(--text-main); font-weight: 600; }
+        
+        .assign-block { margin-bottom: 20px; display: none; }
+        .assign-block select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); }
+
+        .modal-timeline { margin-bottom: 20px; }
+        .timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .timeline-header h3 { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .timeline-list { border-left: 2px solid var(--border); margin-left: 6px; padding-left: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .timeline-item { position: relative; }
+        .timeline-item::before { content: ''; position: absolute; left: -27px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--text-muted); border: 2px solid var(--bg-card); }
+        .timeline-item.active-red::before { background: var(--critical); }
+        .timeline-item.active-blue::before { background: var(--blue-badge); }
+        .timeline-content { display: flex; justify-content: space-between; }
+        .timeline-text p { font-size: 14px; font-weight: 500; color: var(--text-main); }
+        .timeline-text span { font-size: 12px; color: var(--text-muted); }
+        .timeline-time { font-size: 12px; color: var(--text-muted); }
+
+        .comment-box { display: flex; gap: 8px; margin-top: 16px; }
+        .comment-box input { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); }
+        .comment-box button { background: var(--primary); color: white; border: none; padding: 0 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+        .modal-footer { display: flex; gap: 12px; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+        .btn-primary-large { flex: 1; height: 48px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-primary-large:hover { background: var(--primary-hover); }
+        .btn-primary-large.done { background: var(--low); }
+
+        /* Форма создания */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+    </style>
+</head>
+<body>
+
+    <!-- КОНТЕЙНЕР ДЛЯ ТОСТ-УВЕДОМЛЕНИЙ -->
+    <div id="toast-container"></div>
+
+    <!-- ЭКРАН АВТОРИЗАЦИИ -->
+    <div id="login-screen">
+        <div class="login-box">
+            <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
+            <h2>Вход в систему</h2>
+            <p>Введите почту</p>
+            <form onsubmit="login(event)">
+                <div class="input-group">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" id="login-email" placeholder="Корпоративная почта" value="khasanshina447@gmail.com" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" placeholder="Пароль" value="password123" required>
+                </div>
+                <button type="submit" class="login-btn">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ОСНОВНОЙ САЙТ -->
+    <div id="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="logo-text-wrapper">
+                    <span class="logo-subtitle">Security</span>
+                    <span class="logo-title">Центр реагирования</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-target="view-overview" onclick="switchPage('view-overview', this)"><i class="fa-solid fa-house"></i> <span>Обзор</span></button>
+                <button class="nav-item" data-target="view-incidents" onclick="switchPage('view-incidents', this)"><i class="fa-solid fa-triangle-exclamation"></i> <span>Инциденты</span></button>
+                <button class="nav-item" data-target="view-in-progress" onclick="switchPage('view-in-progress', this)">
+                    <i class="fa-solid fa-spinner"></i> <span>В работе</span>
+                    <span class="nav-badge" id="sidebar-task-count">0</span>
+                </button>
+                <button class="nav-item" data-target="view-resolved" onclick="switchPage('view-resolved', this)">
+                    <i class="fa-solid fa-check-double"></i> <span>Решенные</span>
+                    <span class="nav-badge green" id="sidebar-resolved-count">0</span>
+                </button>
+                <button class="nav-item" data-target="view-analytics" onclick="switchPage('view-analytics', this)">
+                    <i class="fa-solid fa-chart-pie"></i> <span>Аналитика</span>
+                </button>
+                <button class="nav-item" data-target="view-profile" onclick="switchPage('view-profile', this)"><i class="fa-regular fa-user"></i> <span>Мой профиль</span></button>
+            </nav>
+
+            <div class="integrations-status">
+                <div class="int-item"><span><i class="fa-solid fa-server"></i> SIEM</span> <span>Онлайн <span class="dot-green"></span></span></div>
+                <div class="int-item"><span><i class="fa-brands fa-jira"></i> Jira</span> <span>Подключена <span class="dot-green"></span></span></div>
+                <div class="int-item"><span><i class="fa-solid fa-database"></i> SAP</span> <span>Синхронизация <span class="dot-green"></span></span></div>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <header class="topbar">
+                <!-- ПОИСК -->
+                <div class="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="global-search" placeholder="Поиск по ID или названию инцидента...">
+                </div>
+                <div class="topbar-right">
+                    
+                    <!-- КНОПКА ТЕМЫ -->
+                    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Переключить тему">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+
+                    <select class="role-switcher" id="role-switcher" onchange="changeRole()">
+                        <option value="analyst">Роль: Аналитик</option>
+                        <option value="manager">Роль: Руководитель</option>
+                    </select>
+
+                    <div class="bell-container">
+                        <button class="bell-btn has-unread" id="bell-btn" onclick="toggleNotifications()"><i class="fa-regular fa-bell"></i></button>
+                        <div class="notif-dropdown" id="notif-dropdown">
+                            <div class="notif-header">Уведомления <span onclick="clearNotifications()">Прочитать все</span></div>
+                            <div class="notif-list" id="notif-list">
+                                <div class="notif-item">Инцидент <b>INC-2841</b> создан системой<span>10 минут назад</span></div>
+                                <div class="notif-item">Задача <b>INC-2839</b> переведена в статус "В работе"<span>30 минут назад</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-top" onclick="switchPage('view-profile', document.querySelectorAll('.nav-item')[5])">
+                        <div class="user-avatar-sm" id="top-avatar">ХЛ</div>
+                        <div style="font-size: 14px; font-weight: 600; color: var(--text-main);" id="top-name">Хасаншина Л.</div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content-area">
+                <!-- ОБЗОР С ЛЕНТОЙ СОБЫТИЙ -->
+                <div id="view-overview" class="page-view active">
+                    <div style="margin-bottom: 24px;">
+                        <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 4px; color: var(--text-main);" id="greeting-text">Доброе утро, Лейсан</h1>
+                        <p style="font-size: 14px; color: var(--text-muted);">Четверг, 14 ноября. Вот сводка на сегодня.</p>
+                    </div>
+                    
+                    <div class="overview-layout">
+                        <!-- Левая колонка: Статистика -->
+                        <div>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                                    <div><span class="stat-value">12</span><br><span class="stat-label">Открыто инцидентов</span></div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon blue"><i class="fa-solid fa-wave-square"></i></div>
+                                    <div><span class="stat-value" id="stat-in-progress">0</span><br><span class="stat-label">В работе (у вас)</span></div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon green"><i class="fa-solid fa-check-double"></i></div>
+                                    <div><span class="stat-value" id="stat-resolved">0</span><br><span class="stat-label">Решено задач</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Правая колонка: Живая лента -->
+                        <div class="event-feed">
+                            <h3><i class="fa-solid fa-bolt" style="color: var(--high);"></i> Лента событий</h3>
+                            <div class="event-list" id="event-list">
+                                <!-- Сюда добавляются события -->
+                                <div class="event-item">
+                                    <div class="event-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                                    <div class="event-text"><p>Система создала инцидент INC-2841</p><span>Только что</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ВСЕ ИНЦИДЕНТЫ -->
+                <div id="view-incidents" class="page-view">
+                    <div class="incident-header-actions">
+                        <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Все инциденты</h1>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn-export" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Скачать отчет (Excel)</button>
+                            <button class="btn-create" id="btn-create-incident" onclick="openCreateModal()" style="display: none;">
+                                <i class="fa-solid fa-plus"></i> Создать инцидент
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="incident-grid" id="incidents-grid">
+                        <div class="incident-card critical-border" onclick="openIncidentModal('INC-2841', 'Подозрительная активность привилегированной учётной записи', 'Критический', 'SIEM')">
+                            <div class="inc-top"><div class="inc-id">INC-2841</div><div class="badge critical">Критический</div></div>
+                            <div class="inc-title">Подозрительная активность привилегированной учётной записи</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-server"></i> SIEM</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card high-border" onclick="openIncidentModal('INC-2839', 'Выгрузка конфиденциальных документов', 'Высокий', 'DLP')">
+                            <div class="inc-top"><div class="inc-id">INC-2839</div><div class="badge high">Высокий</div></div>
+                            <div class="inc-title">Выгрузка конфиденциальных документов</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-file-shield"></i> DLP</div><div class="status-new" style="color: var(--high);">Новый</div></div>
+                        </div>
+                        <div class="incident-card medium-border" onclick="openIncidentModal('INC-2836', 'Аномалия сетевого трафика АСУ ТП', 'Средний', 'SCADA')">
+                            <div class="inc-top"><div class="inc-id">INC-2836</div><div class="badge medium">Средний</div></div>
+                            <div class="inc-title">Аномалия сетевого трафика АСУ ТП</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-network-wired"></i> SCADA</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card low-border" onclick="openIncidentModal('INC-2827', 'Устаревшая версия агента защиты', 'Низкий', 'EDR')">
+                            <div class="inc-top"><div class="inc-id">INC-2827</div><div class="badge low">Низкий</div></div>
+                            <div class="inc-title">Устаревшая версия агента защиты</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-shield-virus"></i> EDR</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card high-border" onclick="openIncidentModal('INC-2850', 'Множественные неудачные попытки входа', 'Высокий', 'SIEM')">
+                            <div class="inc-top"><div class="inc-id">INC-2850</div><div class="badge high">Высокий</div></div>
+                            <div class="inc-title">Множественные неудачные попытки входа</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-server"></i> SIEM</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card critical-border" onclick="openIncidentModal('INC-2848', 'Попытка несанкционированного доступа к БД', 'Критический', 'SIEM')">
+                            <div class="inc-top"><div class="inc-id">INC-2848</div><div class="badge critical">Критический</div></div>
+                            <div class="inc-title">Попытка несанкционированного доступа к БД</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-database"></i> SIEM</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card medium-border" onclick="openIncidentModal('INC-2861', 'Передача данных на внешний FTP-сервер', 'Средний', 'DLP')">
+                            <div class="inc-top"><div class="inc-id">INC-2861</div><div class="badge medium">Средний</div></div>
+                            <div class="inc-title">Передача данных на внешний FTP-сервер</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-file-shield"></i> DLP</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card low-border" onclick="openIncidentModal('INC-2855', 'Обнаружен потенциально нежелательный файл', 'Низкий', 'EDR')">
+                            <div class="inc-top"><div class="inc-id">INC-2855</div><div class="badge low">Низкий</div></div>
+                            <div class="inc-title">Обнаружен потенциально нежелательный файл</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-shield-virus"></i> EDR</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card high-border" onclick="openIncidentModal('INC-2870', 'Отклонение в работе промышленного контроллера', 'Высокий', 'SCADA')">
+                            <div class="inc-top"><div class="inc-id">INC-2870</div><div class="badge high">Высокий</div></div>
+                            <div class="inc-title">Отклонение в работе промышленного контроллера</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-network-wired"></i> SCADA</div><div class="status-new">Новый</div></div>
+                        </div>
+                        <div class="incident-card critical-border" onclick="openIncidentModal('INC-2868', 'Утечка базы данных клиентов', 'Критический', 'DLP')">
+                            <div class="inc-top"><div class="inc-id">INC-2868</div><div class="badge critical">Критический</div></div>
+                            <div class="inc-title">Утечка базы данных клиентов</div>
+                            <div class="inc-bottom"><div><i class="fa-solid fa-file-shield"></i> DLP</div><div class="status-new">Новый</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- В РАБОТЕ -->
+                <div id="view-in-progress" class="page-view">
+                    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-main);">Задачи в работе</h1>
+                    <div class="incident-grid" id="in-progress-grid">
+                        <p style="color: var(--text-muted); font-size: 14px;" id="empty-in-progress">У вас пока нет активных задач.</p>
+                    </div>
+                </div>
+
+                <!-- РЕШЕННЫЕ -->
+                <div id="view-resolved" class="page-view">
+                    <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-main);">Решенные задачи</h1>
+                    <div class="incident-grid" id="resolved-grid">
+                        <p style="color: var(--text-muted); font-size: 14px;" id="empty-resolved">Список решенных задач пуст.</p>
+                    </div>
+                </div>
+
+                <!-- АНАЛИТИКА -->
+                <div id="view-analytics" class="page-view">
+                    <div class="analytics-header">
+                        <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Аналитика и метрики</h1>
+                        <button class="btn-export" onclick="exportAnalyticsToExcel()">
+                            <i class="fa-solid fa-file-excel"></i> Скачать аналитику (Excel)
+                        </button>
+                    </div>
+                    
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-value" id="kpi-mttr">14 мин</div>
+                            <div class="kpi-label">Среднее время реакции (MTTR)</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-value" id="kpi-resolved" style="color: var(--low);">42</div>
+                            <div class="kpi-label">Решено за неделю</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-value" id="kpi-asset" style="color: var(--critical);">srv-fin-db-02</div>
+                            <div class="kpi-label">Самый уязвимый актив</div>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>Распределение инцидентов по критичности</h3>
+                            <div class="bar-chart-row">
+                                <div class="bar-chart-label"><span>Критические</span> <span>12%</span></div>
+                                <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 12%; background: var(--critical);"></div></div>
+                            </div>
+                            <div class="bar-chart-row">
+                                <div class="bar-chart-label"><span>Высокие</span> <span>28%</span></div>
+                                <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 28%; background: var(--high);"></div></div>
+                            </div>
+                            <div class="bar-chart-row">
+                                <div class="bar-chart-label"><span>Средние</span> <span>45%</span></div>
+                                <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 45%; background: var(--medium);"></div></div>
+                            </div>
+                            <div class="bar-chart-row">
+                                <div class="bar-chart-label"><span>Низкие</span> <span>15%</span></div>
+                                <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 15%; background: var(--low);"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="chart-card">
+                            <h3>Активность за неделю (кол-во инцидентов)</h3>
+                            <div class="column-chart">
+                                <div class="column" style="height: 40%; background: var(--critical);"><span>Пн</span></div>
+                                <div class="column" style="height: 70%; background: var(--high);"><span>Вт</span></div>
+                                <div class="column" style="height: 55%; background: var(--medium);"><span>Ср</span></div>
+                                <div class="column" style="height: 90%; background: var(--low);"><span>Чт</span></div>
+                                <div class="column" style="height: 60%; background: var(--critical);"><span>Пт</span></div>
+                                <div class="column" style="height: 30%; background: var(--high);"><span>Сб</span></div>
+                                <div class="column" style="height: 20%; background: var(--medium);"><span>Вс</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>Источники инцидентов</h3>
+                            <div class="donut-container">
+                                <div class="donut"></div>
+                                <div class="donut-legend">
+                                    <div class="legend-item"><div class="legend-color" style="background: var(--critical);"></div> SIEM (35%)</div>
+                                    <div class="legend-item"><div class="legend-color" style="background: var(--high);"></div> DLP (30%)</div>
+                                    <div class="legend-item"><div class="legend-color" style="background: var(--medium);"></div> SCADA (20%)</div>
+                                    <div class="legend-item"><div class="legend-color" style="background: var(--low);"></div> EDR (15%)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chart-card">
+                            <h3>Рейтинг аналитиков (по закрытым задачам)</h3>
+                            <div class="analyst-list">
+                                <div class="analyst-item">
+                                    <div class="analyst-info"><div class="analyst-rank">1</div><div class="analyst-name">Хасаншина Лейсан</div></div>
+                                    <div class="analyst-count">24 задачи</div>
+                                </div>
+                                <div class="analyst-item">
+                                    <div class="analyst-info"><div class="analyst-rank">2</div><div class="analyst-name">Иванов Иван</div></div>
+                                    <div class="analyst-count">18 задач</div>
+                                </div>
+                                <div class="analyst-item">
+                                    <div class="analyst-info"><div class="analyst-rank">3</div><div class="analyst-name">Петров Петр</div></div>
+                                    <div class="analyst-count">15 задач</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ПРОФИЛЬ -->
+                <div id="view-profile" class="page-view">
+                    <div class="profile-container">
+                        <div class="profile-cover"></div>
+                        <div class="profile-header-info">
+                            <div class="profile-avatar-large" id="profile-avatar">ХЛ</div>
+                            <div class="profile-names">
+                                <h2 id="profile-name">Хасаншина Лейсан</h2>
+                                <p id="profile-role">Старший аналитик SOC • Отдел ИБ</p>
+                            </div>
+                            <div class="profile-actions">
+                                <button class="btn-create" id="btn-add-user" onclick="openAddUserModal()" style="display: none;">
+                                    <i class="fa-solid fa-user-plus"></i> Добавить пользователя
+                                </button>
+                            </div>
+                        </div>
+                        <div class="profile-body">
+                            <div>
+                                <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-main);">Контакты</h3>
+                                <div class="info-item"><i class="fa-regular fa-envelope"></i> <div><span>Email:</span> <b id="profile-email">khasanshina447@gmail.com</b></div></div>
+                                <div class="info-item"><i class="fa-solid fa-phone"></i> <div><span>Телефон:</span> <b>+7 (999) 123-45-67</b></div></div>
+                                <div class="info-item"><i class="fa-solid fa-building"></i> <div><span>Кабинет:</span> <b>402, Корпус А</b></div></div>
+                                <button class="btn-logout" onclick="logout()">Выйти из аккаунта</button>
+                            </div>
+                            
+                            <div>
+                                <div class="profile-tabs">
+                                    <div class="profile-tab active" onclick="switchProfileTab('tab-activity', this)">Активность</div>
+                                    <div class="profile-tab" onclick="switchProfileTab('tab-assigned', this)">В работе (<span id="assigned-count">0</span>)</div>
+                                </div>
+                                
+                                <div id="tab-activity" class="tab-content active">
+                                    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;"><i class="fa-solid fa-check-circle" style="color: var(--low);"></i> Закрыла инцидент INC-2827 (2 часа назад)</p>
+                                </div>
+
+                                <div id="tab-assigned" class="tab-content">
+                                    <div id="profile-task-list"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНЫЕ ОКНА -->
+    <div class="modal-overlay" id="incidentModal">
+        <div class="incident-modal">
+            <div class="modal-header">
+                <div class="modal-subtitle">Карточка инцидента</div>
+                <div class="modal-actions"><button onclick="closeModal('incidentModal')"><i class="fa-solid fa-xmark"></i></button></div>
+            </div>
+            <div class="modal-id" id="modal-id">INC-0000</div>
+            <div class="modal-badges">
+                <span class="badge critical" id="modal-severity">Критический</span>
+                <span class="badge-blue" id="modal-status">Новый</span>
+            </div>
+            <h2 class="modal-title" id="modal-title">Название инцидента</h2>
+            
+            <div class="modal-desc">
+                <div class="modal-desc-title">Описание события</div>
+                <p>Зафиксировано подозрительное поведение в корпоративной сети. Требуется проверка аналитиком.</p>
+            </div>
+            
+            <div class="modal-grid">
+                <div class="modal-grid-item"><span>Источник</span><strong id="modal-source">SIEM</strong></div>
+                <div class="modal-grid-item"><span>Актив</span><strong>srv-fin-db-02</strong></div>
+                <div class="modal-grid-item"><span>Обнаружен</span><strong>Только что</strong></div>
+                <div class="modal-grid-item"><span>Тип</span><strong>Доступ</strong></div>
+            </div>
+
+            <div class="assign-block" id="assign-block">
+                <div class="modal-desc-title" style="margin-bottom: 8px;">Назначить исполнителя</div>
+                <select>
+                    <option>Хасаншина Лейсан (Старший аналитик)</option>
+                    <option>Иванов Иван (Аналитик)</option>
+                    <option>Петров Петр (Аналитик)</option>
+                </select>
+            </div>
+
+            <div class="modal-timeline">
+                <div class="timeline-header"><h3>Хронология</h3><span>Сегодня</span></div>
+                <div class="timeline-list" id="modal-timeline-list">
+                    <div class="timeline-item active-red">
+                        <div class="timeline-content">
+                            <div class="timeline-text"><p>Инцидент создан системой</p><span>SIEM</span></div>
+                            <div class="timeline-time">10:42</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="comment-box">
+                    <input type="text" id="comment-input" placeholder="Написать комментарий...">
+                    <button onclick="addComment()">Отправить</button>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-primary-large" id="btn-take-work" onclick="takeToWork()">
+                    <i class="fa-solid fa-arrow-right"></i> Взять в работу
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="createModal">
+        <div class="incident-modal">
+            <div class="modal-header">
+                <div class="modal-subtitle">Новый инцидент</div>
+                <div class="modal-actions"><button onclick="closeModal('createModal')"><i class="fa-solid fa-xmark"></i></button></div>
+            </div>
+            <h2 class="modal-title" style="margin-bottom: 20px;">Создать инцидент вручную</h2>
+            <form onsubmit="submitNewIncident(event)">
+                <div class="form-group">
+                    <label>Название инцидента</label>
+                    <input type="text" id="new-inc-title" placeholder="Например: Утечка данных через USB" required>
+                </div>
+                <div class="form-group">
+                    <label>Уровень критичности</label>
+                    <select id="new-inc-severity">
+                        <option value="Критический">Критический</option>
+                        <option value="Высокий">Высокий</option>
+                        <option value="Средний">Средний</option>
+                        <option value="Низкий">Низкий</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Источник</label>
+                    <select id="new-inc-source">
+                        <option value="Ручной ввод">Ручной ввод</option>
+                        <option value="SIEM">SIEM</option>
+                        <option value="DLP">DLP</option>
+                    </select>
+                </div>
+                <div class="modal-footer" style="padding-top: 10px;">
+                    <button type="submit" class="btn-primary-large">Создать инцидент</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="taskModal">
+        <div class="incident-modal">
+            <div class="modal-header">
+                <div class="modal-subtitle">Карточка задачи</div>
+                <div class="modal-actions"><button onclick="closeModal('taskModal')"><i class="fa-solid fa-xmark"></i></button></div>
+            </div>
+            <div class="modal-id" id="task-modal-id">INC-2841</div>
+            <div class="modal-badges"><span class="badge progress" style="background: var(--blue-bg); color: var(--blue-badge);">В работе</span></div>
+            <h2 class="modal-title" id="task-modal-title">Название задачи</h2>
+            <div class="modal-desc">
+                <div class="modal-desc-title">Что нужно сделать</div>
+                <p>Проверить логи, заблокировать подозрительную учетную запись и уведомить владельца актива.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary-large done" onclick="completeTask()"><i class="fa-solid fa-check"></i> Завершить задачу</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="addUserModal">
+        <div class="incident-modal">
+            <div class="modal-header">
+                <div class="modal-subtitle">Управление персоналом</div>
+                <div class="modal-actions"><button onclick="closeModal('addUserModal')"><i class="fa-solid fa-xmark"></i></button></div>
+            </div>
+            <h2 class="modal-title" style="margin-bottom: 20px;">Добавить нового сотрудника</h2>
+            <form onsubmit="submitNewUser(event)">
+                <div class="form-group">
+                    <label>ФИО сотрудника</label>
+                    <input type="text" id="new-user-name" placeholder="Иванов Иван Иванович" required>
+                </div>
+                <div class="form-group">
+                    <label>Корпоративная почта</label>
+                    <input type="email" id="new-user-email" placeholder="ivanov@sibur.ru" required>
+                </div>
+                <div class="form-group">
+                    <label>Роль в системе</label>
+                    <select id="new-user-role">
+                        <option value="Аналитик">Аналитик</option>
+                        <option value="Старший аналитик">Старший аналитик</option>
+                        <option value="Руководитель">Руководитель</option>
+                    </select>
+                </div>
+                <div class="modal-footer" style="padding-top: 10px;">
+                    <button type="submit" class="btn-primary-large"><i class="fa-solid fa-user-plus"></i> Создать профиль</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ЛОГИКА -->
+    <script>
+        let currentUser = { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com' };
+        let myTasks = []; 
+        let resolvedTasks = []; 
+        let currentIncident = null; 
+        let currentTaskId = null; 
+        let currentRole = 'analyst'; 
+
+        // --- ИНИЦИАЛИЗАЦИЯ ---
+        document.addEventListener('DOMContentLoaded', () => {
+            changeRole(); 
+            // Проверка темы при загрузке
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.querySelector('#theme-toggle i').className = 'fa-solid fa-sun';
+            }
+        });
+
+        // --- ТЕМНАЯ ТЕМА ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.querySelector('#theme-toggle i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.className = 'fa-solid fa-sun';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.className = 'fa-solid fa-moon';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // --- ТОСТ-УВЕДОМЛЕНИЯ ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = 'fa-circle-info';
+            if (type === 'success') icon = 'fa-circle-check';
+            if (type === 'error') icon = 'fa-circle-xmark';
+
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            // Удаление через 3 секунды
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- ЛЕНТА СОБЫТИЙ ---
+        function addLogEvent(text, type = 'blue') {
+            const list = document.getElementById('event-list');
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            
+            let icon = 'fa-info';
+            if (type === 'red') icon = 'fa-triangle-exclamation';
+            if (type === 'green') icon = 'fa-check';
+            if (type === 'blue') icon = 'fa-bolt';
+
+            item.innerHTML = `
+                <div class="event-icon ${type}"><i class="fa-solid ${icon}"></i></div>
+                <div class="event-text"><p>${text}</p><span>Только что</span></div>
+            `;
+            
+            // Добавляем в начало списка
+            list.prepend(item);
+
+            // Оставляем только 5 последних событий, чтобы не перегружать
+            if (list.children.length > 5) {
+                list.removeChild(list.lastElementChild);
+            }
+        }
+
+        // --- ПОИСК ---
+        document.getElementById('global-search').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase().trim();
+            
+            // Если пользователь начал вводить, переключаем на страницу инцидентов
+            if (term.length > 0 && !document.getElementById('view-incidents').classList.contains('active')) {
+                switchPage('view-incidents', document.querySelector('[data-target="view-incidents"]'));
+            }
+
+            const cards = document.querySelectorAll('#incidents-grid .incident-card');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                if (text.includes(term)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // --- 1. АВТОРИЗАЦИЯ ---
+        function login(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            let displayName = email; 
+            let shortName = email[0].toUpperCase(); 
+            
+            if (email === 'khasanshina447@gmail.com') {
+                displayName = 'Хасаншина Лейсан';
+                shortName = 'ХЛ';
+            } else {
+                const namePart = email.split('@')[0];
+                const names = namePart.split('.');
+                if (names.length >= 2) {
+                    displayName = names.map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' ');
+                    shortName = names[0][0].toUpperCase() + names[1][0].toUpperCase();
+                }
+            }
+            currentUser = { name: displayName, email: email };
+            document.getElementById('top-name').innerText = displayName.split(' ')[0] + ' ' + (displayName.split(' ')[1] ? displayName.split(' ')[1][0] + '.' : '');
+            document.getElementById('top-avatar').innerText = shortName;
+            document.getElementById('profile-name').innerText = displayName;
+            document.getElementById('profile-email').innerText = email;
+            document.getElementById('profile-avatar').innerText = shortName;
+            document.getElementById('greeting-text').innerText = `Доброе утро, ${displayName.split(' ')[0]}`;
+
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+            showToast(`Добро пожаловать, ${displayName.split(' ')[0]}!`, 'success');
+        }
+
+        function logout() {
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+            myTasks = [];
+            resolvedTasks = [];
+            updateAllCounters();
+            renderTasks();
+            switchPage('view-overview', document.querySelectorAll('.nav-item')[0]);
+            showToast('Вы вышли из системы', 'info');
+        }
+
+        // --- 2. НАВИГАЦИЯ ---
+        function switchPage(targetId, navElement) {
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            if(navElement) navElement.classList.add('active');
+            document.querySelectorAll('.page-view').forEach(page => page.classList.remove('active'));
+            document.getElementById(targetId).classList.add('active');
+        }
+
+        function switchProfileTab(tabId, element) {
+            document.querySelectorAll('.profile-tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // --- 3. РОЛИ ---
+        function changeRole() {
+            currentRole = document.getElementById('role-switcher').value;
+            const createBtn = document.getElementById('btn-create-incident');
+            if (createBtn) createBtn.style.display = currentRole === 'manager' ? 'flex' : 'none';
+
+            const addUserBtn = document.getElementById('btn-add-user');
+            if (addUserBtn) addUserBtn.style.display = currentRole === 'manager' ? 'flex' : 'none';
+
+            if (document.getElementById('incidentModal').style.display === 'flex') {
+                document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
+            }
+        }
+
+        // --- 4. УВЕДОМЛЕНИЯ (КОЛОКОЛЬЧИК) ---
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notif-dropdown');
+            dropdown.classList.toggle('active');
+            if (dropdown.classList.contains('active')) {
+                document.getElementById('bell-btn').classList.remove('has-unread');
+            }
+        }
+        function clearNotifications() {
+            document.getElementById('notif-list').innerHTML = '<div class="notif-item" style="text-align:center; color: var(--text-muted);">Нет новых уведомлений</div>';
+        }
+        window.addEventListener('click', function(e) {
+            const bell = document.getElementById('bell-btn');
+            const dropdown = document.getElementById('notif-dropdown');
+            if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // --- 5. МОДАЛКИ ---
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // --- 6. ИНЦИДЕНТЫ ---
+        function openIncidentModal(id, title, severity, source) {
+            currentIncident = { id, title, severity, source };
+            document.getElementById('modal-id').innerText = id;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-source').innerText = source;
+            
+            const sevBadge = document.getElementById('modal-severity');
+            sevBadge.innerText = severity;
+            sevBadge.className = 'badge ' + (severity === 'Критический' ? 'critical' : severity === 'Высокий' ? 'high' : severity === 'Средний' ? 'medium' : 'low');
+
+            document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
+
+            const btn = document.getElementById('btn-take-work');
+            btn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Взять в работу';
+            btn.className = 'btn-primary-large';
+            btn.disabled = false;
+            
+            if (myTasks.some(t => t.id === id)) {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Уже в работе';
+                btn.className = 'btn-primary-large done';
+                btn.disabled = true;
+            }
+
+            document.getElementById('incidentModal').style.display = 'flex';
+        }
+
+        function takeToWork() {
+            if (!currentIncident) return;
+            if (!myTasks.some(t => t.id === currentIncident.id)) {
+                myTasks.push({ id: currentIncident.id, title: currentIncident.title });
+                updateAllCounters();
+                renderTasks();
+                showToast(`Инцидент ${currentIncident.id} взят в работу`, 'success');
+                addLogEvent(`${currentUser.name.split(' ')[0]} взял в работу ${currentIncident.id}`, 'blue');
+            }
+            const btn = document.getElementById('btn-take-work');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> В работе';
+            btn.className = 'btn-primary-large done';
+            btn.disabled = true;
+            setTimeout(() => closeModal('incidentModal'), 1000);
+        }
+
+        // --- 7. КОММЕНТАРИИ ---
+        function addComment() {
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+            if (!text) return;
+            const list = document.getElementById('modal-timeline-list');
+            const newItem = document.createElement('div');
+            newItem.className = 'timeline-item active-blue';
+            newItem.innerHTML = `
+                <div class="timeline-content">
+                    <div class="timeline-text"><p>${text}</p><span>Вы</span></div>
+                    <div class="timeline-time">Только что</div>
+                </div>
+            `;
+            list.appendChild(newItem);
+            input.value = ''; 
+            list.parentElement.scrollTop = list.parentElement.scrollHeight;
+            showToast('Комментарий добавлен', 'success');
+        }
+
+        // --- 8. СОЗДАНИЕ ИНЦИДЕНТА ---
+        function openCreateModal() {
+            document.getElementById('createModal').style.display = 'flex';
+        }
+
+        function submitNewIncident(event) {
+            event.preventDefault();
+            const title = document.getElementById('new-inc-title').value;
+            const severity = document.getElementById('new-inc-severity').value;
+            const source = document.getElementById('new-inc-source').value;
+            const newId = 'INC-' + Math.floor(1000 + Math.random() * 9000);
+
+            const grid = document.getElementById('incidents-grid');
+            const card = document.createElement('div');
+            card.className = 'incident-card' + (severity === 'Критический' ? ' critical-border' : severity === 'Высокий' ? ' high-border' : severity === 'Средний' ? ' medium-border' : ' low-border');
+            card.onclick = () => openIncidentModal(newId, title, severity, source);
+            
+            let badgeClass = severity === 'Критический' ? 'critical' : severity === 'Высокий' ? 'high' : severity === 'Средний' ? 'medium' : 'low';
+            
+            card.innerHTML = `
+                <div class="inc-top"><div class="inc-id">${newId}</div><div class="badge ${badgeClass}">${severity}</div></div>
+                <div class="inc-title">${title}</div>
+                <div class="inc-bottom"><div><i class="fa-solid fa-user-pen"></i> ${source}</div><div class="status-new">Новый</div></div>
+            `;
+            grid.prepend(card);
+            closeModal('createModal');
+            document.getElementById('new-inc-title').value = ''; 
+            
+            showToast(`Инцидент ${newId} успешно создан`, 'success');
+            addLogEvent(`Создан инцидент ${newId}`, 'red');
+        }
+
+        // --- 9. ДОБАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ ---
+        function openAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'flex';
+        }
+
+        function submitNewUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('new-user-name').value;
+            const email = document.getElementById('new-user-email').value;
+            const role = document.getElementById('new-user-role').value;
+
+            showToast(`Сотрудник ${name} добавлен в систему`, 'success');
+            addLogEvent(`Добавлен новый пользователь: ${name} (${role})`, 'green');
+            
+            document.getElementById('new-user-name').value = '';
+            document.getElementById('new-user-email').value = '';
+            closeModal('addUserModal');
+        }
+
+        // --- 10. ЗАДАЧИ ---
+        function openTaskModal(id, title) {
+            currentTaskId = id;
+            document.getElementById('task-modal-id').innerText = id;
+            document.getElementById('task-modal-title').innerText = title;
+            document.getElementById('taskModal').style.display = 'flex';
+        }
+
+        function completeTask() {
+            const taskIndex = myTasks.findIndex(t => t.id === currentTaskId);
+            if (taskIndex !== -1) {
+                const completedTask = myTasks.splice(taskIndex, 1)[0];
+                resolvedTasks.push(completedTask);
+                showToast(`Задача ${currentTaskId} успешно закрыта`, 'success');
+                addLogEvent(`Закрыт инцидент ${currentTaskId}`, 'green');
+            }
+            updateAllCounters();
+            renderTasks();
+            closeModal('taskModal');
+        }
+
+        function updateAllCounters() {
+            document.getElementById('sidebar-task-count').innerText = myTasks.length;
+            document.getElementById('assigned-count').innerText = myTasks.length;
+            document.getElementById('stat-in-progress').innerText = myTasks.length;
+            document.getElementById('sidebar-resolved-count').innerText = resolvedTasks.length;
+            document.getElementById('stat-resolved').innerText = resolvedTasks.length;
+        }
+
+        function renderTasks() {
+            const inProgressGrid = document.getElementById('in-progress-grid');
+            const profileList = document.getElementById('profile-task-list');
+            const resolvedGrid = document.getElementById('resolved-grid');
+
+            inProgressGrid.innerHTML = '';
+            profileList.innerHTML = '';
+            resolvedGrid.innerHTML = '';
+
+            if (myTasks.length === 0) {
+                inProgressGrid.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">У вас пока нет активных задач.</p>';
+                profileList.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Список пуст.</p>';
+            } else {
+                myTasks.forEach(task => {
+                    const card = document.createElement('div');
+                    card.className = 'incident-card';
+                    card.onclick = () => openTaskModal(task.id, task.title);
+                    card.innerHTML = `
+                        <div class="inc-top"><div class="inc-id">${task.id}</div><div class="badge progress">В работе</div></div>
+                        <div class="inc-title">${task.title}</div>
+                        <div class="inc-bottom"><div>Моя задача</div><div class="status-new">Нажмите для деталей</div></div>
+                    `;
+                    inProgressGrid.appendChild(card);
+
+                    const pCard = document.createElement('div');
+                    pCard.style.cssText = 'padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;';
+                    pCard.onclick = () => openTaskModal(task.id, task.title);
+                    pCard.innerHTML = `
+                        <div><div style="font-size: 14px; font-weight: 600; color: var(--text-main);">${task.title}</div><div style="font-size: 12px; color: var(--text-muted);">${task.id}</div></div>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
+                    `;
+                    profileList.appendChild(pCard);
+                });
+            }
+
+            if (resolvedTasks.length === 0) {
+                resolvedGrid.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Список решенных задач пуст.</p>';
+            } else {
+                resolvedTasks.forEach(task => {
+                    const card = document.createElement('div');
+                    card.className = 'incident-card';
+                    card.innerHTML = `
+                        <div class="inc-top"><div class="inc-id">${task.id}</div><div class="badge resolved">Решено</div></div>
+                        <div class="inc-title">${task.title}</div>
+                        <div class="inc-bottom"><div>Завершено</div><div class="status-done"><i class="fa-solid fa-check"></i> Успешно</div></div>
+                    `;
+                    resolvedGrid.appendChild(card);
+                });
+            }
+        }
+
+        // --- 11. ЭКСПОРТ ИНЦИДЕНТОВ В EXCEL ---
+        function exportToExcel() {
+            const cards = document.querySelectorAll('#incidents-grid .incident-card');
+            const dataForExcel = [];
+            
+            cards.forEach(card => {
+                // Если карточка скрыта фильтром поиска, мы её не выгружаем
+                if(card.style.display === 'none') return;
+
+                const id = card.querySelector('.inc-id').innerText;
+                const title = card.querySelector('.inc-title').innerText;
+                const severity = card.querySelector('.badge').innerText;
+                const sourceDiv = card.querySelector('.inc-bottom div');
+                const source = sourceDiv.innerText.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
+                const status = card.querySelector('.status-new, .status-done').innerText;
+
+                dataForExcel.push({
+                    "ID инцидента": id,
+                    "Название": title,
+                    "Критичность": severity,
+                    "Источник": source,
+                    "Статус": status
+                });
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Инциденты");
+
+            worksheet['!cols'] = [
+                { wch: 15 }, { wch: 50 }, { wch: 15 }, { wch: 15 }, { wch: 15 }
+            ];
+
+            XLSX.writeFile(workbook, "Sibur_Incidents_Report.xlsx");
+            showToast('Отчет по инцидентам скачан', 'success');
+        }
+
+        // --- 12. ЭКСПОРТ АНАЛИТИКИ В EXCEL ---
+        function exportAnalyticsToExcel() {
+            const wb = XLSX.utils.book_new();
+
+            const kpiData = [
+                ["Показатель", "Значение"],
+                ["Среднее время реакции (MTTR)", document.getElementById('kpi-mttr').innerText],
+                ["Решено за неделю", document.getElementById('kpi-resolved').innerText],
+                ["Самый уязвимый актив", document.getElementById('kpi-asset').innerText]
+            ];
+            const wsKpi = XLSX.utils.aoa_to_sheet(kpiData);
+            wsKpi['!cols'] = [{ wch: 35 }, { wch: 20 }];
+            XLSX.utils.book_append_sheet(wb, wsKpi, "KPI Метрики");
+
+            const critData = [["Уровень критичности", "Доля (%)"]];
+            document.querySelectorAll('.bar-chart-row').forEach(row => {
+                const label = row.querySelector('.bar-chart-label span:nth-child(1)').innerText;
+                const value = row.querySelector('.bar-chart-label span:nth-child(2)').innerText;
+                critData.push([label, value]);
+            });
+            const wsCrit = XLSX.utils.aoa_to_sheet(critData);
+            wsCrit['!cols'] = [{ wch: 25 }, { wch: 15 }];
+            XLSX.utils.book_append_sheet(wb, wsCrit, "По критичности");
+
+            const actData = [["День недели", "Активность (отн. %)"]];
+            document.querySelectorAll('.column').forEach(col => {
+                const day = col.querySelector('span').innerText;
+                const height = col.style.height;
+                actData.push([day, height]);
+            });
+            const wsAct = XLSX.utils.aoa_to_sheet(actData);
+            wsAct['!cols'] = [{ wch: 20 }, { wch: 20 }];
+            XLSX.utils.book_append_sheet(wb, wsAct, "Активность");
+
+            const srcData = [["Источник", "Доля (%)"]];
+            document.querySelectorAll('.legend-item').forEach(item => {
+                const text = item.innerText; 
+                const match = text.match(/(.*)\s\((.*)\)/);
+                if(match) srcData.push([match[1].trim(), match[2].trim()]);
+            });
+            const wsSrc = XLSX.utils.aoa_to_sheet(srcData);
+            wsSrc['!cols'] = [{ wch: 20 }, { wch: 15 }];
+            XLSX.utils.book_append_sheet(wb, wsSrc, "Источники");
+
+            const rankData = [["Место", "Аналитик", "Закрыто задач"]];
+            document.querySelectorAll('.analyst-item').forEach(item => {
+                const rank = item.querySelector('.analyst-rank').innerText;
+                const name = item.querySelector('.analyst-name').innerText;
+                const count = item.querySelector('.analyst-count').innerText;
+                rankData.push([rank, name, count]);
+            });
+            const wsRank = XLSX.utils.aoa_to_sheet(rankData);
+            wsRank['!cols'] = [{ wch: 10 }, { wch: 30 }, { wch: 20 }];
+            XLSX.utils.book_append_sheet(wb, wsRank, "Рейтинг аналитиков");
+
+            XLSX.writeFile(wb, "Sibur_Analytics_Report.xlsx");
+            showToast('Аналитический отчет скачан', 'success');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
