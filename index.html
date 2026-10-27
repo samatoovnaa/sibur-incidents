@@ -1233,6 +1233,13 @@
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value.trim();
             
+            // 1. ПРОВЕРКА: Заполнены ли поля
+            if (!email || !password) {
+                showToast('Заполните почту и пароль!', 'error');
+                return;
+            }
+
+            // 2. ЖЕЛЕЗНЫЙ ВХОД ДЛЯ АДМИНА (игнорирует ошибки базы)
             if (email === 'khasanshina447@gmail.com' && password === '11111') {
                 let admin = teamMembers.find(u => u.email === email);
                 if (!admin) {
@@ -1250,20 +1257,30 @@
                 return;
             }
             
+            // 3. СТАНДАРТНЫЙ ВХОД ДЛЯ ОСТАЛЬНЫХ
             const user = teamMembers.find(u => u.email === email);
             
-            if (user && user.password === password) {
-                currentUser = { name: user.name, email: user.email, phone: currentUser.phone || '+7 (999) 123-45-67', role: user.role || 'analyst' };
-                authorizeUser();
-                user.status = 'online';
-                saveState();
-                renderTeam();
-            } 
-            else {
-                showToast('Доступ запрещён. Неверный логин или пароль.', 'error');
+            if (!user) {
+                // Если такого email нет в базе
+                showToast('Пользователь с такой почтой не найден!', 'error');
                 addSecurityNotification(email);
                 document.getElementById('login-password').value = '';
+                return;
             }
+
+            if (user.password !== password) {
+                // Если пароль не совпадает
+                showToast('Неверный пароль!', 'error');
+                document.getElementById('login-password').value = '';
+                return;
+            }
+
+            // Успешный вход
+            currentUser = { name: user.name, email: user.email, phone: currentUser.phone || '+7 (999) 123-45-67', role: user.role || 'analyst' };
+            authorizeUser();
+            user.status = 'online';
+            saveState();
+            renderTeam();
         }
 
         function authorizeUser() {
