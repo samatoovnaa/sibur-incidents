@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -13,61 +12,33 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Иконки: jsdelivr (стабильнее в РФ, чем cdnjs) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* =========================================
-           1. ПЕРЕМЕННЫЕ ЦВЕТОВ
-           ========================================= */
         :root {
-            --bg-body: #f4f7f9;
-            --bg-sidebar: #ffffff;
-            --bg-card: #ffffff;
-            --text-main: #1a1f36;
-            --text-muted: #8e9aaf;
-            --primary: #1e3a8a;
-            --primary-hover: #152c6b;
-            --critical: #ef4444;
-            --critical-bg: #fee2e2;
-            --high: #f97316;
-            --high-bg: #ffedd5;
-            --medium: #eab308;
-            --medium-bg: #fef9c3;
-            --low: #22c55e;
-            --low-bg: #dcfce7;
-            --blue-badge: #3b82f6;
-            --blue-bg: #eff6ff;
+            --bg-body: #f4f7f9; --bg-sidebar: #ffffff; --bg-card: #ffffff;
+            --text-main: #1a1f36; --text-muted: #8e9aaf;
+            --primary: #1e3a8a; --primary-hover: #152c6b;
+            --critical: #ef4444; --critical-bg: #fee2e2;
+            --high: #f97316; --high-bg: #ffedd5;
+            --medium: #eab308; --medium-bg: #fef9c3;
+            --low: #22c55e; --low-bg: #dcfce7;
+            --blue-badge: #3b82f6; --blue-bg: #eff6ff;
             --border: #e2e8f0;
         }
-
         body.dark-mode {
-            --bg-body: #0f172a;
-            --bg-sidebar: #1e293b;
-            --bg-card: #1e293b;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
+            --bg-body: #0f172a; --bg-sidebar: #1e293b; --bg-card: #1e293b;
+            --text-main: #f1f5f9; --text-muted: #94a3b8;
+            --primary: #3b82f6; --primary-hover: #2563eb;
             --border: #334155;
-            --critical-bg: #7f1d1d;
-            --high-bg: #7c2d12;
-            --medium-bg: #713f12;
-            --low-bg: #14532d;
-            --blue-bg: #1e3a8a;
+            --critical-bg: #7f1d1d; --high-bg: #7c2d12;
+            --medium-bg: #713f12; --low-bg: #14532d; --blue-bg: #1e3a8a;
         }
-
-        /* =========================================
-           2. БАЗОВЫЕ СТИЛИ
-           ========================================= */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-body); height: 100vh; overflow: hidden; transition: 0.3s; color: var(--text-main); }
 
-        /* =========================================
-           3. УВЕДОМЛЕНИЯ (ТОСТЫ)
-           ========================================= */
         #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
         .toast { background: var(--bg-card); color: var(--text-main); padding: 14px 20px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 14px; border: 1px solid var(--border); animation: slideInRight 0.3s forwards; }
         .toast.success { border-left: 4px solid var(--low); }
@@ -76,9 +47,6 @@
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
 
-        /* =========================================
-           4. ЭКРАН ВХОДА
-           ========================================= */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .login-box { background: white; padding: 40px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); margin: 20px; }
         .login-logo { background: var(--primary); color: white; width: 60px; height: 60px; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 28px; margin: 0 auto 20px auto; }
@@ -88,14 +56,11 @@
         .input-group i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #8e9aaf; }
         .input-group input { width: 100%; padding: 14px 16px 14px 44px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; }
         .login-btn { width: 100%; padding: 14px; background: #1e3a8a; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        .login-hint { margin-top: 20px; padding: 10px; background: #f4f7f9; border-radius: 8px; font-size: 11px; color: #8e9aaf; line-height: 1.5; text-align: left; }
 
-        /* =========================================
-           5. КАРКАС (Меню + Контент)
-           ========================================= */
         #app-container { display: none; height: 100vh; }
         #app-container.active { display: flex; }
 
-        /* ЛЕВОЕ МЕНЮ */
         .sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 16px; transition: 0.3s ease; z-index: 1000; }
         .logo-container { display: flex; align-items: center; gap: 12px; padding: 0 12px 32px 12px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
         .logo-icon { background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; }
@@ -113,10 +78,7 @@
         .int-item { display: flex; justify-content: space-between; align-items: center; }
         .dot-green { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; box-shadow: 0 0 4px #22c55e; }
 
-        /* ПРАВАЯ ЧАСТЬ */
         .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; }
-        
-        /* ШАПКА */
         .topbar { height: 72px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: relative; z-index: 100; color: var(--text-main); }
         .menu-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; padding: 8px; margin-right: 12px; }
         .search-container { position: relative; width: 400px; }
@@ -126,7 +88,6 @@
         .theme-toggle { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 8px; }
         .role-switcher { background: var(--bg-body); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; display: none; }
 
-        /* УВЕДОМЛЕНИЯ (КОЛОКОЛЬЧИК) */
         .bell-container { position: relative; }
         .bell-btn { background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; position: relative; padding: 8px; border-radius: 8px; }
         .bell-btn.has-unread::after { content: ''; position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--critical); border-radius: 50%; border: 2px solid var(--bg-card); }
@@ -137,19 +98,15 @@
         .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-main); }
         .notif-item span { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
-        .user-profile-top { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 4px; border-radius: 20px; color: var(--text-main); }
+        .user-profile-top { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 4px; border-radius: 20px; }
         #top-name { color: var(--text-main); font-weight: 500; }
         .user-avatar-sm { width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 600; font-size: 13px; }
 
-        /* КОНТЕНТНАЯ ОБЛАСТЬ */
         .content-area { flex: 1; overflow-y: auto; padding: 32px; -webkit-overflow-scrolling: touch; }
         .page-view { display: none; }
         .page-view.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* =========================================
-           6. СТРАНИЦА ОБЗОР
-           ========================================= */
         .overview-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start; }
         .stats-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px; }
         .stat-card { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); display: flex; align-items: center; gap: 20px; }
@@ -170,9 +127,6 @@
         .event-text p { color: var(--text-main); margin-bottom: 2px; line-height: 1.4; }
         .event-text span { font-size: 11px; color: var(--text-muted); }
 
-        /* =========================================
-           7. СТРАНИЦА ИНЦИДЕНТЫ
-           ========================================= */
         .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
         .filter-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.2s; }
         .filter-btn:hover { background: var(--bg-body); color: var(--text-main); }
@@ -200,9 +154,6 @@
         .inc-bottom { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 16px; }
         .status-new { color: var(--blue-badge); font-weight: 600; }
 
-        /* =========================================
-           8. СТРАНИЦА АНАЛИТИКА
-           ========================================= */
         .analytics-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
         .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
         .chart-card { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
@@ -213,9 +164,6 @@
         .kpi-value { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
         .kpi-label { font-size: 13px; color: var(--text-muted); }
 
-        /* =========================================
-           9. СТРАНИЦА КОМАНДА
-           ========================================= */
         .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .team-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); display: flex; align-items: flex-start; gap: 16px; cursor: pointer; transition: 0.2s; }
         .team-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -226,9 +174,6 @@
         .team-info h4 { font-size: 15px; color: var(--text-main); margin-bottom: 4px; }
         .team-info p { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
 
-        /* =========================================
-           10. СТРАНИЦА ПРОФИЛЬ
-           ========================================= */
         .profile-container { max-width: 900px; margin: 0 auto; background: var(--bg-card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
         .profile-cover { height: 150px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
         .profile-header-info { padding: 0 40px 30px 40px; display: flex; align-items: flex-end; gap: 24px; border-bottom: 1px solid var(--border); position: relative; flex-wrap: wrap; }
@@ -238,7 +183,6 @@
         .profile-actions { margin-left: auto; padding-bottom: 10px; display: flex; gap: 10px; }
         .btn-edit-profile { background: var(--bg-body); color: var(--text-main); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn-edit-profile:hover { background: var(--border); }
-        
         .profile-body { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; padding: 30px 40px; }
         .info-item { display: flex; align-items: center; gap: 12px; color: var(--text-main); font-size: 14px; margin-bottom: 16px; }
         .info-item i { color: var(--text-muted); font-size: 18px; width: 24px; }
@@ -250,9 +194,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.2s ease; }
 
-        /* =========================================
-           11. МОДАЛЬНЫЕ ОКНА
-           ========================================= */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(4px); }
         .incident-modal { background: var(--bg-card); width: 480px; max-width: 95%; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; color: var(--text-main); }
         .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
@@ -272,7 +213,6 @@
         .assign-block { margin-bottom: 20px; display: none; }
         .assign-block select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); }
 
-        /* AI-АССИСТЕНТ */
         .ai-section { margin-bottom: 20px; }
         .btn-ai { width: 100%; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-ai:hover { opacity: 0.9; }
@@ -302,7 +242,6 @@
         .btn-danger { background: var(--critical-bg); color: var(--critical); border: 1px solid var(--critical); height: 48px; padding: 0 20px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-danger:hover { background: var(--critical); color: white; }
 
-        /* ФОРМЫ */
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); font-family: inherit; }
@@ -311,9 +250,6 @@
         .password-group input { flex: 1; }
         .btn-gen-pass { background: var(--blue-bg); color: var(--blue-badge); border: 1px solid var(--blue-badge); padding: 0 12px; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 
-        /* =========================================
-           12. АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ
-           ========================================= */
         @media (max-width: 900px) {
             .sidebar { position: fixed; left: -280px; top: 0; height: 100vh; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
             .sidebar.open { left: 0; }
@@ -332,40 +268,36 @@
 </head>
 <body>
 
-    <!-- Контейнер для уведомлений -->
     <div id="toast-container"></div>
-    
-    <!-- Затемнение фона при открытом меню на телефоне -->
     <div class="mobile-overlay" id="mobile-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- ============================================================
-         ЭКРАН ВХОДА
-         ============================================================ -->
+    <!-- ЭКРАН ВХОДА -->
     <div id="login-screen">
         <div class="login-box">
             <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
             <h2>Вход в систему</h2>
             <p>Введите корпоративные данные</p>
-            <form onsubmit="login(event)">
+            <form id="login-form" onsubmit="login(event)">
                 <div class="input-group">
                     <i class="fa-regular fa-envelope"></i>
-                    <input type="email" id="login-email" placeholder="Корпоративная почта" required>
+                    <input type="email" id="login-email" placeholder="Корпоративная почта" required autocomplete="username">
                 </div>
                 <div class="input-group">
                     <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="login-password" placeholder="Пароль" required>
+                    <input type="password" id="login-password" placeholder="Пароль" required autocomplete="current-password">
                 </div>
                 <button type="submit" class="login-btn">Войти</button>
             </form>
+            <div class="login-hint">
+                <b>Демо-доступ:</b><br>
+                👑 khasanshina447@gmail.com / 11111<br>
+                👤 safin@sibur.ru / 22222
+            </div>
         </div>
     </div>
 
-    <!-- ============================================================
-         ОСНОВНОЙ САЙТ
-         ============================================================ -->
+    <!-- ОСНОВНОЙ САЙТ -->
     <div id="app-container">
-        
-        <!-- ЛЕВОЕ МЕНЮ -->
         <aside class="sidebar" id="sidebar">
             <div class="logo-container">
                 <div class="logo-icon"><i class="fa-solid fa-shield-halved"></i></div>
@@ -374,27 +306,21 @@
                     <span class="logo-title">Центр реагирования</span>
                 </div>
             </div>
-            
             <nav class="nav-menu">
                 <button class="nav-item active" data-target="view-overview" onclick="switchPage('view-overview', this)"><i class="fa-solid fa-house"></i> <span>Обзор</span></button>
                 <button class="nav-item" data-target="view-incidents" onclick="switchPage('view-incidents', this)"><i class="fa-solid fa-triangle-exclamation"></i> <span>Инциденты</span></button>
                 <button class="nav-item" data-target="view-in-progress" onclick="switchPage('view-in-progress', this)"><i class="fa-solid fa-spinner"></i> <span>В работе</span><span class="nav-badge" id="sidebar-task-count">0</span></button>
                 <button class="nav-item" data-target="view-resolved" onclick="switchPage('view-resolved', this)"><i class="fa-solid fa-check-double"></i> <span>Решенные</span><span class="nav-badge green" id="sidebar-resolved-count">0</span></button>
                 <button class="nav-item" data-target="view-analytics" onclick="switchPage('view-analytics', this)"><i class="fa-solid fa-chart-pie"></i> <span>Аналитика</span></button>
-                
-                <!-- Вкладка Команда (только для руководителя) -->
                 <button class="nav-item" id="nav-team" data-target="view-team" onclick="switchPage('view-team', this)" style="display: none;"><i class="fa-solid fa-users"></i> <span>Команда</span></button>
-                
                 <button class="nav-item" data-target="view-profile" onclick="switchPage('view-profile', this)"><i class="fa-regular fa-user"></i> <span>Мой профиль</span></button>
             </nav>
-
             <div class="integrations-status">
                 <div class="int-item"><span><i class="fa-solid fa-server"></i> SIEM</span> <span>Онлайн <span class="dot-green"></span></span></div>
                 <div class="int-item"><span><i class="fa-brands fa-jira"></i> Jira</span> <span>Подключена <span class="dot-green"></span></span></div>
             </div>
         </aside>
 
-        <!-- ПРАВАЯ ЧАСТЬ -->
         <div class="main-wrapper">
             <header class="topbar">
                 <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
@@ -425,12 +351,10 @@
             </header>
 
             <main class="content-area" id="main-content">
-                
-                <!-- СТРАНИЦА 1: ОБЗОР -->
+                <!-- ОБЗОР -->
                 <div id="view-overview" class="page-view active">
                     <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 4px; color: var(--text-main);" id="greeting-text">Доброе утро</h1>
                     <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">Четверг, 14 ноября. Вот сводка.</p>
-                    
                     <div class="overview-layout">
                         <div class="stats-grid">
                             <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div><div><span class="stat-value">15</span><br><span class="stat-label">Открыто</span></div></div>
@@ -444,7 +368,7 @@
                     </div>
                 </div>
 
-                <!-- СТРАНИЦА 2: ИНЦИДЕНТЫ -->
+                <!-- ИНЦИДЕНТЫ -->
                 <div id="view-incidents" class="page-view">
                     <div class="incident-header-actions">
                         <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Все инциденты</h1>
@@ -453,14 +377,12 @@
                             <button class="btn-create" id="btn-create-incident" onclick="openCreateModal()"><i class="fa-solid fa-plus"></i> Создать</button>
                         </div>
                     </div>
-
                     <div class="filter-row">
                         <button class="filter-btn active" onclick="filterIncidents('all', this)">Все</button>
                         <button class="filter-btn" onclick="filterIncidents('critical', this)">Критические</button>
                         <button class="filter-btn" onclick="filterIncidents('SIEM', this)">SIEM</button>
                         <button class="filter-btn" onclick="filterIncidents('DLP', this)">DLP</button>
                     </div>
-
                     <div class="incident-grid" id="incidents-grid">
                         <div class="incident-card critical-border" data-severity="critical" data-source="SIEM" onclick="openIncidentModal('INC-2841', 'Подозрительная активность', 'Критический', 'SIEM')">
                             <div class="inc-top"><div class="inc-id">INC-2841</div><div class="badge critical">Критический</div></div>
@@ -540,31 +462,29 @@
                     </div>
                 </div>
 
-                <!-- СТРАНИЦА 3: В РАБОТЕ -->
+                <!-- В РАБОТЕ -->
                 <div id="view-in-progress" class="page-view">
                     <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-main);">Задачи в работе</h1>
-                    <div class="incident-grid" id="in-progress-grid"><p style="color: var(--text-muted); font-size: 14px;" id="empty-in-progress">Нет задач.</p></div>
+                    <div class="incident-grid" id="in-progress-grid"></div>
                 </div>
 
-                <!-- СТРАНИЦА 4: РЕШЕННЫЕ -->
+                <!-- РЕШЕННЫЕ -->
                 <div id="view-resolved" class="page-view">
                     <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-main);">Решенные задачи</h1>
-                    <div class="incident-grid" id="resolved-grid"><p style="color: var(--text-muted); font-size: 14px;" id="empty-resolved">Список пуст.</p></div>
+                    <div class="incident-grid" id="resolved-grid"></div>
                 </div>
 
-                <!-- СТРАНИЦА 5: АНАЛИТИКА -->
+                <!-- АНАЛИТИКА -->
                 <div id="view-analytics" class="page-view">
                     <div class="analytics-header">
                         <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Аналитика</h1>
                         <button class="btn-export" onclick="exportAnalyticsToExcel()"><i class="fa-solid fa-file-excel"></i> Скачать</button>
                     </div>
-                    
                     <div class="kpi-grid">
                         <div class="kpi-card"><div class="kpi-value" id="kpi-mttr">14 мин</div><div class="kpi-label">Среднее время реакции</div></div>
                         <div class="kpi-card"><div class="kpi-value" id="kpi-resolved" style="color: var(--low);">42</div><div class="kpi-label">Решено за неделю</div></div>
                         <div class="kpi-card"><div class="kpi-value" id="kpi-asset" style="color: var(--critical);">srv-fin-db-02</div><div class="kpi-label">Уязвимый актив</div></div>
                     </div>
-
                     <div class="charts-grid">
                         <div class="chart-card">
                             <h3>Распределение по критичности</h3>
@@ -577,32 +497,25 @@
                     </div>
                 </div>
 
-                <!-- СТРАНИЦА 6: КОМАНДА (только для руководителя) -->
+                <!-- КОМАНДА -->
                 <div id="view-team" class="page-view">
                     <div class="incident-header-actions">
                         <h1 style="font-size: 24px; font-weight: 700; color: var(--text-main);">Команда SOC</h1>
-                        
-                        <!-- КНОПКИ ЭКСПОРТА, ИМПОРТА И ДОБАВЛЕНИЯ -->
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <button class="btn-export" onclick="exportData()" style="border-color: var(--blue-badge); color: var(--blue-badge);" title="Скачать файл со всеми данными">
                                 <i class="fa-solid fa-download"></i> Экспорт
                             </button>
-                            
                             <button class="btn-export" onclick="document.getElementById('importFile').click()" style="border-color: var(--high); color: var(--high);" title="Загрузить данные из файла">
                                 <i class="fa-solid fa-upload"></i> Импорт
                             </button>
                             <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-                            
-                            <button class="btn-create" onclick="openAddUserModal()">
-                                <i class="fa-solid fa-user-plus"></i> Добавить
-                            </button>
+                            <button class="btn-create" onclick="openAddUserModal()"><i class="fa-solid fa-user-plus"></i> Добавить</button>
                         </div>
                     </div>
-                    
                     <div class="team-grid" id="team-grid"></div>
                 </div>
 
-                <!-- СТРАНИЦА 7: ПРОФИЛЬ -->
+                <!-- ПРОФИЛЬ -->
                 <div id="view-profile" class="page-view">
                     <div class="profile-container">
                         <div class="profile-cover"></div>
@@ -612,10 +525,7 @@
                                 <h2 id="profile-name">Хасаншина Лейсан</h2>
                                 <p id="profile-role">Руководитель отдела ИБ</p>
                             </div>
-                            
-                            <!-- КНОПКИ В ПРОФИЛЕ -->
                             <div class="profile-actions">
-                                <!-- Кнопка Добавить сотрудника (видна только руководителю) -->
                                 <button class="btn-create" id="btn-add-user-profile" onclick="openAddUserModal()" style="display: none; height: 38px;">
                                     <i class="fa-solid fa-user-plus"></i> Добавить
                                 </button>
@@ -634,11 +544,9 @@
                                     <div class="profile-tab active" onclick="switchProfileTab('tab-activity', this)" id="tab-activity-title">Активность</div>
                                     <div class="profile-tab" onclick="switchProfileTab('tab-assigned', this)">В работе (<span id="assigned-count">0</span>)</div>
                                 </div>
-                                
                                 <div id="tab-activity" class="tab-content active">
                                     <div id="activity-log-list"></div>
                                 </div>
-
                                 <div id="tab-assigned" class="tab-content">
                                     <div id="profile-task-list"></div>
                                 </div>
@@ -650,40 +558,29 @@
         </div>
     </div>
 
-    <!-- ============================================================
-         МОДАЛЬНЫЕ ОКНА
-         ============================================================ -->
-    
-    <!-- 1. Карточка инцидента -->
+    <!-- МОДАЛКИ -->
     <div class="modal-overlay" id="incidentModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Инцидент</div><div class="modal-actions"><button onclick="closeModal('incidentModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
             <div class="modal-id" id="modal-id">INC-0000</div>
             <div class="modal-badges"><span class="badge critical" id="modal-severity">Критический</span><span class="badge-blue" id="modal-status">Новый</span></div>
             <h2 class="modal-title" id="modal-title">Название</h2>
-            
             <div class="modal-desc">
                 <div class="modal-desc-title">Описание</div>
-                <p id="modal-desc-text">Зафиксировано подозрительное поведение в корпоративной сети.</p>
+                <p id="modal-desc-text">Описание отсутствует.</p>
             </div>
-            
             <div class="modal-grid">
                 <div class="modal-grid-item"><span>Источник</span><strong id="modal-source">SIEM</strong></div>
                 <div class="modal-grid-item"><span>Актив</span><strong>srv-db-01</strong></div>
             </div>
-
             <div class="ai-section" id="ai-section">
-                <button class="btn-ai" id="btn-ai" onclick="runAIAnalysis()">
-                    <i class="fa-solid fa-robot"></i> Запустить AI-анализ
-                </button>
+                <button class="btn-ai" id="btn-ai" onclick="runAIAnalysis()"><i class="fa-solid fa-robot"></i> Запустить AI-анализ</button>
                 <div class="ai-result" id="ai-result">
                     <div class="ai-header"><i class="fa-solid fa-wand-magic-sparkles"></i> Рекомендация ИИ</div>
                     <div class="ai-text" id="ai-text"></div>
                 </div>
             </div>
-
             <div class="assign-block" id="assign-block"><select><option>Хасаншина Лейсан</option><option>Сафин Инсаф</option></select></div>
-            
             <div class="modal-timeline">
                 <div class="timeline-header"><h3>Хронология</h3></div>
                 <div class="timeline-list" id="modal-timeline-list">
@@ -691,12 +588,10 @@
                 </div>
                 <div class="comment-box"><input type="text" id="comment-input" placeholder="Комментарий..."><button onclick="addComment()">ОК</button></div>
             </div>
-            
             <div class="modal-footer"><button class="btn-primary-large" id="btn-take-work" onclick="takeToWork()">Взять в работу</button></div>
         </div>
     </div>
 
-    <!-- 2. Создание инцидента -->
     <div class="modal-overlay" id="createModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Новый</div><div class="modal-actions"><button onclick="closeModal('createModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -714,7 +609,6 @@
         </div>
     </div>
 
-    <!-- 3. Карточка задачи -->
     <div class="modal-overlay" id="taskModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Задача</div><div class="modal-actions"><button onclick="closeModal('taskModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -724,7 +618,6 @@
         </div>
     </div>
 
-    <!-- 4. Добавление сотрудника -->
     <div class="modal-overlay" id="addUserModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Новый сотрудник</div><div class="modal-actions"><button onclick="closeModal('addUserModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -753,12 +646,10 @@
         </div>
     </div>
 
-    <!-- 5. Детали сотрудника -->
     <div class="modal-overlay" id="employeeDetailsModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Сотрудник</div><div class="modal-actions"><button onclick="closeModal('employeeDetailsModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
             <h2 class="modal-title" id="emp-detail-name" style="margin-bottom: 20px;">Имя</h2>
-            
             <div class="modal-grid" style="grid-template-columns: 1fr;">
                 <div class="modal-grid-item"><span>Email</span><strong id="emp-detail-email"></strong></div>
                 <div class="modal-grid-item"><span>Должность</span><strong id="emp-detail-position"></strong></div>
@@ -768,7 +659,6 @@
                     <strong id="emp-detail-password" style="color: var(--blue-badge);"></strong>
                 </div>
             </div>
-            
             <div class="modal-footer" style="justify-content: space-between;">
                 <button class="btn-danger" onclick="deleteEmployee()"><i class="fa-solid fa-trash"></i> Удалить</button>
                 <button class="btn-primary-large" style="flex: 0.6;" onclick="openEditEmployeeModal()"><i class="fa-solid fa-pen"></i> Редактировать</button>
@@ -776,7 +666,6 @@
         </div>
     </div>
 
-    <!-- 6. Редактирование своего профиля -->
     <div class="modal-overlay" id="editProfileModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Профиль</div><div class="modal-actions"><button onclick="closeModal('editProfileModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -789,7 +678,6 @@
         </div>
     </div>
 
-    <!-- 7. Редактирование сотрудника -->
     <div class="modal-overlay" id="editEmployeeModal">
         <div class="incident-modal">
             <div class="modal-header"><div class="modal-subtitle">Редактирование</div><div class="modal-actions"><button onclick="closeModal('editEmployeeModal')"><i class="fa-solid fa-xmark"></i></button></div></div>
@@ -806,53 +694,45 @@
                         <option value="manager">Руководитель</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Пароль</label>
-                    <input type="text" id="edit-emp-password" required>
-                </div>
+                <div class="form-group"><label>Пароль</label><input type="text" id="edit-emp-password" required></div>
                 <button type="submit" class="btn-primary-large">Сохранить изменения</button>
             </form>
         </div>
     </div>
 
-    <!-- ============================================================
-         JAVASCRIPT
-         ============================================================ -->
     <script>
-        // 1. Глобальные переменные
+        // ============ ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ============
         let currentUser = { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', phone: '+7 (999) 123-45-67', role: 'manager' };
-        let myTasks = []; 
-        let resolvedTasks = []; 
-        let teamMembers = []; 
-        let currentIncident = null; 
-        let currentTaskId = null; 
+        let myTasks = [];
+        let resolvedTasks = [];
+        let teamMembers = [];
+        let currentIncident = null;
+        let currentTaskId = null;
         let currentEmployeeEmail = null;
         let chartCriticalityInstance = null;
         let chartActivityInstance = null;
         let userActivity = {};
-        // Описания инцидентов (карта: id -> текст)
         let incidentDescriptions = {};
 
-        // Дефолтные описания для статических инцидентов
         const DEFAULT_INCIDENT_DESCRIPTIONS = {
             'INC-2841': 'Обнаружена аномальная активность привилегированной учётной записи. Зафиксированы множественные обращения к критичным ресурсам с нетипичного IP-адреса.',
-            'INC-2839': 'Зафиксирована попытка массовой выгрузки документов, содержащих конфиденциальную информацию. Источник — учётная запись финансового отдела.',
-            'INC-2836': 'Отклонение параметров сетевого трафика АСУ ТП от базовой линии. Возможна попытка несанкционированного подключения к промышленной сети.',
-            'INC-2848': 'Зафиксированы множественные попытки несанкционированного доступа к базе данных с внешнего IP-адреса.',
-            'INC-2827': 'Агент защиты на нескольких хостах не обновлялся более 30 дней. Рекомендуется срочное обновление.',
-            'INC-2850': 'Зафиксировано более 100 неудачных попыток входа за 5 минут с одного IP-адреса. Признаки brute-force атаки.',
-            'INC-2861': 'Обнаружена передача файлов на внешний FTP-сервер, не входящий в белый список.',
+            'INC-2839': 'Зафиксирована попытка массовой выгрузки документов, содержащих конфиденциальную информацию.',
+            'INC-2836': 'Отклонение параметров сетевого трафика АСУ ТП от базовой линии.',
+            'INC-2848': 'Множественные попытки несанкционированного доступа к базе данных с внешнего IP.',
+            'INC-2827': 'Агент защиты на нескольких хостах не обновлялся более 30 дней.',
+            'INC-2850': 'Более 100 неудачных попыток входа за 5 минут с одного IP-адреса.',
+            'INC-2861': 'Передача файлов на внешний FTP-сервер, не входящий в белый список.',
             'INC-2868': 'Зафиксирована утечка базы данных клиентов. Требуется немедленное реагирование.',
-            'INC-2870': 'Отклонение в работе промышленного контроллера. Возможен сбой или внешнее вмешательство.',
+            'INC-2870': 'Отклонение в работе промышленного контроллера.',
             'INC-2855': 'Обнаружен потенциально нежелательный файл на рабочей станции сотрудника.',
-            'INC-2881': 'Аномальный DNS-трафик на неавторизованные ресурсы. Возможна попытка exfiltration данных.',
-            'INC-2875': 'Зафиксирована отправка конфиденциальных файлов через мессенджер.',
+            'INC-2881': 'Аномальный DNS-трафик на неавторизованные ресурсы.',
+            'INC-2875': 'Отправка конфиденциальных файлов через мессенджер.',
             'INC-2872': 'Обнаружены признаки шифрования файлов. Высокий риск ransomware-атаки.',
-            'INC-2864': 'Антивирусные базы не обновлялись 7 дней. Хосты уязвимы к новым угрозам.',
-            'INC-2853': 'Попытка несанкционированного подключения к АСУ ТП. Требуется проверка.',
+            'INC-2864': 'Антивирусные базы не обновлялись 7 дней.',
+            'INC-2853': 'Попытка несанкционированного подключения к АСУ ТП.'
         };
 
-        // 2. Сохранение и загрузка
+        // ============ СОХРАНЕНИЕ ============
         function saveState() {
             try {
                 localStorage.setItem('sibur_myTasks', JSON.stringify(myTasks));
@@ -862,48 +742,66 @@
                 localStorage.setItem('sibur_userActivity', JSON.stringify(userActivity));
                 localStorage.setItem('sibur_incidentDescriptions', JSON.stringify(incidentDescriptions));
             } catch (e) {
-                console.warn('saveState failed (localStorage недоступен):', e);
+                console.warn('saveState failed:', e);
             }
         }
 
         function loadState() {
-            const savedTasks = localStorage.getItem('sibur_myTasks');
-            const savedResolved = localStorage.getItem('sibur_resolvedTasks');
-            const savedTeam = localStorage.getItem('sibur_team');
-            const savedUser = localStorage.getItem('sibur_currentUser');
-            const savedActivity = localStorage.getItem('sibur_userActivity');
-            const savedDescs = localStorage.getItem('sibur_incidentDescriptions');
-            
-            if (savedTasks) myTasks = JSON.parse(savedTasks);
-            if (savedResolved) resolvedTasks = JSON.parse(savedResolved);
-            if (savedUser) currentUser = JSON.parse(savedUser);
-            if (savedActivity) userActivity = JSON.parse(savedActivity);
-            
-            if (savedTeam) {
-                teamMembers = JSON.parse(savedTeam);
-            } else {
+            try {
+                const savedTasks = localStorage.getItem('sibur_myTasks');
+                const savedResolved = localStorage.getItem('sibur_resolvedTasks');
+                const savedTeam = localStorage.getItem('sibur_team');
+                const savedUser = localStorage.getItem('sibur_currentUser');
+                const savedActivity = localStorage.getItem('sibur_userActivity');
+                const savedDescs = localStorage.getItem('sibur_incidentDescriptions');
+
+                if (savedTasks) myTasks = JSON.parse(savedTasks);
+                if (savedResolved) resolvedTasks = JSON.parse(savedResolved);
+                if (savedUser) currentUser = JSON.parse(savedUser);
+                if (savedActivity) userActivity = JSON.parse(savedActivity);
+
+                if (savedTeam) {
+                    teamMembers = JSON.parse(savedTeam);
+                } else {
+                    teamMembers = [
+                        { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', position: 'Руководитель отдела ИБ', dob: '2000-01-01', status: 'online', password: '11111', role: 'manager', phone: '+7 (999) 123-45-67' },
+                        { name: 'Сафин Инсаф', email: 'safin@sibur.ru', position: 'Аналитик SOC', dob: '1995-05-15', status: 'offline', password: '22222', role: 'analyst', phone: '' }
+                    ];
+                }
+
+                incidentDescriptions = savedDescs ? JSON.parse(savedDescs) : {};
+                Object.keys(DEFAULT_INCIDENT_DESCRIPTIONS).forEach(id => {
+                    if (!incidentDescriptions[id]) {
+                        incidentDescriptions[id] = DEFAULT_INCIDENT_DESCRIPTIONS[id];
+                    }
+                });
+
+                // Страховка: если вдруг teamMembers пустой — добавляем дефолтных
+                if (!Array.isArray(teamMembers) || teamMembers.length === 0) {
+                    teamMembers = [
+                        { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', position: 'Руководитель отдела ИБ', dob: '2000-01-01', status: 'online', password: '11111', role: 'manager', phone: '+7 (999) 123-45-67' },
+                        { name: 'Сафин Инсаф', email: 'safin@sibur.ru', position: 'Аналитик SOC', dob: '1995-05-15', status: 'offline', password: '22222', role: 'analyst', phone: '' }
+                    ];
+                }
+            } catch (e) {
+                console.warn('loadState failed:', e);
+                myTasks = []; resolvedTasks = []; userActivity = {};
                 teamMembers = [
                     { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', position: 'Руководитель отдела ИБ', dob: '2000-01-01', status: 'online', password: '11111', role: 'manager', phone: '+7 (999) 123-45-67' },
                     { name: 'Сафин Инсаф', email: 'safin@sibur.ru', position: 'Аналитик SOC', dob: '1995-05-15', status: 'offline', password: '22222', role: 'analyst', phone: '' }
                 ];
-                saveState();
+                incidentDescriptions = { ...DEFAULT_INCIDENT_DESCRIPTIONS };
             }
-
-            // Описания инцидентов: подтягиваем сохранённые, добиваем дефолтными
-            incidentDescriptions = savedDescs ? JSON.parse(savedDescs) : {};
-            Object.keys(DEFAULT_INCIDENT_DESCRIPTIONS).forEach(id => {
-                if (!incidentDescriptions[id]) {
-                    incidentDescriptions[id] = DEFAULT_INCIDENT_DESCRIPTIONS[id];
-                }
-            });
+            saveState();
         }
 
+        // ============ ИНИЦИАЛИЗАЦИЯ ============
         document.addEventListener('DOMContentLoaded', () => {
             loadState();
-            updateAllCounters(); 
+            updateAllCounters();
             renderTasks();
-            renderTeam(); 
-            
+            renderTeam();
+
             document.getElementById('profile-phone').innerText = currentUser.phone || '+7 (999) 123-45-67';
 
             if (localStorage.getItem('theme') === 'dark') {
@@ -911,14 +809,22 @@
                 document.querySelector('#theme-toggle i').className = 'fa-solid fa-sun';
             }
 
-            // 🔍 Поиск
+            // Поиск
             const searchInput = document.getElementById('global-search');
             if (searchInput) {
                 searchInput.addEventListener('input', (e) => performSearch(e.target.value));
             }
+
+            // Двойная защита от перезагрузки формы логина
+            const lf = document.getElementById('login-form');
+            if (lf) {
+                lf.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                });
+            }
         });
 
-        // 3. Вспомогательные функции
+        // ============ ВСПОМОГАТЕЛЬНЫЕ ============
         function formatTime(ts) {
             const now = Date.now();
             const diff = Math.floor((now - ts) / 60000);
@@ -928,7 +834,36 @@
             return new Date(ts).toLocaleDateString('ru-RU');
         }
 
-        // 4. Роли и доступ
+        // ============ ПОИСК ============
+        function performSearch(query) {
+            const q = (query || '').trim().toLowerCase();
+
+            // Переключиться на страницу инцидентов
+            const incidentsNav = document.querySelector('.nav-item[data-target="view-incidents"]');
+            const incidentsView = document.getElementById('view-incidents');
+            if (incidentsNav && incidentsView && !incidentsView.classList.contains('active')) {
+                switchPage('view-incidents', incidentsNav);
+            }
+
+            // Сбросить активный фильтр — сбрасываем подсветку на "Все"
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            const allBtn = Array.from(document.querySelectorAll('.filter-btn')).find(b => b.textContent.trim() === 'Все');
+            if (allBtn) allBtn.classList.add('active');
+
+            const cards = document.querySelectorAll('#incidents-grid .incident-card');
+            if (!q) {
+                cards.forEach(card => card.style.display = 'block');
+                return;
+            }
+            cards.forEach(card => {
+                const id = (card.querySelector('.inc-id')?.innerText || '').toLowerCase();
+                const title = (card.querySelector('.inc-title')?.innerText || '').toLowerCase();
+                const match = id.includes(q) || title.includes(q);
+                card.style.display = match ? 'block' : 'none';
+            });
+        }
+
+        // ============ РОЛИ ============
         function updateUIBasedOnRole() {
             const roleSwitcher = document.querySelector('.role-switcher');
             const navTeam = document.getElementById('nav-team');
@@ -938,6 +873,7 @@
 
             if (currentUser.role === 'manager') {
                 roleSwitcher.style.display = 'block';
+                roleSwitcher.value = 'manager';
                 navTeam.style.display = 'flex';
                 btnCreate.style.display = 'flex';
                 btnAddUserProfile.style.display = 'flex';
@@ -953,9 +889,9 @@
             }
         }
 
-        // 5. Уведомления
+        // ============ УВЕДОМЛЕНИЯ ============
         function toggleNotifications(event) {
-            if(event) event.stopPropagation();
+            if (event) event.stopPropagation();
             const dropdown = document.getElementById('notif-dropdown');
             dropdown.classList.toggle('active');
             if (dropdown.classList.contains('active')) {
@@ -973,7 +909,7 @@
             }
         });
 
-        // 6. Вкладки профиля
+        // ============ ВКЛАДКИ ПРОФИЛЯ ============
         function switchProfileTab(tabId, element) {
             document.querySelectorAll('.profile-tab').forEach(tab => tab.classList.remove('active'));
             element.classList.add('active');
@@ -981,76 +917,59 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        // 7. Пароли
+        // ============ ПАРОЛИ ============
         function generatePassword() {
             const pwd = Math.random().toString(36).slice(-8);
             document.getElementById('new-user-password').value = pwd;
         }
 
-        // 8. Логи активности
+        // ============ ЛОГИ АКТИВНОСТИ ============
         function renderActivityLog() {
             const list = document.getElementById('activity-log-list');
             if (!list) return;
-            
             let logs = [];
-            
             if (currentUser.role === 'manager') {
                 Object.keys(userActivity).forEach(email => {
                     const user = teamMembers.find(u => u.email === email);
                     const userName = user ? user.name.split(' ')[0] : email;
-                    (userActivity[email] || []).forEach(log => {
-                        logs.push({ ...log, userName, ownerEmail: email });
-                    });
+                    (userActivity[email] || []).forEach(log => logs.push({ ...log, userName, ownerEmail: email }));
                 });
                 logs.sort((a, b) => b.timestamp - a.timestamp);
             } else {
                 logs = userActivity[currentUser.email] || [];
             }
-            
             if (logs.length === 0) {
                 list.innerHTML = '<p style="font-size: 14px; color: var(--text-muted);">Нет недавних действий.</p>';
                 return;
             }
-            
             list.innerHTML = logs.slice(0, 30).map(log => {
                 const iconColor = log.type === 'red' ? 'var(--critical)' : log.type === 'green' ? 'var(--low)' : 'var(--blue-badge)';
                 const iconClass = log.type === 'red' ? 'fa-triangle-exclamation' : log.type === 'green' ? 'fa-check-circle' : 'fa-bolt';
                 const namePrefix = currentUser.role === 'manager' ? `<b>${log.userName}:</b> ` : '';
                 const isMine = log.ownerEmail === currentUser.email;
                 const bgStyle = currentUser.role === 'manager' && isMine ? 'background: rgba(59, 130, 246, 0.05); padding: 8px; border-radius: 6px;' : '';
-                return `
-                    <div style="font-size: 14px; margin-bottom: 12px; display: flex; gap: 8px; align-items: flex-start; color: var(--text-main); ${bgStyle}">
-                        <i class="fa-solid ${iconClass}" style="color: ${iconColor}; margin-top: 2px;"></i>
-                        <div>
-                            ${namePrefix}${log.text}
-                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${formatTime(log.timestamp)}</div>
-                        </div>
-                    </div>
-                `;
+                return `<div style="font-size: 14px; margin-bottom: 12px; display: flex; gap: 8px; align-items: flex-start; color: var(--text-main); ${bgStyle}">
+                    <i class="fa-solid ${iconClass}" style="color: ${iconColor}; margin-top: 2px;"></i>
+                    <div>${namePrefix}${log.text}<div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${formatTime(log.timestamp)}</div></div>
+                </div>`;
             }).join('');
         }
 
         function renderSystemFeed() {
             const list = document.getElementById('event-list');
             if (!list) return;
-            
             let allLogs = [];
             Object.keys(userActivity).forEach(email => {
                 const user = teamMembers.find(u => u.email === email);
                 const userName = user ? user.name.split(' ')[0] : email;
-                (userActivity[email] || []).forEach(log => {
-                    allLogs.push({ ...log, userName });
-                });
+                (userActivity[email] || []).forEach(log => allLogs.push({ ...log, userName }));
             });
             allLogs.sort((a, b) => b.timestamp - a.timestamp);
-            
             list.innerHTML = '';
-            
             if (allLogs.length === 0) {
                 list.innerHTML = '<div class="event-item"><div class="event-text"><p style="color: var(--text-muted);">Нет событий</p></div></div>';
                 return;
             }
-            
             allLogs.slice(0, 6).forEach(log => {
                 const iconClass = log.type === 'red' ? 'fa-triangle-exclamation' : log.type === 'green' ? 'fa-check' : 'fa-bolt';
                 const item = document.createElement('div');
@@ -1062,29 +981,22 @@
 
         function addLogEvent(text, type = 'blue') {
             if (!userActivity[currentUser.email]) userActivity[currentUser.email] = [];
-            userActivity[currentUser.email].unshift({
-                text: text,
-                type: type,
-                timestamp: Date.now()
-            });
+            userActivity[currentUser.email].unshift({ text, type, timestamp: Date.now() });
             if (userActivity[currentUser.email].length > 30) userActivity[currentUser.email].pop();
-            
             saveState();
             renderActivityLog();
             renderSystemFeed();
         }
 
-        // 9. Рендер команды
+        // ============ КОМАНДА ============
         function renderTeam() {
             const grid = document.getElementById('team-grid');
-            if(!grid) return;
+            if (!grid) return;
             grid.innerHTML = '';
-            
             teamMembers.forEach(user => {
                 const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
                 const statusClass = user.status === 'online' ? 'status-online' : 'status-offline';
                 const statusText = user.status === 'online' ? 'В сети' : 'Не в сети';
-                
                 const card = document.createElement('div');
                 card.className = 'team-card';
                 card.onclick = () => openEmployeeDetails(user.email);
@@ -1094,53 +1006,612 @@
                         <h4>${user.name}</h4>
                         <p>${user.position} • ${statusText}</p>
                         <p style="font-size: 11px; margin-top: 4px; color: #8e9aaf;">${user.email}</p>
-                    </div>
-                `;
+                    </div>`;
                 grid.appendChild(card);
             });
         }
 
-        // 10. Действия с сотрудниками
         function openEmployeeDetails(email) {
             const user = teamMembers.find(u => u.email === email);
             if (!user) return;
-            
             currentEmployeeEmail = email;
-
             document.getElementById('emp-detail-name').innerText = user.name;
             document.getElementById('emp-detail-email').innerText = user.email;
             document.getElementById('emp-detail-position').innerText = user.position;
             document.getElementById('emp-detail-dob').innerText = user.dob;
             document.getElementById('emp-detail-password').innerText = user.password;
-            
             document.getElementById('employeeDetailsModal').style.display = 'flex';
         }
 
         function openEditEmployeeModal() {
             const user = teamMembers.find(u => u.email === currentEmployeeEmail);
             if (!user) return;
-
             document.getElementById('edit-emp-name').value = user.name;
             document.getElementById('edit-emp-email').value = user.email;
             document.getElementById('edit-emp-position').value = user.position;
             document.getElementById('edit-emp-dob').value = user.dob;
             document.getElementById('edit-emp-role').value = user.role;
             document.getElementById('edit-emp-password').value = user.password;
-
             closeModal('employeeDetailsModal');
             document.getElementById('editEmployeeModal').style.display = 'flex';
         }
 
         function saveEditedEmployee(event) {
             event.preventDefault();
-            
             const newName = document.getElementById('edit-emp-name').value;
             const newEmail = document.getElementById('edit-emp-email').value;
             const newPosition = document.getElementById('edit-emp-position').value;
             const newDob = document.getElementById('edit-emp-dob').value;
             const newRole = document.getElementById('edit-emp-role').value;
             const newPassword = document.getElementById('edit-emp-password').value;
-
             const userIndex = teamMembers.findIndex(u => u.email === currentEmployeeEmail);
             if (userIndex !== -1) {
-                const oldEmail = teamMembers[userIndex].email
+                const oldEmail = teamMembers[userIndex].email;
+                teamMembers[userIndex].name = newName;
+                teamMembers[userIndex].email = newEmail;
+                teamMembers[userIndex].position = newPosition;
+                teamMembers[userIndex].dob = newDob;
+                teamMembers[userIndex].role = newRole;
+                teamMembers[userIndex].password = newPassword;
+                if (oldEmail !== newEmail && userActivity[oldEmail]) {
+                    userActivity[newEmail] = userActivity[oldEmail];
+                    delete userActivity[oldEmail];
+                }
+                if (currentEmployeeEmail === currentUser.email) {
+                    currentUser.name = newName;
+                    currentUser.email = newEmail;
+                    currentUser.role = newRole;
+                    const shortName = newName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                    document.getElementById('top-name').innerText = newName;
+                    document.getElementById('top-avatar').innerText = shortName;
+                    document.getElementById('profile-name').innerText = newName;
+                    document.getElementById('profile-email').innerText = newEmail;
+                    document.getElementById('profile-avatar').innerText = shortName;
+                    updateUIBasedOnRole();
+                }
+                saveState();
+                renderTeam();
+                closeModal('editEmployeeModal');
+                showToast('Данные сотрудника обновлены', 'success');
+                addLogEvent('Обновлены данные сотрудника', 'blue');
+            }
+        }
+
+        function deleteEmployee() {
+            if (currentEmployeeEmail === currentUser.email) {
+                showToast('Вы не можете удалить свой собственный аккаунт!', 'error');
+                return;
+            }
+            if (confirm('Вы уверены, что хотите безвозвратно удалить этого сотрудника?')) {
+                const userName = teamMembers.find(u => u.email === currentEmployeeEmail).name;
+                teamMembers = teamMembers.filter(u => u.email !== currentEmployeeEmail);
+                delete userActivity[currentEmployeeEmail];
+                saveState();
+                renderTeam();
+                closeModal('employeeDetailsModal');
+                showToast(`Сотрудник ${userName} удален`, 'success');
+                addLogEvent(`Удален пользователь: ${userName}`, 'red');
+            }
+        }
+
+        function submitNewUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('new-user-name').value;
+            const email = document.getElementById('new-user-email').value;
+            const position = document.getElementById('new-user-position').value;
+            const dob = document.getElementById('new-user-dob').value;
+            const role = document.getElementById('new-user-role').value;
+            const password = document.getElementById('new-user-password').value;
+            teamMembers.push({ name, email, position, dob, password, role, status: 'offline', phone: '' });
+            saveState();
+            renderTeam();
+            closeModal('addUserModal');
+            showToast(`Сотрудник ${name} добавлен`, 'success');
+            addLogEvent(`Добавлен пользователь: ${name}`, 'green');
+            document.getElementById('new-user-name').value = '';
+            document.getElementById('new-user-email').value = '';
+            document.getElementById('new-user-position').value = '';
+            document.getElementById('new-user-dob').value = '';
+            document.getElementById('new-user-password').value = '';
+        }
+
+        // ============ ЭКСПОРТ/ИМПОРТ ============
+        function exportData() {
+            const data = { team: teamMembers, tasks: myTasks, resolved: resolvedTasks, activity: userActivity, descriptions: incidentDescriptions };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sibur_backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Файл с данными скачан', 'success');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.team) teamMembers = data.team;
+                    if (data.tasks) myTasks = data.tasks;
+                    if (data.resolved) resolvedTasks = data.resolved;
+                    if (data.activity) userActivity = data.activity;
+                    if (data.descriptions) incidentDescriptions = data.descriptions;
+                    saveState();
+                    renderTeam();
+                    renderTasks();
+                    updateAllCounters();
+                    renderActivityLog();
+                    showToast('Данные успешно загружены!', 'success');
+                    addLogEvent('Импортированы данные из файла', 'blue');
+                } catch (err) {
+                    showToast('Ошибка чтения файла. Проверьте формат.', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // ============ АВТОРИЗАЦИЯ ============
+        function login(event) {
+            if (event) event.preventDefault();
+            try {
+                const emailEl = document.getElementById('login-email');
+                const passwordEl = document.getElementById('login-password');
+                if (!emailEl || !passwordEl) return;
+
+                const email = emailEl.value.trim();
+                const password = passwordEl.value.trim();
+
+                if (!email || !password) {
+                    showToast('Заполните почту и пароль!', 'error');
+                    return;
+                }
+
+                // 👑 ЖЁСТКИЙ ВХОД АДМИНА
+                if (email === 'khasanshina447@gmail.com' && password === '11111') {
+                    let admin = teamMembers.find(u => u.email === email);
+                    if (!admin) {
+                        admin = { name: 'Хасаншина Лейсан', email: email, position: 'Руководитель отдела ИБ', dob: '2000-01-01', status: 'online', password: '11111', role: 'manager', phone: '+7 (999) 123-45-67' };
+                        teamMembers.push(admin);
+                    }
+                    admin.password = '11111';
+                    admin.role = 'manager';
+                    admin.status = 'online';
+
+                    currentUser = { name: admin.name, email: admin.email, phone: admin.phone || '+7 (999) 123-45-67', role: 'manager' };
+                    saveState();
+                    authorizeUser();
+                    renderTeam();
+                    return;
+                }
+
+                // 👤 СТАНДАРТНЫЙ ВХОД
+                const user = teamMembers.find(u => u.email === email);
+                if (!user) {
+                    showToast('Пользователь с такой почтой не найден!', 'error');
+                    addSecurityNotification(email);
+                    passwordEl.value = '';
+                    return;
+                }
+                if (user.password !== password) {
+                    showToast('Неверный пароль!', 'error');
+                    passwordEl.value = '';
+                    return;
+                }
+
+                currentUser = { name: user.name, email: user.email, phone: user.phone || '+7 (999) 123-45-67', role: user.role || 'analyst' };
+                user.status = 'online';
+                saveState();
+                authorizeUser();
+                renderTeam();
+            } catch (err) {
+                console.error('Login error:', err);
+                showToast('Ошибка входа: ' + err.message, 'error');
+            }
+        }
+
+        function authorizeUser() {
+            const shortName = currentUser.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('top-name').innerText = currentUser.name;
+            document.getElementById('top-avatar').innerText = shortName;
+            document.getElementById('profile-name').innerText = currentUser.name;
+            document.getElementById('profile-email').innerText = currentUser.email;
+            document.getElementById('profile-phone').innerText = currentUser.phone || '+7 (999) 123-45-67';
+            document.getElementById('profile-avatar').innerText = shortName;
+            document.getElementById('greeting-text').innerText = `Доброе утро, ${currentUser.name.split(' ')[0]}`;
+            updateUIBasedOnRole();
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+            document.getElementById('login-password').value = '';
+            showToast('Успешный вход в систему', 'success');
+            addLogEvent('Вход в систему', 'blue');
+            renderActivityLog();
+            renderSystemFeed();
+        }
+
+        function addSecurityNotification(attemptedEmail) {
+            const list = document.getElementById('notif-list');
+            const item = document.createElement('div');
+            item.className = 'notif-item';
+            item.innerHTML = `⚠️ <b>Попытка входа</b> под почтой: ${attemptedEmail}<span>Только что</span>`;
+            list.prepend(item);
+            document.getElementById('bell-btn').classList.add('has-unread');
+            addLogEvent(`Попытка несанкционированного входа: ${attemptedEmail}`, 'red');
+        }
+
+        // ============ ПРОФИЛЬ ============
+        function openEditProfileModal() {
+            document.getElementById('edit-profile-name').value = currentUser.name;
+            document.getElementById('edit-profile-phone').value = currentUser.phone || '';
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
+
+        function saveProfileChanges(event) {
+            event.preventDefault();
+            const newName = document.getElementById('edit-profile-name').value;
+            const newPhone = document.getElementById('edit-profile-phone').value;
+
+            currentUser.name = newName;
+            currentUser.phone = newPhone;
+
+            const userInTeam = teamMembers.find(u => u.email === currentUser.email);
+            if (userInTeam) {
+                userInTeam.name = newName;
+                userInTeam.phone = newPhone;
+            }
+            saveState();
+
+            const shortName = newName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('top-name').innerText = newName;
+            document.getElementById('top-avatar').innerText = shortName;
+            document.getElementById('profile-name').innerText = newName;
+            document.getElementById('profile-avatar').innerText = shortName;
+            document.getElementById('profile-phone').innerText = newPhone;
+            document.getElementById('greeting-text').innerText = `Доброе утро, ${newName.split(' ')[0]}`;
+
+            renderTeam();
+            closeModal('editProfileModal');
+            showToast('Профиль обновлен', 'success');
+            addLogEvent('Профиль обновлен', 'blue');
+        }
+
+        // ============ СМЕНА РОЛИ ============
+        function changeRole() {
+            if (currentUser.role !== 'manager') return;
+            const currentRole = document.getElementById('role-switcher').value;
+            if (currentRole === 'manager') {
+                document.getElementById('nav-team').style.display = 'flex';
+                document.getElementById('btn-create-incident').style.display = 'flex';
+                document.getElementById('btn-add-user-profile').style.display = 'flex';
+                document.getElementById('profile-role').innerText = 'Руководитель отдела ИБ';
+            } else {
+                document.getElementById('nav-team').style.display = 'none';
+                document.getElementById('btn-create-incident').style.display = 'none';
+                document.getElementById('btn-add-user-profile').style.display = 'none';
+                document.getElementById('profile-role').innerText = 'Аналитик SOC';
+            }
+            if (document.getElementById('incidentModal').style.display === 'flex') {
+                document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
+            }
+        }
+
+        // ============ ГРАФИКИ ============
+        function renderCharts() {
+            const isDark = document.body.classList.contains('dark-mode');
+            const textColor = isDark ? '#f1f5f9' : '#1a1f36';
+            if (chartCriticalityInstance) chartCriticalityInstance.destroy();
+            if (chartActivityInstance) chartActivityInstance.destroy();
+            const ctx1 = document.getElementById('chartCriticality').getContext('2d');
+            chartCriticalityInstance = new Chart(ctx1, {
+                type: 'doughnut',
+                data: { labels: ['Критические', 'Высокие', 'Средние', 'Низкие'], datasets: [{ data: [15, 35, 35, 15], backgroundColor: ['#ef4444', '#f97316', '#eab308', '#22c55e'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Inter' } } } } }
+            });
+            const ctx2 = document.getElementById('chartActivity').getContext('2d');
+            chartActivityInstance = new Chart(ctx2, {
+                type: 'bar',
+                data: { labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'], datasets: [{ label: 'Инциденты', data: [8, 10, 7, 15, 9, 4, 3], backgroundColor: '#8b5cf6', borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: isDark ? '#334155' : '#e2e8f0' } }, x: { ticks: { color: textColor }, grid: { display: false } } } }
+            });
+        }
+
+        // ============ ФИЛЬТРЫ ============
+        function filterIncidents(filterType, btnElement) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            // Очистить поиск, если он был
+            const search = document.getElementById('global-search');
+            if (search) search.value = '';
+            const cards = document.querySelectorAll('#incidents-grid .incident-card');
+            cards.forEach(card => {
+                const severity = card.getAttribute('data-severity');
+                const source = card.getAttribute('data-source');
+                let show = false;
+                if (filterType === 'all') show = true;
+                else if (filterType === 'critical') show = (severity === 'critical');
+                else if (filterType === 'SIEM') show = (source === 'SIEM');
+                else if (filterType === 'DLP') show = (source === 'DLP');
+                card.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        // ============ ТЕМА ============
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.querySelector('#theme-toggle i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.className = 'fa-solid fa-sun';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.className = 'fa-solid fa-moon';
+                localStorage.setItem('theme', 'light');
+            }
+            if (document.getElementById('view-analytics').classList.contains('active')) renderCharts();
+        }
+
+        // ============ НАВИГАЦИЯ ============
+        function switchPage(targetId, navElement) {
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            if (navElement) navElement.classList.add('active');
+            document.querySelectorAll('.page-view').forEach(page => page.classList.remove('active'));
+            document.getElementById(targetId).classList.add('active');
+            if (targetId === 'view-analytics') renderCharts();
+            if (targetId === 'view-profile') renderActivityLog();
+            if (window.innerWidth <= 900) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('mobile-overlay').classList.remove('active');
+            }
+        }
+
+        // ============ ЗАДАЧИ ============
+        function takeToWork() {
+            if (!currentIncident) return;
+            if (!myTasks.some(t => t.id === currentIncident.id)) {
+                myTasks.push({ id: currentIncident.id, title: currentIncident.title });
+                saveState(); updateAllCounters(); renderTasks();
+                showToast('Взято в работу', 'success');
+                addLogEvent(`Взял(а) в работу ${currentIncident.id}`, 'blue');
+            }
+            const btn = document.getElementById('btn-take-work');
+            btn.innerHTML = 'В работе'; btn.className = 'btn-primary-large done'; btn.disabled = true;
+            setTimeout(() => closeModal('incidentModal'), 1000);
+        }
+
+        function completeTask() {
+            const taskIndex = myTasks.findIndex(t => t.id === currentTaskId);
+            if (taskIndex !== -1) {
+                const completedTask = myTasks.splice(taskIndex, 1)[0];
+                resolvedTasks.push(completedTask);
+                saveState();
+                showToast('Задача закрыта', 'success');
+                addLogEvent(`Закрыл(а) ${currentTaskId}`, 'green');
+            }
+            updateAllCounters(); renderTasks(); closeModal('taskModal');
+        }
+
+        function updateAllCounters() {
+            document.getElementById('sidebar-task-count').innerText = myTasks.length;
+            document.getElementById('assigned-count').innerText = myTasks.length;
+            document.getElementById('stat-in-progress').innerText = myTasks.length;
+            document.getElementById('sidebar-resolved-count').innerText = resolvedTasks.length;
+            document.getElementById('stat-resolved').innerText = resolvedTasks.length;
+        }
+
+        function renderTasks() {
+            const inProgressGrid = document.getElementById('in-progress-grid');
+            const profileList = document.getElementById('profile-task-list');
+            const resolvedGrid = document.getElementById('resolved-grid');
+            inProgressGrid.innerHTML = '';
+            resolvedGrid.innerHTML = '';
+
+            if (myTasks.length === 0) {
+                inProgressGrid.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Нет задач.</p>';
+            } else {
+                myTasks.forEach(task => {
+                    const card = document.createElement('div');
+                    card.className = 'incident-card';
+                    card.onclick = () => openTaskModal(task.id, task.title);
+                    card.innerHTML = `<div class="inc-top"><div class="inc-id">${task.id}</div><div class="badge progress">В работе</div></div><div class="inc-title">${task.title}</div>`;
+                    inProgressGrid.appendChild(card);
+                });
+            }
+
+            if (profileList) {
+                profileList.innerHTML = '';
+                if (myTasks.length === 0) {
+                    profileList.innerHTML = '<p style="font-size: 14px; color: var(--text-muted);">У вас пока нет активных задач.</p>';
+                } else {
+                    myTasks.forEach(task => {
+                        const pCard = document.createElement('div');
+                        pCard.style.cssText = 'padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;';
+                        pCard.onclick = () => openTaskModal(task.id, task.title);
+                        pCard.innerHTML = `<div><div style="font-size: 14px; font-weight: 600; color: var(--text-main);">${task.title}</div><div style="font-size: 12px; color: var(--text-muted);">${task.id}</div></div><i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>`;
+                        profileList.appendChild(pCard);
+                    });
+                }
+            }
+
+            if (resolvedTasks.length === 0) {
+                resolvedGrid.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Список пуст.</p>';
+            } else {
+                resolvedTasks.forEach(task => {
+                    const card = document.createElement('div');
+                    card.className = 'incident-card';
+                    card.innerHTML = `<div class="inc-top"><div class="inc-id">${task.id}</div><div class="badge resolved">Решено</div></div><div class="inc-title">${task.title}</div>`;
+                    resolvedGrid.appendChild(card);
+                });
+            }
+        }
+
+        // ============ ТОСТЫ ============
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-circle-check' : (type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info');
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.animation = 'fadeOut 0.3s ease forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // ============ МОДАЛКИ ============
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('mobile-overlay').classList.toggle('active'); }
+        function openCreateModal() { document.getElementById('createModal').style.display = 'flex'; }
+        function openAddUserModal() { document.getElementById('addUserModal').style.display = 'flex'; }
+        function openTaskModal(id, title) {
+            currentTaskId = id;
+            document.getElementById('task-modal-id').innerText = id;
+            document.getElementById('task-modal-title').innerText = title;
+            document.getElementById('taskModal').style.display = 'flex';
+        }
+
+        function openIncidentModal(id, title, severity, source) {
+            currentIncident = { id, title, severity, source };
+            document.getElementById('modal-id').innerText = id;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-source').innerText = source;
+
+            // Описание
+            document.getElementById('modal-desc-text').innerText =
+                incidentDescriptions[id] || 'Описание отсутствует.';
+
+            const sevBadge = document.getElementById('modal-severity');
+            sevBadge.innerText = severity;
+            sevBadge.className = 'badge ' + (severity === 'Критический' ? 'critical' : severity === 'Высокий' ? 'high' : severity === 'Средний' ? 'medium' : 'low');
+
+            document.getElementById('assign-block').style.display = currentUser.role === 'manager' ? 'block' : 'none';
+
+            const btn = document.getElementById('btn-take-work');
+            btn.innerHTML = 'Взять в работу'; btn.className = 'btn-primary-large'; btn.disabled = false;
+            if (myTasks.some(t => t.id === id)) { btn.innerHTML = 'Уже в работе'; btn.className = 'btn-primary-large done'; btn.disabled = true; }
+
+            document.getElementById('ai-result').style.display = 'none';
+            const aiBtn = document.getElementById('btn-ai');
+            aiBtn.style.display = 'flex'; aiBtn.disabled = false;
+            aiBtn.innerHTML = '<i class="fa-solid fa-robot"></i> Запустить AI-анализ';
+
+            document.getElementById('incidentModal').style.display = 'flex';
+        }
+
+        // ============ ИИ ============
+        function runAIAnalysis() {
+            const btn = document.getElementById('btn-ai');
+            const resultDiv = document.getElementById('ai-result');
+            const textDiv = document.getElementById('ai-text');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Анализируем данные...';
+            setTimeout(() => {
+                btn.style.display = 'none';
+                resultDiv.style.display = 'block';
+                let recommendation = '';
+                if (currentIncident.severity === 'Критический') {
+                    recommendation = 'Обнаружена аномальная сетевая активность. Рекомендую: <b>1.</b> Немедленно изолировать хост <code>srv-db-01</code>. <b>2.</b> Заблокировать IP-адрес источника. <b>3.</b> Запросить подтверждение у владельца.';
+                } else if (currentIncident.source === 'DLP') {
+                    recommendation = 'Зафиксирована попытка выгрузки данных. Рекомендую: <b>1.</b> Связаться с руководителем отдела. <b>2.</b> Проверить журналы доступа к файлам. <b>3.</b> Ограничить права учётной записи.';
+                } else {
+                    recommendation = 'Поведение системы отклоняется от базовой линии. Рекомендую: <b>1.</b> Проверить логи за 24 часа. <b>2.</b> Запустить сканирование на вредоносное ПО. <b>3.</b> Обновить антивирусные базы.';
+                }
+                textDiv.innerHTML = recommendation;
+                showToast('AI-анализ завершен', 'success');
+                addLogEvent(`Запущен AI-анализ для ${currentIncident.id}`, 'blue');
+            }, 2000);
+        }
+
+        // ============ СОЗДАНИЕ ИНЦИДЕНТА ============
+        function submitNewIncident(event) {
+            event.preventDefault();
+            const title = document.getElementById('new-inc-title').value;
+            const description = document.getElementById('new-inc-desc').value.trim();
+            const severity = document.getElementById('new-inc-severity').value;
+            const source = document.getElementById('new-inc-source').value;
+            const newId = 'INC-' + Math.floor(1000 + Math.random() * 9000);
+
+            incidentDescriptions[newId] = description || 'Описание не указано.';
+            saveState();
+
+            const grid = document.getElementById('incidents-grid');
+            const card = document.createElement('div');
+            const sevClass = severity === 'Критический' ? 'critical' : 'high';
+            card.className = `incident-card ${sevClass}-border`;
+            card.setAttribute('data-severity', sevClass);
+            card.setAttribute('data-source', source);
+            card.onclick = () => openIncidentModal(newId, title, severity, source);
+            card.innerHTML = `<div class="inc-top"><div class="inc-id">${newId}</div><div class="badge ${sevClass}">${severity}</div></div><div class="inc-title">${title}</div><div class="inc-bottom"><div><i class="fa-solid fa-user-pen"></i> ${source}</div><div class="status-new">Новый</div></div>`;
+            grid.prepend(card);
+
+            closeModal('createModal');
+            document.getElementById('new-inc-title').value = '';
+            document.getElementById('new-inc-desc').value = '';
+            showToast('Инцидент создан', 'success');
+            addLogEvent(`Создал(а) ${newId}`, 'red');
+        }
+
+        // ============ КОММЕНТАРИИ ============
+        function addComment() {
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+            if (!text) return;
+            const list = document.getElementById('modal-timeline-list');
+            const newItem = document.createElement('div');
+            newItem.className = 'timeline-item active-blue';
+            newItem.innerHTML = `<div class="timeline-content"><div class="timeline-text"><p>${text}</p><span>Вы</span></div><div class="timeline-time">Сейчас</div></div>`;
+            list.appendChild(newItem);
+            input.value = '';
+            showToast('Комментарий добавлен', 'success');
+            addLogEvent(`Добавил(а) комментарий к ${currentIncident.id}`, 'blue');
+        }
+
+        // ============ ВЫХОД ============
+        function logout() {
+            const user = teamMembers.find(u => u.email === currentUser.email);
+            if (user) user.status = 'offline';
+            saveState();
+            renderTeam();
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('role-switcher').value = 'analyst';
+            document.getElementById('login-password').value = '';
+            switchPage('view-overview', document.querySelectorAll('.nav-item')[0]);
+        }
+
+        // ============ EXCEL ============
+        function exportToExcel() {
+            const cards = document.querySelectorAll('#incidents-grid .incident-card');
+            const data = [];
+            cards.forEach(card => {
+                if (card.style.display === 'none') return;
+                data.push({
+                    'ID': card.querySelector('.inc-id').innerText,
+                    'Название': card.querySelector('.inc-title').innerText,
+                    'Критичность': card.querySelector('.badge').innerText,
+                    'Описание': incidentDescriptions[card.querySelector('.inc-id').innerText] || ''
+                });
+            });
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Инциденты');
+            XLSX.writeFile(wb, 'Sibur_Incidents.xlsx');
+            showToast('Отчет скачан', 'success');
+            addLogEvent('Выгрузил(а) отчет по инцидентам', 'blue');
+        }
+
+        function exportAnalyticsToExcel() {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet([['Показатель', 'Значение'], ['Среднее время реакции', '14 мин']]);
+            XLSX.utils.book_append_sheet(wb, ws, 'KPI');
+            XLSX.writeFile(wb, 'Sibur_Analytics.xlsx');
+            showToast('Аналитика скачана', 'success');
+            addLogEvent('Выгрузил(а) аналитический отчет', 'blue');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) event.target.style.display = 'none';
+        };
+    </script>
+</body>
+</html>
