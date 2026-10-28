@@ -9,9 +9,13 @@
     <meta http-equiv="Expires" content="0">
 
     <title>Управление инцидентами ИБ - Сибур</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Иконки: jsdelivr (стабильнее в РФ, чем cdnjs) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -59,7 +63,7 @@
            2. БАЗОВЫЕ СТИЛИ
            ========================================= */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-body); height: 100vh; overflow: hidden; transition: 0.3s; }
+        body { background-color: var(--bg-body); height: 100vh; overflow: hidden; transition: 0.3s; color: var(--text-main); }
 
         /* =========================================
            3. УВЕДОМЛЕНИЯ (ТОСТЫ)
@@ -113,7 +117,7 @@
         .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; }
         
         /* ШАПКА */
-        .topbar { height: 72px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: relative; z-index: 100; }
+        .topbar { height: 72px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: relative; z-index: 100; color: var(--text-main); }
         .menu-toggle { display: none; background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; padding: 8px; margin-right: 12px; }
         .search-container { position: relative; width: 400px; }
         .search-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
@@ -133,7 +137,8 @@
         .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-main); }
         .notif-item span { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
-        .user-profile-top { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 4px; border-radius: 20px; }
+        .user-profile-top { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 4px; border-radius: 20px; color: var(--text-main); }
+        #top-name { color: var(--text-main); font-weight: 500; }
         .user-avatar-sm { width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 600; font-size: 13px; }
 
         /* КОНТЕНТНАЯ ОБЛАСТЬ */
@@ -249,7 +254,7 @@
            11. МОДАЛЬНЫЕ ОКНА
            ========================================= */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(4px); }
-        .incident-modal { background: var(--bg-card); width: 480px; max-width: 95%; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .incident-modal { background: var(--bg-card); width: 480px; max-width: 95%; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; color: var(--text-main); }
         .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
         .modal-subtitle { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; }
         .modal-actions button { background: var(--bg-body); border: none; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; color: var(--text-muted); margin-left: 8px; }
@@ -259,7 +264,7 @@
         .modal-title { font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1.4; margin-bottom: 20px; }
         .modal-desc { background: var(--bg-body); border-radius: 12px; padding: 16px; margin-bottom: 20px; border: 1px solid var(--border); }
         .modal-desc-title { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
-        .modal-desc p { font-size: 14px; color: var(--text-main); line-height: 1.5; }
+        .modal-desc p { font-size: 14px; color: var(--text-main); line-height: 1.5; white-space: pre-wrap; }
         .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
         .modal-grid-item { border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; background: var(--bg-card); }
         .modal-grid-item span { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
@@ -300,7 +305,8 @@
         /* ФОРМЫ */
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--bg-body); color: var(--text-main); font-family: inherit; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
         .password-group { display: flex; gap: 8px; }
         .password-group input { flex: 1; }
         .btn-gen-pass { background: var(--blue-bg); color: var(--blue-badge); border: 1px solid var(--blue-badge); padding: 0 12px; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap; }
@@ -658,7 +664,7 @@
             
             <div class="modal-desc">
                 <div class="modal-desc-title">Описание</div>
-                <p>Зафиксировано подозрительное поведение в корпоративной сети.</p>
+                <p id="modal-desc-text">Зафиксировано подозрительное поведение в корпоративной сети.</p>
             </div>
             
             <div class="modal-grid">
@@ -697,6 +703,10 @@
             <h2 class="modal-title" style="margin-bottom: 20px;">Создать инцидент</h2>
             <form onsubmit="submitNewIncident(event)">
                 <div class="form-group"><label>Название</label><input type="text" id="new-inc-title" required></div>
+                <div class="form-group">
+                    <label>Описание проблемы</label>
+                    <textarea id="new-inc-desc" rows="4" placeholder="Опишите, что случилось, где и когда..." required></textarea>
+                </div>
                 <div class="form-group"><label>Критичность</label><select id="new-inc-severity"><option value="Критический">Критический</option><option value="Высокий">Высокий</option></select></div>
                 <div class="form-group"><label>Источник</label><select id="new-inc-source"><option value="SIEM">SIEM</option><option value="DLP">DLP</option></select></div>
                 <button type="submit" class="btn-primary-large">Создать</button>
@@ -820,14 +830,40 @@
         let chartCriticalityInstance = null;
         let chartActivityInstance = null;
         let userActivity = {};
+        // Описания инцидентов (карта: id -> текст)
+        let incidentDescriptions = {};
+
+        // Дефолтные описания для статических инцидентов
+        const DEFAULT_INCIDENT_DESCRIPTIONS = {
+            'INC-2841': 'Обнаружена аномальная активность привилегированной учётной записи. Зафиксированы множественные обращения к критичным ресурсам с нетипичного IP-адреса.',
+            'INC-2839': 'Зафиксирована попытка массовой выгрузки документов, содержащих конфиденциальную информацию. Источник — учётная запись финансового отдела.',
+            'INC-2836': 'Отклонение параметров сетевого трафика АСУ ТП от базовой линии. Возможна попытка несанкционированного подключения к промышленной сети.',
+            'INC-2848': 'Зафиксированы множественные попытки несанкционированного доступа к базе данных с внешнего IP-адреса.',
+            'INC-2827': 'Агент защиты на нескольких хостах не обновлялся более 30 дней. Рекомендуется срочное обновление.',
+            'INC-2850': 'Зафиксировано более 100 неудачных попыток входа за 5 минут с одного IP-адреса. Признаки brute-force атаки.',
+            'INC-2861': 'Обнаружена передача файлов на внешний FTP-сервер, не входящий в белый список.',
+            'INC-2868': 'Зафиксирована утечка базы данных клиентов. Требуется немедленное реагирование.',
+            'INC-2870': 'Отклонение в работе промышленного контроллера. Возможен сбой или внешнее вмешательство.',
+            'INC-2855': 'Обнаружен потенциально нежелательный файл на рабочей станции сотрудника.',
+            'INC-2881': 'Аномальный DNS-трафик на неавторизованные ресурсы. Возможна попытка exfiltration данных.',
+            'INC-2875': 'Зафиксирована отправка конфиденциальных файлов через мессенджер.',
+            'INC-2872': 'Обнаружены признаки шифрования файлов. Высокий риск ransomware-атаки.',
+            'INC-2864': 'Антивирусные базы не обновлялись 7 дней. Хосты уязвимы к новым угрозам.',
+            'INC-2853': 'Попытка несанкционированного подключения к АСУ ТП. Требуется проверка.',
+        };
 
         // 2. Сохранение и загрузка
         function saveState() {
-            localStorage.setItem('sibur_myTasks', JSON.stringify(myTasks));
-            localStorage.setItem('sibur_resolvedTasks', JSON.stringify(resolvedTasks));
-            localStorage.setItem('sibur_team', JSON.stringify(teamMembers));
-            localStorage.setItem('sibur_currentUser', JSON.stringify(currentUser));
-            localStorage.setItem('sibur_userActivity', JSON.stringify(userActivity));
+            try {
+                localStorage.setItem('sibur_myTasks', JSON.stringify(myTasks));
+                localStorage.setItem('sibur_resolvedTasks', JSON.stringify(resolvedTasks));
+                localStorage.setItem('sibur_team', JSON.stringify(teamMembers));
+                localStorage.setItem('sibur_currentUser', JSON.stringify(currentUser));
+                localStorage.setItem('sibur_userActivity', JSON.stringify(userActivity));
+                localStorage.setItem('sibur_incidentDescriptions', JSON.stringify(incidentDescriptions));
+            } catch (e) {
+                console.warn('saveState failed (localStorage недоступен):', e);
+            }
         }
 
         function loadState() {
@@ -836,6 +872,7 @@
             const savedTeam = localStorage.getItem('sibur_team');
             const savedUser = localStorage.getItem('sibur_currentUser');
             const savedActivity = localStorage.getItem('sibur_userActivity');
+            const savedDescs = localStorage.getItem('sibur_incidentDescriptions');
             
             if (savedTasks) myTasks = JSON.parse(savedTasks);
             if (savedResolved) resolvedTasks = JSON.parse(savedResolved);
@@ -845,13 +882,20 @@
             if (savedTeam) {
                 teamMembers = JSON.parse(savedTeam);
             } else {
-                // Имя исправлено на Сафин Инсаф
                 teamMembers = [
-                    { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', position: 'Руководитель отдела ИБ', dob: '2000-01-01', status: 'online', password: '11111', role: 'manager' },
-                    { name: 'Сафин Инсаф', email: 'safin@sibur.ru', position: 'Аналитик SOC', dob: '1995-05-15', status: 'offline', password: '22222', role: 'analyst' }
+                    { name: 'Хасаншина Лейсан', email: 'khasanshina447@gmail.com', position: 'Руководитель отдела ИБ', dob: '2000-01-01', status: 'online', password: '11111', role: 'manager', phone: '+7 (999) 123-45-67' },
+                    { name: 'Сафин Инсаф', email: 'safin@sibur.ru', position: 'Аналитик SOC', dob: '1995-05-15', status: 'offline', password: '22222', role: 'analyst', phone: '' }
                 ];
                 saveState();
             }
+
+            // Описания инцидентов: подтягиваем сохранённые, добиваем дефолтными
+            incidentDescriptions = savedDescs ? JSON.parse(savedDescs) : {};
+            Object.keys(DEFAULT_INCIDENT_DESCRIPTIONS).forEach(id => {
+                if (!incidentDescriptions[id]) {
+                    incidentDescriptions[id] = DEFAULT_INCIDENT_DESCRIPTIONS[id];
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -865,6 +909,12 @@
             if (localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark-mode');
                 document.querySelector('#theme-toggle i').className = 'fa-solid fa-sun';
+            }
+
+            // 🔍 Поиск
+            const searchInput = document.getElementById('global-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => performSearch(e.target.value));
             }
         });
 
@@ -1093,583 +1143,4 @@
 
             const userIndex = teamMembers.findIndex(u => u.email === currentEmployeeEmail);
             if (userIndex !== -1) {
-                const oldEmail = teamMembers[userIndex].email;
-                
-                teamMembers[userIndex].name = newName;
-                teamMembers[userIndex].email = newEmail;
-                teamMembers[userIndex].position = newPosition;
-                teamMembers[userIndex].dob = newDob;
-                teamMembers[userIndex].role = newRole;
-                teamMembers[userIndex].password = newPassword;
-
-                if (oldEmail !== newEmail && userActivity[oldEmail]) {
-                    userActivity[newEmail] = userActivity[oldEmail];
-                    delete userActivity[oldEmail];
-                }
-
-                if (currentEmployeeEmail === currentUser.email) {
-                    currentUser.name = newName;
-                    currentUser.email = newEmail;
-                    currentUser.role = newRole;
-                    
-                    let shortName = newName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-                    document.getElementById('top-name').innerText = newName;
-                    document.getElementById('top-avatar').innerText = shortName;
-                    document.getElementById('profile-name').innerText = newName;
-                    document.getElementById('profile-email').innerText = newEmail;
-                    document.getElementById('profile-avatar').innerText = shortName;
-                    updateUIBasedOnRole();
-                }
-
-                saveState();
-                renderTeam();
-                closeModal('editEmployeeModal');
-                showToast('Данные сотрудника обновлены', 'success');
-                addLogEvent(`Обновлены данные сотрудника`, 'blue');
-            }
-        }
-
-        function deleteEmployee() {
-            if (currentEmployeeEmail === currentUser.email) {
-                showToast('Вы не можете удалить свой собственный аккаунт!', 'error');
-                return;
-            }
-
-            if (confirm('Вы уверены, что хотите безвозвратно удалить этого сотрудника?')) {
-                const userName = teamMembers.find(u => u.email === currentEmployeeEmail).name;
-                
-                teamMembers = teamMembers.filter(u => u.email !== currentEmployeeEmail);
-                delete userActivity[currentEmployeeEmail];
-                
-                saveState();
-                renderTeam();
-                closeModal('employeeDetailsModal');
-                showToast(`Сотрудник ${userName} удален`, 'success');
-                addLogEvent(`Удален пользователь: ${userName}`, 'red');
-            }
-        }
-
-        function submitNewUser(event) {
-            event.preventDefault();
-            const name = document.getElementById('new-user-name').value;
-            const email = document.getElementById('new-user-email').value;
-            const position = document.getElementById('new-user-position').value;
-            const dob = document.getElementById('new-user-dob').value;
-            const role = document.getElementById('new-user-role').value;
-            const password = document.getElementById('new-user-password').value;
-            
-            teamMembers.push({
-                name: name,
-                email: email,
-                position: position,
-                dob: dob,
-                password: password,
-                role: role,
-                status: 'offline'
-            });
-            
-            saveState();
-            renderTeam();
-            closeModal('addUserModal');
-            
-            showToast(`Сотрудник ${name} добавлен`, 'success');
-            addLogEvent(`Добавлен пользователь: ${name}`, 'green');
-            
-            document.getElementById('new-user-name').value = '';
-            document.getElementById('new-user-email').value = '';
-            document.getElementById('new-user-position').value = '';
-            document.getElementById('new-user-dob').value = '';
-            document.getElementById('new-user-password').value = '';
-        }
-
-        // 11. ЭКСПОРТ И ИМПОРТ ДАННЫХ (СИНХРОНИЗАЦИЯ ТЕЛЕФОН <-> ПК)
-        function exportData() {
-            const data = {
-                team: teamMembers,
-                tasks: myTasks,
-                resolved: resolvedTasks,
-                activity: userActivity
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `sibur_backup_${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Файл с данными скачан', 'success');
-        }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (data.team) teamMembers = data.team;
-                    if (data.tasks) myTasks = data.tasks;
-                    if (data.resolved) resolvedTasks = data.resolved;
-                    if (data.activity) userActivity = data.activity;
-                    
-                    saveState();
-                    renderTeam();
-                    renderTasks();
-                    updateAllCounters();
-                    renderActivityLog();
-                    showToast('Данные успешно загружены!', 'success');
-                    addLogEvent('Импортированы данные из файла', 'blue');
-                } catch (err) {
-                    showToast('Ошибка чтения файла. Проверьте формат.', 'error');
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = ''; // Очищаем инпут
-        }
-
-        // 12. Авторизация
-        function login(event) {
-            event.preventDefault();
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
-            
-            // 1. ПРОВЕРКА: Заполнены ли поля
-            if (!email || !password) {
-                showToast('Заполните почту и пароль!', 'error');
-                return;
-            }
-
-            // 2. ЖЕЛЕЗНЫЙ ВХОД ДЛЯ АДМИНА (игнорирует ошибки базы)
-            if (email === 'khasanshina447@gmail.com' && password === '11111') {
-                let admin = teamMembers.find(u => u.email === email);
-                if (!admin) {
-                    admin = { name: 'Хасаншина Лейсан', email: email, position: 'Руководитель отдела ИБ', dob: '2000-01-01', status: 'online', password: '11111', role: 'manager' };
-                    teamMembers.push(admin);
-                }
-                admin.password = '11111';
-                admin.role = 'manager';
-                admin.status = 'online';
-                
-                currentUser = { name: admin.name, email: admin.email, phone: admin.phone || '+7 (999) 123-45-67', role: 'manager' };
-                saveState();
-                authorizeUser();
-                renderTeam();
-                return;
-            }
-            
-            // 3. СТАНДАРТНЫЙ ВХОД ДЛЯ ОСТАЛЬНЫХ
-            const user = teamMembers.find(u => u.email === email);
-            
-            if (!user) {
-                // Если такого email нет в базе
-                showToast('Пользователь с такой почтой не найден!', 'error');
-                addSecurityNotification(email);
-                document.getElementById('login-password').value = '';
-                return;
-            }
-
-            if (user.password !== password) {
-                // Если пароль не совпадает
-                showToast('Неверный пароль!', 'error');
-                document.getElementById('login-password').value = '';
-                return;
-            }
-
-            // Успешный вход
-            currentUser = { name: user.name, email: user.email, phone: currentUser.phone || '+7 (999) 123-45-67', role: user.role || 'analyst' };
-            authorizeUser();
-            user.status = 'online';
-            saveState();
-            renderTeam();
-        }
-
-        function authorizeUser() {
-            let shortName = currentUser.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-            
-            document.getElementById('top-name').innerText = currentUser.name;
-            document.getElementById('top-avatar').innerText = shortName;
-            document.getElementById('profile-name').innerText = currentUser.name;
-            document.getElementById('profile-email').innerText = currentUser.email;
-            document.getElementById('profile-phone').innerText = currentUser.phone || '+7 (999) 123-45-67';
-            document.getElementById('profile-avatar').innerText = shortName;
-            document.getElementById('greeting-text').innerText = `Доброе утро, ${currentUser.name.split(' ')[0]}`;
-            
-            updateUIBasedOnRole();
-
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-container').style.display = 'flex';
-            document.getElementById('login-password').value = ''; 
-            showToast('Успешный вход в систему', 'success');
-            
-            addLogEvent(`Вход в систему`, 'blue');
-            renderActivityLog();
-            renderSystemFeed();
-        }
-
-        function addSecurityNotification(attemptedEmail) {
-            const list = document.getElementById('notif-list');
-            const item = document.createElement('div');
-            item.className = 'notif-item';
-            item.innerHTML = `⚠️ <b>Попытка входа</b> под почтой: ${attemptedEmail}<span>Только что</span>`;
-            list.prepend(item);
-            document.getElementById('bell-btn').classList.add('has-unread');
-            addLogEvent(`Попытка несанкционированного входа: ${attemptedEmail}`, 'red');
-        }
-
-        // 13. Редактирование профиля
-        function openEditProfileModal() {
-            document.getElementById('edit-profile-name').value = currentUser.name;
-            document.getElementById('edit-profile-phone').value = currentUser.phone;
-            document.getElementById('editProfileModal').style.display = 'flex';
-        }
-
-        function saveProfileChanges(event) {
-            event.preventDefault();
-            const newName = document.getElementById('edit-profile-name').value;
-            const newPhone = document.getElementById('edit-profile-phone').value;
-
-            currentUser.name = newName;
-            currentUser.phone = newPhone;
-            
-            const userInTeam = teamMembers.find(u => u.email === currentUser.email);
-            if (userInTeam) userInTeam.name = newName;
-            
-            saveState();
-            
-            let shortName = newName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-            document.getElementById('top-name').innerText = newName;
-            document.getElementById('top-avatar').innerText = shortName;
-            document.getElementById('profile-name').innerText = newName;
-            document.getElementById('profile-avatar').innerText = shortName;
-            document.getElementById('profile-phone').innerText = newPhone;
-            document.getElementById('greeting-text').innerText = `Доброе утро, ${newName.split(' ')[0]}`;
-            
-            renderTeam();
-            closeModal('editProfileModal');
-            showToast('Профиль обновлен', 'success');
-            addLogEvent(`Профиль обновлен`, 'blue');
-        }
-
-        // 14. Смена роли
-        function changeRole() {
-            if (currentUser.role !== 'manager') return; 
-
-            const currentRole = document.getElementById('role-switcher').value;
-            
-            if (currentRole === 'manager') {
-                document.getElementById('nav-team').style.display = 'flex';
-                document.getElementById('btn-create-incident').style.display = 'flex';
-                document.getElementById('btn-add-user-profile').style.display = 'flex';
-                document.getElementById('profile-role').innerText = 'Руководитель отдела ИБ';
-            } else {
-                document.getElementById('nav-team').style.display = 'none';
-                document.getElementById('btn-create-incident').style.display = 'none';
-                document.getElementById('btn-add-user-profile').style.display = 'none';
-                document.getElementById('profile-role').innerText = 'Аналитик SOC';
-            }
-
-            if (document.getElementById('incidentModal').style.display === 'flex') {
-                document.getElementById('assign-block').style.display = currentRole === 'manager' ? 'block' : 'none';
-            }
-        }
-
-        // 15. Графики
-        function renderCharts() {
-            const isDark = document.body.classList.contains('dark-mode');
-            const textColor = isDark ? '#f1f5f9' : '#1a1f36';
-
-            if (chartCriticalityInstance) chartCriticalityInstance.destroy();
-            if (chartActivityInstance) chartActivityInstance.destroy();
-
-            const ctx1 = document.getElementById('chartCriticality').getContext('2d');
-            chartCriticalityInstance = new Chart(ctx1, {
-                type: 'doughnut',
-                data: { labels: ['Критические', 'Высокие', 'Средние', 'Низкие'], datasets: [{ data: [15, 35, 35, 15], backgroundColor: ['#ef4444', '#f97316', '#eab308', '#22c55e'], borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Inter' } } } } }
-            });
-
-            const ctx2 = document.getElementById('chartActivity').getContext('2d');
-            chartActivityInstance = new Chart(ctx2, {
-                type: 'bar',
-                data: { labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'], datasets: [{ label: 'Инциденты', data: [8, 10, 7, 15, 9, 4, 3], backgroundColor: '#8b5cf6', borderRadius: 4 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: isDark ? '#334155' : '#e2e8f0' } }, x: { ticks: { color: textColor }, grid: { display: false } } } }
-            });
-        }
-
-        // 16. Фильтры
-        function filterIncidents(filterType, btnElement) {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-            const cards = document.querySelectorAll('#incidents-grid .incident-card');
-            cards.forEach(card => {
-                const severity = card.getAttribute('data-severity');
-                const source = card.getAttribute('data-source');
-                let show = false;
-                if (filterType === 'all') show = true;
-                else if (filterType === 'critical') show = (severity === 'critical');
-                else if (filterType === 'SIEM') show = (source === 'SIEM');
-                else if (filterType === 'DLP') show = (source === 'DLP');
-                card.style.display = show ? 'block' : 'none';
-            });
-        }
-
-        // 17. Тема
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const icon = document.querySelector('#theme-toggle i');
-            if (document.body.classList.contains('dark-mode')) {
-                icon.className = 'fa-solid fa-sun';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                icon.className = 'fa-solid fa-moon';
-                localStorage.setItem('theme', 'light');
-            }
-            if (document.getElementById('view-analytics').classList.contains('active')) renderCharts();
-        }
-
-        // 18. Навигация
-        function switchPage(targetId, navElement) {
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            if(navElement) navElement.classList.add('active');
-            document.querySelectorAll('.page-view').forEach(page => page.classList.remove('active'));
-            document.getElementById(targetId).classList.add('active');
-            if (targetId === 'view-analytics') renderCharts();
-            if (targetId === 'view-profile') renderActivityLog();
-            if (window.innerWidth <= 900) {
-                document.getElementById('sidebar').classList.remove('open');
-                document.getElementById('mobile-overlay').classList.remove('active');
-            }
-        }
-
-        // 19. Задачи
-        function takeToWork() {
-            if (!currentIncident) return;
-            if (!myTasks.some(t => t.id === currentIncident.id)) {
-                myTasks.push({ id: currentIncident.id, title: currentIncident.title });
-                saveState(); updateAllCounters(); renderTasks();
-                showToast(`Взято в работу`, 'success');
-                addLogEvent(`Взял(а) в работу ${currentIncident.id}`, 'blue');
-            }
-            const btn = document.getElementById('btn-take-work');
-            btn.innerHTML = 'В работе'; btn.className = 'btn-primary-large done'; btn.disabled = true;
-            setTimeout(() => closeModal('incidentModal'), 1000);
-        }
-
-        function completeTask() {
-            const taskIndex = myTasks.findIndex(t => t.id === currentTaskId);
-            if (taskIndex !== -1) {
-                const completedTask = myTasks.splice(taskIndex, 1)[0];
-                resolvedTasks.push(completedTask);
-                saveState(); showToast(`Задача закрыта`, 'success'); addLogEvent(`Закрыл(а) ${currentTaskId}`, 'green');
-            }
-            updateAllCounters(); renderTasks(); closeModal('taskModal');
-        }
-
-        function updateAllCounters() {
-            document.getElementById('sidebar-task-count').innerText = myTasks.length;
-            document.getElementById('assigned-count').innerText = myTasks.length;
-            document.getElementById('stat-in-progress').innerText = myTasks.length;
-            document.getElementById('sidebar-resolved-count').innerText = resolvedTasks.length;
-            document.getElementById('stat-resolved').innerText = resolvedTasks.length;
-        }
-
-        function renderTasks() {
-            const inProgressGrid = document.getElementById('in-progress-grid');
-            const profileList = document.getElementById('profile-task-list');
-            const resolvedGrid = document.getElementById('resolved-grid');
-            
-            inProgressGrid.innerHTML = ''; 
-            resolvedGrid.innerHTML = '';
-
-            if (myTasks.length === 0) {
-                inProgressGrid.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Нет задач.</p>';
-            } else {
-                myTasks.forEach(task => {
-                    const card = document.createElement('div');
-                    card.className = 'incident-card';
-                    card.onclick = () => openTaskModal(task.id, task.title);
-                    card.innerHTML = `<div class="inc-top"><div class="inc-id">${task.id}</div><div class="badge progress">В работе</div></div><div class="inc-title">${task.title}</div>`;
-                    inProgressGrid.appendChild(card);
-                });
-            }
-
-            if (profileList) {
-                profileList.innerHTML = '';
-                if (myTasks.length === 0) {
-                    profileList.innerHTML = '<p style="font-size: 14px; color: var(--text-muted);">У вас пока нет активных задач.</p>';
-                } else {
-                    myTasks.forEach(task => {
-                        const pCard = document.createElement('div');
-                        pCard.style.cssText = 'padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;';
-                        pCard.onclick = () => openTaskModal(task.id, task.title);
-                        pCard.innerHTML = `<div><div style="font-size: 14px; font-weight: 600; color: var(--text-main);">${task.title}</div><div style="font-size: 12px; color: var(--text-muted);">${task.id}</div></div><i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>`;
-                        profileList.appendChild(pCard);
-                    });
-                }
-            }
-
-            if (resolvedTasks.length === 0) {
-                resolvedGrid.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Список пуст.</p>';
-            } else {
-                resolvedTasks.forEach(task => {
-                    const card = document.createElement('div');
-                    card.className = 'incident-card';
-                    card.innerHTML = `<div class="inc-top"><div class="inc-id">${task.id}</div><div class="badge resolved">Решено</div></div><div class="inc-title">${task.title}</div>`;
-                    resolvedGrid.appendChild(card);
-                });
-            }
-        }
-
-        // 20. Тосты
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            let icon = type === 'success' ? 'fa-circle-check' : (type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info');
-            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => { toast.style.animation = 'fadeOut 0.3s ease forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
-        }
-
-        // 21. Модалки
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('mobile-overlay').classList.toggle('active'); }
-        function openCreateModal() { document.getElementById('createModal').style.display = 'flex'; }
-        function openAddUserModal() { document.getElementById('addUserModal').style.display = 'flex'; }
-        function openTaskModal(id, title) { currentTaskId = id; document.getElementById('task-modal-id').innerText = id; document.getElementById('task-modal-title').innerText = title; document.getElementById('taskModal').style.display = 'flex'; }
-        
-        function openIncidentModal(id, title, severity, source) {
-            currentIncident = { id, title, severity, source };
-            document.getElementById('modal-id').innerText = id;
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-source').innerText = source;
-            const sevBadge = document.getElementById('modal-severity');
-            sevBadge.innerText = severity;
-            sevBadge.className = 'badge ' + (severity === 'Критический' ? 'critical' : severity === 'Высокий' ? 'high' : severity === 'Средний' ? 'medium' : 'low');
-            
-            document.getElementById('assign-block').style.display = currentUser.role === 'manager' ? 'block' : 'none';
-            
-            const btn = document.getElementById('btn-take-work');
-            btn.innerHTML = 'Взять в работу'; btn.className = 'btn-primary-large'; btn.disabled = false;
-            if (myTasks.some(t => t.id === id)) { btn.innerHTML = 'Уже в работе'; btn.className = 'btn-primary-large done'; btn.disabled = true; }
-            
-            document.getElementById('ai-result').style.display = 'none';
-            const aiBtn = document.getElementById('btn-ai');
-            aiBtn.style.display = 'flex'; aiBtn.disabled = false;
-            aiBtn.innerHTML = '<i class="fa-solid fa-robot"></i> Запустить AI-анализ';
-            
-            document.getElementById('incidentModal').style.display = 'flex';
-        }
-
-        // 22. ИИ
-        function runAIAnalysis() {
-            const btn = document.getElementById('btn-ai');
-            const resultDiv = document.getElementById('ai-result');
-            const textDiv = document.getElementById('ai-text');
-            
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Анализируем данные...';
-            
-            setTimeout(() => {
-                btn.style.display = 'none';
-                resultDiv.style.display = 'block';
-                
-                let recommendation = "";
-                if (currentIncident.severity === 'Критический') {
-                    recommendation = "Обнаружена аномальная сетевая активность. Рекомендую: <b>1.</b> Немедленно изолировать хост <code>srv-db-01</code>. <b>2.</b> Заблокировать IP-адрес источника. <b>3.</b> Запросить подтверждение действий у владельца.";
-                } else if (currentIncident.source === 'DLP') {
-                    recommendation = "Зафиксирована попытка выгрузки данных. Рекомендую: <b>1.</b> Связаться с руководителем отдела. <b>2.</b> Проверить журналы доступа к файлам. <b>3.</b> Ограничить права учетной записи.";
-                } else {
-                    recommendation = "Поведение системы отклоняется от базовой линии. Рекомендую: <b>1.</b> Проверить логи за 24 часа. <b>2.</b> Запустить сканирование на вредоносное ПО. <b>3.</b> Обновить антивирусные базы.";
-                }
-                
-                textDiv.innerHTML = recommendation;
-                showToast('AI-анализ завершен', 'success');
-                addLogEvent(`Запущен AI-анализ для ${currentIncident.id}`, 'blue');
-            }, 2000);
-        }
-
-        // 23. Создание инцидента
-        function submitNewIncident(event) {
-            event.preventDefault();
-            const title = document.getElementById('new-inc-title').value;
-            const severity = document.getElementById('new-inc-severity').value;
-            const source = document.getElementById('new-inc-source').value;
-            const newId = 'INC-' + Math.floor(1000 + Math.random() * 9000);
-            
-            const grid = document.getElementById('incidents-grid');
-            const card = document.createElement('div');
-            let sevClass = severity === 'Критический' ? 'critical' : 'high';
-            card.className = `incident-card ${sevClass}-border`;
-            card.setAttribute('data-severity', sevClass);
-            card.setAttribute('data-source', source);
-            card.onclick = () => openIncidentModal(newId, title, severity, source);
-            
-            card.innerHTML = `<div class="inc-top"><div class="inc-id">${newId}</div><div class="badge ${sevClass}">${severity}</div></div><div class="inc-title">${title}</div><div class="inc-bottom"><div><i class="fa-solid fa-user-pen"></i> ${source}</div><div class="status-new">Новый</div></div>`;
-            grid.prepend(card);
-            
-            closeModal('createModal');
-            document.getElementById('new-inc-title').value = ''; 
-            showToast(`Инцидент создан`, 'success');
-            addLogEvent(`Создал(а) ${newId}`, 'red');
-        }
-
-        // 24. Комментарии
-        function addComment() {
-            const input = document.getElementById('comment-input');
-            const text = input.value.trim();
-            if (!text) return;
-            const list = document.getElementById('modal-timeline-list');
-            const newItem = document.createElement('div');
-            newItem.className = 'timeline-item active-blue';
-            newItem.innerHTML = `<div class="timeline-content"><div class="timeline-text"><p>${text}</p><span>Вы</span></div><div class="timeline-time">Сейчас</div></div>`;
-            list.appendChild(newItem);
-            input.value = ''; 
-            list.parentElement.scrollTop = list.parentElement.scrollHeight;
-            showToast('Комментарий добавлен', 'success');
-            addLogEvent(`Добавил(а) комментарий к ${currentIncident.id}`, 'blue');
-        }
-
-        // 25. Выход
-        function logout() {
-            const user = teamMembers.find(u => u.email === currentUser.email);
-            if (user) user.status = 'offline';
-            saveState();
-            renderTeam();
-            
-            document.getElementById('app-container').style.display = 'none';
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('role-switcher').value = 'analyst';
-            
-            switchPage('view-overview', document.querySelectorAll('.nav-item')[0]);
-        }
-
-        // 26. Экспорт в Excel
-        function exportToExcel() {
-            const cards = document.querySelectorAll('#incidents-grid .incident-card');
-            const data = [];
-            cards.forEach(card => {
-                if(card.style.display === 'none') return;
-                data.push({"ID": card.querySelector('.inc-id').innerText, "Название": card.querySelector('.inc-title').innerText, "Критичность": card.querySelector('.badge').innerText});
-            });
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Инциденты");
-            XLSX.writeFile(wb, "Sibur_Incidents.xlsx");
-            showToast('Отчет скачан', 'success');
-            addLogEvent(`Выгрузил(а) отчет по инцидентам`, 'blue');
-        }
-
-        function exportAnalyticsToExcel() {
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet([["Показатель", "Значение"], ["Среднее время реакции", "14 мин"]]);
-            XLSX.utils.book_append_sheet(wb, ws, "KPI");
-            XLSX.writeFile(wb, "Sibur_Analytics.xlsx");
-            showToast('Аналитика скачана', 'success');
-            addLogEvent(`Выгрузил(а) аналитический отчет`, 'blue');
-        }
-
-        window.onclick = function(event) { if (event.target.classList.contains('modal-overlay')) event.target.style.display = 'none'; }
-    </script>
-</body>
-</html>
+                const oldEmail = teamMembers[userIndex].email
