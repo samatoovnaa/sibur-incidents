@@ -1,0 +1,28 @@
+{
+  "name": "sibur-incidents",
+  "version": "1.0.0",
+  "description": "<!DOCTYPE html>\r <html lang=\"ru\">\r <head>\r     <meta charset=\"UTF-8\">\r     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\">\r     <title>Управление инцидентами ИБ - Сибур</title>\r     <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\r     <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\">\r     <script src=\"https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js\"></script>",
+  "main": "db.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samatoovnaa/sibur-incidents.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/samatoovnaa/sibur-incidents/issues"
+  },
+  "homepage": "https://github.com/samatoovnaa/sibur-incidents#readme",
+  "dependencies": {
+    "axios": "^1.21.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "gigachat": "^0.0.21"
+  }
+}
