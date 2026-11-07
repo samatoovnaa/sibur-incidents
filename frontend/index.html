@@ -1276,12 +1276,12 @@
         const textDiv = document.getElementById('ai-text');
         
         btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Анализируем...';
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> GigaChat думает...';
         resultDiv.style.display = 'block';
-        textDiv.innerHTML = 'Отправка данных на сервер нейросети...';
+        textDiv.innerHTML = 'Отправляем запрос нейросети...';
 
         try {
-            const response = await fetch('https://sibur-incidents.onrender.com/api/ai-analyze', {
+            const response = await fetch('https://sibur-ai-backend.khasanshina447.workers.dev/api/ai-analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1292,19 +1292,18 @@
                 })
             });
 
-            if (!response.ok) throw new Error('Ошибка сервера');
             const data = await response.json();
 
             if (data.success) {
-                textDiv.innerHTML = data.recommendation;
-                showToast('AI-анализ завершён', 'success');
-                addLogEvent(`Выполнен AI-анализ`, 'blue');
+                textDiv.innerHTML = data.recommendation; 
+                showToast('GigaChat завершил анализ', 'success');
+                addLogEvent(`GigaChat проанализировал ${currentIncident.id}`, 'blue');
             } else {
-                textDiv.innerHTML = 'Ошибка ИИ: ' + (data.error || 'неизвестно');
+                textDiv.innerHTML = '<b>Ошибка ИИ:</b><br>' + (data.error || 'Неизвестная ошибка');
                 showToast('Ошибка ИИ', 'error');
             }
         } catch (err) {
-            textDiv.innerHTML = '<b>Ошибка подключения.</b><br>Убедитесь, что сервер (server.js) запущен.';
+            textDiv.innerHTML = '<b>Ошибка сети.</b><br>Убедитесь, что сервер Node.js запущен (node server.js).';
             showToast('Сервер недоступен', 'error');
         } finally {
             btn.disabled = false;

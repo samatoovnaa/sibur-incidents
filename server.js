@@ -126,7 +126,7 @@ const server = http.createServer(async (req, res) => {
     }
 });
 
-server.listen(3001, '127.0.0.1', () => {
-    console.log('✅ СЕРВЕР ЗАПУЩЕН НА http://127.0.0.1:3001');
-    console.log('Ожидание запросов от сайта...');
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ СЕРВЕР ЗАПУЩЕН НА ПОРТУ ${PORT}`);
 });

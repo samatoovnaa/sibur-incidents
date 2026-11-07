@@ -4,7 +4,9 @@
   "description": "<!DOCTYPE html>\r <html lang=\"ru\">\r <head>\r     <meta charset=\"UTF-8\">\r     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\">\r     <title>Управление инцидентами ИБ - Сибур</title>\r     <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\r     <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\">\r     <script src=\"https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js\"></script>",
   "main": "db.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "node worker.js && wrangler deploy",
+    "preview": "node worker.js && wrangler dev"
   },
   "repository": {
     "type": "git",
@@ -24,5 +26,8 @@
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
     "gigachat": "^0.0.21"
+  },
+  "devDependencies": {
+    "wrangler": "^4.158.0"
   }
 }
